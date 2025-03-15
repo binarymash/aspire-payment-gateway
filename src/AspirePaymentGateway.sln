@@ -1,0 +1,54 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.AppHost", "AspirePaymentGateway.AppHost\AspirePaymentGateway.AppHost.csproj", "{BBE90072-3AD9-42FA-8217-3875A57A0CA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.ServiceDefaults", "AspirePaymentGateway.ServiceDefaults\AspirePaymentGateway.ServiceDefaults.csproj", "{757455C5-83CB-B5A2-7FEF-1750BB565C1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.Api", "AspirePaymentGateway.Api\AspirePaymentGateway.Api.csproj", "{42B924DD-014F-3F4E-E441-BA2F98B64B9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.MockBankApi", "AspirePaymentGateway.MockBankApi\AspirePaymentGateway.MockBankApi.csproj", "{51AB51B4-2541-0F4E-DE24-1528A6A9AF62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspire.Hosting.DynamoDbAdmin", "Aspire.Hosting.DynamoDbAdmin\Aspire.Hosting.DynamoDbAdmin.csproj", "{82B70EF1-DC2F-495D-B63E-2E68BE208CA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.FraudApi", "AspirePaymentGateway.FraudApi\AspirePaymentGateway.FraudApi.csproj", "{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BBE90072-3AD9-42FA-8217-3875A57A0CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBE90072-3AD9-42FA-8217-3875A57A0CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBE90072-3AD9-42FA-8217-3875A57A0CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBE90072-3AD9-42FA-8217-3875A57A0CA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{757455C5-83CB-B5A2-7FEF-1750BB565C1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{757455C5-83CB-B5A2-7FEF-1750BB565C1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{757455C5-83CB-B5A2-7FEF-1750BB565C1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{757455C5-83CB-B5A2-7FEF-1750BB565C1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42B924DD-014F-3F4E-E441-BA2F98B64B9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42B924DD-014F-3F4E-E441-BA2F98B64B9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42B924DD-014F-3F4E-E441-BA2F98B64B9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42B924DD-014F-3F4E-E441-BA2F98B64B9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51AB51B4-2541-0F4E-DE24-1528A6A9AF62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51AB51B4-2541-0F4E-DE24-1528A6A9AF62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51AB51B4-2541-0F4E-DE24-1528A6A9AF62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51AB51B4-2541-0F4E-DE24-1528A6A9AF62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82B70EF1-DC2F-495D-B63E-2E68BE208CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82B70EF1-DC2F-495D-B63E-2E68BE208CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82B70EF1-DC2F-495D-B63E-2E68BE208CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82B70EF1-DC2F-495D-B63E-2E68BE208CA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {663CECE0-A9EC-4BE0-880E-D3EEA80AE27B}
+	EndGlobalSection
+EndGlobal

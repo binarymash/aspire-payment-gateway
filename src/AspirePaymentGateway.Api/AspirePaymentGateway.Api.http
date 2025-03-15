@@ -1,0 +1,6 @@
+@AspirePaymentGateway.Api_HostAddress = http://localhost:5249
+
+GET {{AspirePaymentGateway.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
