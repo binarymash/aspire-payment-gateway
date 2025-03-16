@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace AspirePaymentGateway.Api.Extensions.FluentValidation
+namespace BinaryMash.Extensions.FluentValidation.AspNetCore
 {
     public class JsonOptionsNameResolver
     {
