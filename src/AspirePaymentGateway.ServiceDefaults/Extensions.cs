@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.ServiceDiscovery;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Scalar.AspNetCore;
 
 namespace Microsoft.Extensions.Hosting;
 
@@ -37,6 +40,9 @@ public static class Extensions
         // {
         //     options.AllowedSchemes = ["https"];
         // });
+
+        // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+        builder.Services.AddOpenApi();
 
         return builder;
     }
@@ -112,6 +118,28 @@ public static class Extensions
             {
                 Predicate = r => r.Tags.Contains("live")
             });
+        }
+
+        return app;
+    }
+
+    public static WebApplication MapOpenApiForDevelopment(this WebApplication app, string scalarEndpoint)
+    {
+        // Configure the HTTP request pipeline.
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+
+            //see https://github.com/dotnet/aspnetcore/issues/57332
+            // app.MapScalarApiReference();
+            app.MapScalarApiReference(_ => _.Servers = []);
+
+            app.MapGet("",
+                [ExcludeFromDescription]
+            () =>
+                {
+                    return Results.Redirect(scalarEndpoint);
+                });
         }
 
         return app;

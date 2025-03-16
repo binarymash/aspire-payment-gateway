@@ -15,7 +15,6 @@
     <PackageReference Include="OneOf" Version="3.0.271" />
     <PackageReference Include="Refit" Version="8.0.0" />
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.0.29" />
   </ItemGroup>
 
   <ItemGroup>

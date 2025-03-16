@@ -4,7 +4,6 @@ using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using AspirePaymentGateway.Api.Events;
 using OneOf;
-using System.Collections.Generic;
 
 namespace AspirePaymentGateway.Api.Storage.DynamoDb
 {
@@ -12,11 +11,6 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
     {
         private readonly IDynamoDBContext _dynamoContext;
         private readonly IAmazonDynamoDB _dynamoClient;
-
-        //private static DynamoDBOperationConfig _operationConfig = new()
-        //{
-        //    OverrideTableName = Constants.TableName
-        //};
 
         public DynamoDbPaymentEventRepository(IDynamoDBContext dynamoContext, IAmazonDynamoDB dynamoClient)
         {
@@ -27,7 +21,6 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
         public async Task<OneOf<IEnumerable<IPaymentEvent>, StorageError>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
             var events = new List<IPaymentEvent>();
-
 
             var request = new QueryRequest
             {
@@ -60,42 +53,6 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
             return events;
         }
-
-        //public async Task<OneOf<IEnumerable<IPaymentEvent>, StorageError>> GetAsync(string paymentId, CancellationToken cancellationToken)
-        //{
-        //    var events = new List<IPaymentEvent>();
-
-        //    var queryConfig = new QueryOperationConfig
-        //    {
-        //        KeyExpression = new Expression
-        //        {
-        //            ExpressionStatement = "Id = :id",
-        //            ExpressionAttributeValues = new Dictionary<string, DynamoDBEntry>
-        //            {
-        //                { ":id", paymentId }
-        //            }
-        //        },                
-        //    };
-
-        //    var queryResult = await _dynamo.QueryAsync<Document>(queryConfig, _operationConfig).GetRemainingAsync(cancellationToken);
-
-        //    foreach (var document in queryResult)
-        //    {
-        //        var action = document["Action"].AsString();
-
-        //        PaymentEvent @event = action switch
-        //        {
-        //            nameof(PaymentRequestedEvent) => _dynamo.FromDocument<PaymentRequestedEvent>(document),
-        //            nameof(PaymentAuthorisedEvent) => _dynamo.FromDocument<PaymentAuthorisedEvent>(document),
-        //            nameof(PaymentDeclinedEvent) => _dynamo.FromDocument<PaymentDeclinedEvent>(document),
-        //            _ => throw new InvalidOperationException($"Unknown item type: {action}")
-        //        };
-
-        //        events.Add(@event);
-        //    }
-
-        //    return events;
-        //}
 
         public async Task<OneOf<StorageOk, StorageError>> SaveAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent: IPaymentEvent
         {

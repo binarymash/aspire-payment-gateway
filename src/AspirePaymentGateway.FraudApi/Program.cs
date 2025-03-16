@@ -6,29 +6,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddServiceDefaults();
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
 app.MapDefaultEndpoints();
+app.MapOpenApiForDevelopment("/scalar/v1");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-
-    //see https://github.com/dotnet/aspnetcore/issues/57332
-    // app.MapScalarApiReference();
-    app.MapScalarApiReference(_ => _.Servers = []);
-
-    app.MapGet("",
-        [ExcludeFromDescription]
-    () =>
-        {
-            return Results.Redirect("/scalar/v1");
-        });
-}
 
 app.UseHttpsRedirection();
 

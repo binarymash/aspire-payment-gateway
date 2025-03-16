@@ -24,6 +24,7 @@ var paymentGateway = builder.AddProject<Projects.AspirePaymentGateway_Api>("paym
     .WithReference(awsConfig)
     .WithReference(mockBank)
     .WithReference(fraudApi)
+    .WaitFor(dynamoDb)
     .WithEnvironment("AWS_ENDPOINT_URL_DYNAMODB", dynamoDb.Resource.GetEndpoint("http"));
 
 
