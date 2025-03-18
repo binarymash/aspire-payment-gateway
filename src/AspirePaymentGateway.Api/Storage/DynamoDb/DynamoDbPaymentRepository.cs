@@ -56,12 +56,12 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 {
                     { "Id", new AttributeValue { S = paymentId } },
                     { "Action", new AttributeValue { S = "REQUEST" } },
-                    { "Amount", new AttributeValue { N = paymentRequest.Amount.ToString() } },
-                    { "Currency", new AttributeValue { S = paymentRequest.CurrencyCode } },
-                    { "CardNumber", new AttributeValue { S = paymentRequest.CardNumber } },
-                    { "ExpiryMonth", new AttributeValue { N = paymentRequest.ExpiryMonth.ToString() } },
-                    { "ExpiryYear", new AttributeValue { N = paymentRequest.ExpiryYear.ToString() } },
-                    { "Cvv", new AttributeValue { S = paymentRequest.CVV.ToString() } },
+                    { "Amount", new AttributeValue { N = paymentRequest.Payment.Amount.ToString() } },
+                    { "Currency", new AttributeValue { S = paymentRequest.Payment.CurrencyCode } },
+                    { "CardNumber", new AttributeValue { S = paymentRequest.Card.CardNumber } },
+                    { "ExpiryMonth", new AttributeValue { N = paymentRequest.Card.Expiry.Month.ToString() } },
+                    { "ExpiryYear", new AttributeValue { N = paymentRequest.Card.Expiry.Year.ToString() } },
+                    { "Cvv", new AttributeValue { S = paymentRequest.Card.CVV.ToString() } },
                     { "CreatedDate", new AttributeValue { S = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ") } }
                 }
             };

@@ -1,21 +1,18 @@
-﻿namespace AspirePaymentGateway.Api
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+
+namespace AspirePaymentGateway.Api
 {
-    public class PaymentRequest
+    public record PaymentRequest
     {
-        public string CardNumber { get; init; }
+        [Description("The details of the card being used")]
+        [Required]
+        public required CardDetails Card { get; init; }
 
-        public string CardHolderName { get; init; }
-        
-        public int ExpiryMonth { get; init; }
-        
-        public int ExpiryYear { get; init; }
-        
-        public int CVV { get; init; }
-        
-        public long Amount { get; init; }
+        [Description("The details of the payment")]
+        [Required]
+        public required PaymentDetails Payment { get; init; }
 
-        public string RequestId { get; init; }
 
-        public string CurrencyCode { get; init; }
     }
 }

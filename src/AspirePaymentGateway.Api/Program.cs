@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
@@ -9,6 +10,7 @@ using AspirePaymentGateway.Api.Storage;
 using AspirePaymentGateway.Api.Storage.DynamoDb;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
+using Microsoft.Extensions.Http.Resilience;
 using Refit;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,8 +24,13 @@ builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(Busi
 // infrastructure
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
-builder.Services.AddRefitClient<IFraudApi>()
+var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://fraud-api"));
+//fraudApiClientBuilder.AddStandardResilienceHandler(options => 
+//{
+//    options.Retry.DisableForUnsafeHttpMethods();
+//    options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(1);
+//});
 builder.Services.AddRefitClient<IBankApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"));
 
@@ -55,25 +62,35 @@ async (
     ) =>
     {
         // request validation
-
-        var validationResult = await validator.ValidateAsync(paymentRequest);
+        var validationResults = new List<ValidationResult>();
+        var context = new ValidationContext(paymentRequest);
+        var isValid = Validator.TryValidateObject(paymentRequest, context, validationResults, true);
         Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
 
-        if (!validationResult.IsValid)
+        if (!isValid)
         {
             metrics.RecordPaymentRequestRejected();
-            return Results.ValidationProblem(validationResult.ToDictionary());
+            return Results.ValidationProblem(validationResults.Select(vr => new KeyValuePair<string, string[]>(vr.MemberNames.First(), [vr.ErrorMessage ?? string.Empty])));
         }
+
+        //var validationResult = await validator.ValidateAsync(paymentRequest);
+        //Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
+
+        //if (!validationResult.IsValid)
+        //{
+        //    metrics.RecordPaymentRequestRejected();
+        //    return Results.ValidationProblem(validationResult.ToDictionary());
+        //}
 
         var paymentRequested = new PaymentRequestedEvent($"pay_{Guid.NewGuid()}")
         {
-            Amount = paymentRequest.Amount,
-            CardNumber = paymentRequest.CardNumber,
-            CardHolderName = paymentRequest.CardHolderName,
-            Currency = paymentRequest.CurrencyCode,
-            Cvv = paymentRequest.CVV,
-            ExpiryMonth = paymentRequest.ExpiryMonth,
-            ExpiryYear = paymentRequest.ExpiryYear,
+            Amount = paymentRequest.Payment.Amount,
+            Currency = paymentRequest.Payment.CurrencyCode,
+            CardNumber = paymentRequest.Card.CardNumber,
+            CardHolderName = paymentRequest.Card.CardHolderName,
+            Cvv = paymentRequest.Card.CVV,
+            ExpiryMonth = paymentRequest.Card.Expiry.Month,
+            ExpiryYear = paymentRequest.Card.Expiry.Year,
         };
 
         metrics.RecordPaymentRequestAccepted();
@@ -84,10 +101,10 @@ async (
 
         var screeningRequest = new ScreeningRequest()
         {
-            CardNumber = paymentRequest.CardNumber,
-            CardHolderName = paymentRequest.CardHolderName,
-            ExpiryMonth = paymentRequest.ExpiryMonth,
-            ExpiryYear = paymentRequest.ExpiryYear
+            CardNumber = paymentRequest.Card.CardNumber,
+            CardHolderName = paymentRequest.Card.CardHolderName,
+            ExpiryMonth = paymentRequest.Card.Expiry.Month,
+            ExpiryYear = paymentRequest.Card.Expiry.Year
         };
 
         var screeningResponse = await fraudApi.DoScreening(screeningRequest, cancellationToken);
@@ -106,7 +123,6 @@ async (
                 Status = PaymentStatus.Declined
             });
         }
-
 
         // authorisation
 

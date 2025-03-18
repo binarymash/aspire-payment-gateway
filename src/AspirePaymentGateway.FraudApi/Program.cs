@@ -1,5 +1,4 @@
 using AspirePaymentGateway.Api.FraudApi;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,10 +16,24 @@ app.MapOpenApiForDevelopment("/scalar/v1");
 app.UseHttpsRedirection();
 
 app.MapPost("/screening", 
-    () =>
+    (ScreeningRequest request) =>
     {
-        var response = new ScreeningResponse() { Accepted = true };
-        return Results.Ok(response);
+        if (request.CardNumber.EndsWith("11"))
+        {
+            return Results.Ok(new ScreeningResponse() { Accepted = false });
+        }
+
+        if (request.CardNumber.EndsWith("12"))
+        {
+            return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Something bad happened");
+        }
+
+        if (request.CardNumber.EndsWith("13"))
+        {
+            throw new Exception("boom");
+        }
+
+        return Results.Ok(new ScreeningResponse() { Accepted = true });
     });
 
 app.Run();
