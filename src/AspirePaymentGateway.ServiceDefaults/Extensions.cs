@@ -181,12 +181,10 @@ public static class Extensions
             // app.MapScalarApiReference();
             app.MapScalarApiReference(_ => _.Servers = []);
 
-            app.MapGet("",
-                [ExcludeFromDescription]
-            () =>
-                {
-                    return Results.Redirect(scalarEndpoint);
-                });
+            app.MapGet("", [ExcludeFromDescription]() =>
+            {
+                return Results.Redirect(scalarEndpoint);
+            });
         }
 
         return app;

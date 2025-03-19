@@ -3,17 +3,18 @@ using System.ComponentModel;
 
 namespace AspirePaymentGateway.Api
 {
-    public record PaymentResponse
-    {
-        [Description("The ID of the payment")]
-        [Required]
-        [DefaultValue("pay_1ec62e16-5403-4a93-bd31-5804daec4263")]
-        public required string PaymentId { get; init; }
+    [Description("Details of the payment")]
+    public record PaymentResponse(
+        [property: Description("The ID of the payment")]
+        [property: Required]
+        [property: DefaultValue("pay_1ec62e16-5403-4a93-bd31-5804daec4263")]
+        string PaymentId,
 
-        [Description("The status of the payment")]
-        [Required]
-        [AllowedValues(PaymentStatus.Pending, PaymentStatus.Authorised, PaymentStatus.Declined)]
-        [DefaultValue(PaymentStatus.Authorised)]
-        public required string Status { get; init; }
+        [property: Description("The status of the payment")]
+        [property: Required]
+        [property: AllowedValues(PaymentStatus.Pending, PaymentStatus.Authorised, PaymentStatus.Declined)]
+        [property: DefaultValue(PaymentStatus.Authorised)]
+        string Status)
+    {
     }
 }

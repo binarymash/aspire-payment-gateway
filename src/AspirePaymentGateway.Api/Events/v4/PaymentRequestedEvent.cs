@@ -1,27 +1,18 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Storage.DynamoDb;
+using System.Diagnostics.CodeAnalysis;
 
-namespace AspirePaymentGateway.Api.Events
+namespace AspirePaymentGateway.Api.Events.v4
 {
-    [DynamoDBTable(Constants.TableName)]
-    public record PaymentRequestedEvent : PaymentEvent
+    public record PaymentRequestedEvent : PaymentEvent<PaymentRequestedEvent>
     {
-        public PaymentRequestedEvent(string paymentId) : base(paymentId, nameof(PaymentRequestedEvent))
-        {            
-        }
-
-        public PaymentRequestedEvent()
-        {
-            
-        }
-
         public required long Amount { get; init; }
 
         public required string Currency { get; init; }
 
         public required string CardNumber { get; init; }
 
-        public required string CardHolderName {get; init; }
+        public required string CardHolderName { get; init; }
 
         public required int ExpiryMonth { get; init; }
 

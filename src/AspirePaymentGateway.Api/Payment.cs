@@ -3,18 +3,18 @@ using System.ComponentModel;
 
 namespace AspirePaymentGateway.Api
 {
-    public record PaymentDetails
-    {
-        [Description("The amount in minor units")]
-        [Required]
-        [Range(1, long.MaxValue)]
-        [DefaultValue(999L)]
-        public long Amount { get; init; }
+    public record PaymentDetails(
+        [property: Description("The amount in minor units")]
+        [property: Required]
+        [property: Range(1, long.MaxValue)]
+        [property: DefaultValue(999L)]
+        long Amount,
 
-        [Description("ISO 3-char currency code")]
-        [Required]
-        [AllowedValues("USD", "GBP", "EUR")]
-        [DefaultValue("GBP")]
-        public required string CurrencyCode { get; init; }
+        [property: Description("ISO 3-char currency code")]
+        [property: Required]
+        [property: AllowedValues("USD", "GBP", "EUR")]
+        [property: DefaultValue("GBP")]
+        string CurrencyCode)
+    {
     }
 }
