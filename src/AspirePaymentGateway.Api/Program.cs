@@ -11,7 +11,9 @@ using AspirePaymentGateway.Api.Storage.DynamoDb;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using Microsoft.Extensions.Http.Resilience;
+using MicroElements.OpenApi ;
 using Refit;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,8 +37,12 @@ builder.Services.AddRefitClient<IBankApi>()
     .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"));
 
 // classes
-builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
+//builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
 builder.Services.AddSingleton<IPaymentEventRepository, DynamoDbPaymentEventRepository>();
+
+// fluent validation
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddFluentValidationRulesToSwagger();
 
 //builder.Services.ConfigureHttpJsonOptions(options =>
 //{
@@ -62,25 +68,25 @@ async (
     ) =>
     {
         // request validation
-        var validationResults = new List<ValidationResult>();
-        var context = new ValidationContext(paymentRequest);
-        var isValid = Validator.TryValidateObject(paymentRequest, context, validationResults, true);
-        Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
-
-        if (!isValid)
-        {
-            metrics.RecordPaymentRequestRejected();
-            return Results.ValidationProblem(validationResults.Select(vr => new KeyValuePair<string, string[]>(vr.MemberNames.First(), [vr.ErrorMessage ?? string.Empty])));
-        }
-
-        //var validationResult = await validator.ValidateAsync(paymentRequest);
+        //var validationResults = new List<ValidationResult>();
+        //var context = new ValidationContext(paymentRequest);
+        //var isValid = Validator.TryValidateObject(paymentRequest, context, validationResults, true);
         //Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
 
-        //if (!validationResult.IsValid)
+        //if (!isValid)
         //{
         //    metrics.RecordPaymentRequestRejected();
-        //    return Results.ValidationProblem(validationResult.ToDictionary());
+        //    return Results.ValidationProblem(validationResults.Select(vr => new KeyValuePair<string, string[]>(vr.MemberNames.First(), [vr.ErrorMessage ?? string.Empty])));
         //}
+
+        var validationResult = await validator.ValidateAsync(paymentRequest);
+        Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
+
+        if (!validationResult.IsValid)
+        {
+            metrics.RecordPaymentRequestRejected();
+            return Results.ValidationProblem(validationResult.ToDictionary());
+        }
 
         var paymentRequested = new PaymentRequestedEvent($"pay_{Guid.NewGuid()}")
         {

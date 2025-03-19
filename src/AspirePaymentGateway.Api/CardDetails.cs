@@ -12,10 +12,10 @@ namespace AspirePaymentGateway.Api
         public required string CardNumber { get; init; }
 
         [Description("The name of the card holder")]
-        [Required]
-        [Length(32, 32)]
+        //[Required]
+        //[Length(32, 32)]
         [DefaultValue("Philip Wood")]
-        [RegularExpression(@"^[a-zA-Z]$")]
+        //[RegularExpression(@"^[a-zA-Z]$")]
         public required string CardHolderName { get; init; }
 
         [Description("The expiry date of the card")]
