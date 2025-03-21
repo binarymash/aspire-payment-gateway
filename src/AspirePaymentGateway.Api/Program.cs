@@ -5,7 +5,6 @@ using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api;
 using AspirePaymentGateway.Api.BankApi;
 using AspirePaymentGateway.Api.Events;
-using AspirePaymentGateway.Api.Events.v4;
 using AspirePaymentGateway.Api.Extensions.DateTime;
 using AspirePaymentGateway.Api.FraudApi;
 using AspirePaymentGateway.Api.Storage;
@@ -76,19 +75,6 @@ async (
             return Results.ValidationProblem(validationResult.ToDictionary());
         }
 
-        //v1
-        //var paymentRequested = new PaymentRequestedEvent(
-        //    paymentId: $"pay_{Guid.NewGuid()}",
-        //    occurredAt: dateTimeProvider.UtcNowAsString,
-        //    amount: paymentRequest.Payment.Amount,
-        //    currency: paymentRequest.Payment.CurrencyCode,
-        //    cardNumber: paymentRequest.Card.CardNumber,
-        //    cardHolderName: paymentRequest.Card.CardHolderName,
-        //    cvv: paymentRequest.Card.CVV,
-        //    expiryMonth: paymentRequest.Card.Expiry.Month,
-        //    expiryYear: paymentRequest.Card.Expiry.Year);
-
-        //v2, v4
         var paymentRequested = new PaymentRequestedEvent
         {
             Id = $"pay_{Guid.NewGuid()}",
@@ -101,19 +87,6 @@ async (
             ExpiryMonth = paymentRequest.Card.Expiry.Month,
             ExpiryYear = paymentRequest.Card.Expiry.Year
         };
-
-        //v3
-        //var paymentRequested = new PaymentRequestedEvent(
-        //    Id: $"pay_{Guid.NewGuid()}",
-        //    OccurredAt: dateTimeProvider.UtcNowAsString,
-        //    Amount: paymentRequest.Payment.Amount,
-        //    Currency: paymentRequest.Payment.CurrencyCode,
-        //    CardNumber: paymentRequest.Card.CardNumber,
-        //    CardHolderName: paymentRequest.Card.CardHolderName,
-        //    Cvv: paymentRequest.Card.CVV,
-        //    ExpiryMonth: paymentRequest.Card.Expiry.Month,
-        //    ExpiryYear: paymentRequest.Card.Expiry.Year);
-
 
         metrics.RecordPaymentRequestAccepted();
         var saveResult = await repository.SaveAsync(paymentRequested, cancellationToken);
@@ -133,13 +106,6 @@ async (
 
         if (!screeningResponse.Accepted)
         {
-            //v1
-            //var paymentDeclined = new PaymentDeclinedEvent(
-            //    paymentId: paymentRequested.Id,
-            //    occurredAt: dateTimeProvider.UtcNowAsString,
-            //    reason: "");
-
-            //v2, v4
             var paymentDeclined = new PaymentDeclinedEvent
             {
                 Id = paymentRequested.Id,
@@ -147,13 +113,7 @@ async (
                 Reason = ""
             };
 
-            //v3
-            //var paymentDeclined = new PaymentDeclinedEvent(
-            //    Id: paymentRequested.Id,
-            //    OccurredAt: dateTimeProvider.UtcNowAsString,
-            //    Reason: "");
-
-            metrics.RecordPaymentFate(paymentDeclined.Action, paymentDeclined.Reason);
+            metrics.RecordPaymentFate(paymentDeclined.EventType, paymentDeclined.Reason);
 
             saveResult = await repository.SaveAsync(paymentDeclined, cancellationToken);
 
@@ -170,13 +130,6 @@ async (
         var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, cancellationToken);
         Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
 
-        //v1
-        //var paymentAuthorised = new PaymentAuthorisedEvent(
-        //    paymentId: paymentRequested.Id,
-        //    occurredAt: dateTimeProvider.UtcNowAsString,
-        //    authorisationCode: "abc");
-
-        //v2, v4
         var paymentAuthorised = new PaymentAuthorisedEvent
         {
             Id = paymentRequested.Id,
@@ -184,13 +137,7 @@ async (
             AuthorisationCode = "abc"
         };
 
-        //v3
-        //var paymentAuthorised = new PaymentAuthorisedEvent(
-        //    Id: paymentRequested.Id,
-        //    OccurredAt: dateTimeProvider.UtcNowAsString,
-        //    AuthorisationCode: "abc");
-
-        metrics.RecordPaymentFate(paymentAuthorised.Action);
+        metrics.RecordPaymentFate(paymentAuthorised.EventType);
 
         saveResult = await repository.SaveAsync(paymentAuthorised, cancellationToken);
 

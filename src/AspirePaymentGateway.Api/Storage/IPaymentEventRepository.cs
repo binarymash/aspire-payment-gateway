@@ -1,5 +1,4 @@
 ﻿using AspirePaymentGateway.Api.Events;
-using AspirePaymentGateway.Api.Events.v4;
 using OneOf;
 
 namespace AspirePaymentGateway.Api.Storage

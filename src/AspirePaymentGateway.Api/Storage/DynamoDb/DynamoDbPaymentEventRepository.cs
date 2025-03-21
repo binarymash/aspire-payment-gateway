@@ -3,7 +3,6 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using AspirePaymentGateway.Api.Events;
-using AspirePaymentGateway.Api.Events.v4;
 using OneOf;
 
 namespace AspirePaymentGateway.Api.Storage.DynamoDb
@@ -39,14 +38,14 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
             foreach (var document in documents)
             {
-                var action = document["Action"].AsString();
+                var action = document["EventType"].AsString();
 
                 IPaymentEvent @event = action switch
                 {
                     nameof(PaymentRequestedEvent) => _dynamoContext.FromDocument<PaymentRequestedEvent>(document),
                     nameof(PaymentAuthorisedEvent) => _dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
                     nameof(PaymentDeclinedEvent) => _dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
-                    _ => throw new InvalidOperationException($"Unknown item type: {action}")
+                    _ => throw new InvalidOperationException($"Unknown event type: {action}")
                 };
 
                 events.Add(@event);

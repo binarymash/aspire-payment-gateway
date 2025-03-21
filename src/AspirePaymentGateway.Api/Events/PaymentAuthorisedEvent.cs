@@ -1,9 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel;
 
-namespace AspirePaymentGateway.Api.Events.v4
+namespace AspirePaymentGateway.Api.Events
 {
     public record PaymentAuthorisedEvent : PaymentEvent<PaymentAuthorisedEvent>
     {
+        [Description("Authorisation code from the bank")]
         public required string AuthorisationCode { get; init; }
 
     }

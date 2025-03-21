@@ -43,12 +43,12 @@ async Task CreatePaymentsTableAsync(string serviceUrl, CancellationToken cancell
             AttributeDefinitions = new List<AttributeDefinition>
             {
                 new AttributeDefinition { AttributeName = "Id", AttributeType = ScalarAttributeType.S },
-                new AttributeDefinition { AttributeName = "Action", AttributeType = ScalarAttributeType.S }
+                new AttributeDefinition { AttributeName = "OccurredAt", AttributeType = ScalarAttributeType.S }
             },
             KeySchema = new List<KeySchemaElement>
             {
                 new KeySchemaElement { AttributeName = "Id", KeyType = KeyType.HASH },
-                new KeySchemaElement {AttributeName = "Action", KeyType = KeyType.RANGE}
+                new KeySchemaElement {AttributeName = "OccurredAt", KeyType = KeyType.RANGE}
             },
             BillingMode = Amazon.DynamoDBv2.BillingMode.PAY_PER_REQUEST
         }, cancellationToken);

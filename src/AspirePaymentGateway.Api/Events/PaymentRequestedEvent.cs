@@ -1,8 +1,4 @@
-﻿using Amazon.DynamoDBv2.DataModel;
-using AspirePaymentGateway.Api.Storage.DynamoDb;
-using System.Diagnostics.CodeAnalysis;
-
-namespace AspirePaymentGateway.Api.Events.v4
+﻿namespace AspirePaymentGateway.Api.Events
 {
     public record PaymentRequestedEvent : PaymentEvent<PaymentRequestedEvent>
     {
