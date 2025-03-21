@@ -5,6 +5,7 @@ using AspirePaymentGateway.Api.Features.Payments.CreatePayment;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.CreatePayment.Validation;
 using AspirePaymentGateway.Api.Features.Payments.GetPayment;
 using AspirePaymentGateway.Api.Features.Payments.GetPayment.EventStore;
 using AspirePaymentGateway.Api.Storage.DynamoDb;
@@ -65,7 +66,7 @@ app.UseHttpsRedirection();
 // Map endpoints
 
 app.MapPost("/payments", 
-        async (CreatePaymentHandler handler, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(request, cancellationToken))
+        async (CreatePaymentHandler handler, HttpContext httpContext, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(httpContext, request, cancellationToken))
     .WithSummary("Make Payment")
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
     .Produces<PaymentResponse>(StatusCodes.Status201Created)

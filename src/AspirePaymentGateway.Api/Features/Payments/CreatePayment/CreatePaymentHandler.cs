@@ -18,7 +18,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
         BusinessMetrics metrics,
         IDateTimeProvider dateTimeProvider)
 {
-        public async Task<IResult> PostPaymentAsync(PaymentRequest paymentRequest, CancellationToken cancellationToken)
+        public async Task<IResult> PostPaymentAsync(HttpContext context, PaymentRequest paymentRequest, CancellationToken cancellationToken)
         {
             // request validation
 
@@ -28,7 +28,9 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
             if (!validationResult.IsValid)
             {
                 metrics.RecordPaymentRequestRejected();
-                return Results.ValidationProblem(validationResult.ToDictionary());
+                return Results.ValidationProblem(
+                    errors: validationResult.ToDictionary(),
+                    instance: $"{context.Request.Method} {context.Request.Path}");
             }
 
             var paymentRequested = new PaymentRequestedEvent

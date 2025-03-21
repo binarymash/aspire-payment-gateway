@@ -9,17 +9,8 @@ using OneOf;
 
 namespace AspirePaymentGateway.Api.Storage.DynamoDb
 {
-    public class DynamoDbPaymentEventRepository : IGetPaymentEvent, ISavePaymentEvent
+    public class DynamoDbPaymentEventRepository(IDynamoDBContext dynamoContext, IAmazonDynamoDB dynamoClient) : IGetPaymentEvent, ISavePaymentEvent
     {
-        private readonly IDynamoDBContext _dynamoContext;
-        private readonly IAmazonDynamoDB _dynamoClient;
-
-        public DynamoDbPaymentEventRepository(IDynamoDBContext dynamoContext, IAmazonDynamoDB dynamoClient)
-        {
-            _dynamoContext = dynamoContext;
-            _dynamoClient = dynamoClient;
-        }
-
         public async Task<OneOf<IEnumerable<IPaymentEvent>, Exception>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
             try
@@ -36,7 +27,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 }
                 };
 
-                var queryResult = await _dynamoClient.QueryAsync(request, cancellationToken);
+                var queryResult = await dynamoClient.QueryAsync(request, cancellationToken);
 
                 var documents = queryResult.Items.Select(item => Document.FromAttributeMap(item));
 
@@ -44,15 +35,22 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 {
                     var action = document["EventType"].AsString();
 
-                    IPaymentEvent @event = action switch
+                    OneOf<IPaymentEvent, Exception> map = action switch
                     {
-                        nameof(PaymentRequestedEvent) => _dynamoContext.FromDocument<PaymentRequestedEvent>(document),
-                        nameof(PaymentAuthorisedEvent) => _dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
-                        nameof(PaymentDeclinedEvent) => _dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
-                        _ => throw new InvalidOperationException($"Unknown event type: {action}") //TODO: don't throw
+                        nameof(PaymentRequestedEvent) => dynamoContext.FromDocument<PaymentRequestedEvent>(document),
+                        nameof(PaymentAuthorisedEvent) => dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
+                        nameof(PaymentDeclinedEvent) => dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
+                        _ => new InvalidOperationException($"Unknown event type: {action}")
                     };
 
-                    events.Add(@event);
+                    if (map.TryPickT0(out var @event, out var exception))
+                    {
+                        events.Add(@event);
+                    } 
+                    else
+                    {
+                        return exception;
+                    }
                 }
 
                 return events;
@@ -67,7 +65,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
         {
             try
             {
-                await _dynamoContext.SaveAsync(@event, cancellationToken);
+                await dynamoContext.SaveAsync(@event, cancellationToken);
 
                 return new StorageOk();
             }
