@@ -14,8 +14,9 @@ namespace AspirePaymentGateway.Api.Events.v2
         [DynamoDBHashKey]
         public required string Id { get; init; }
 
-        public required string OccurredAt { get; init; }
+        [DynamoDBRangeKey]
+        public string Action { get; init; } = "Unknown";
 
-        public string Action { get; init; }
+        public required string OccurredAt { get; init; }
     }
 }
