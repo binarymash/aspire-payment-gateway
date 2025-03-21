@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AspirePaymentGateway.Api.Events
+namespace AspirePaymentGateway.Api.Features.Payments.Events
 {
     //Required for serialization in api responses
     [JsonDerivedType(typeof(PaymentRequestedEvent))]

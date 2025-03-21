@@ -2,7 +2,7 @@
 using AspirePaymentGateway.Api.Storage.DynamoDb;
 using System.ComponentModel;
 
-namespace AspirePaymentGateway.Api.Events
+namespace AspirePaymentGateway.Api.Features.Payments.Events
 {
     [DynamoDBTable(Constants.TableName)]
     public abstract record PaymentEvent<TPaymentEvent>: IPaymentEvent where TPaymentEvent : class

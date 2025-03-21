@@ -1,6 +1,6 @@
 ﻿using Refit;
 
-namespace AspirePaymentGateway.Api.FraudApi
+namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi
 {
     public interface IFraudApi
     {

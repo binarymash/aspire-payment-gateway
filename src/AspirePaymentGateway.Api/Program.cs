@@ -1,18 +1,19 @@
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using AspirePaymentGateway.Api;
-using AspirePaymentGateway.Api.BankApi;
-using AspirePaymentGateway.Api.Events;
-using AspirePaymentGateway.Api.Extensions.DateTime;
-using AspirePaymentGateway.Api.FraudApi;
-using AspirePaymentGateway.Api.Storage;
+using AspirePaymentGateway.Api.Extensions.Redaction;
+using AspirePaymentGateway.Api.Features.Payments.CreatePayment;
+using AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi;
+using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
+using AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.GetPayment;
+using AspirePaymentGateway.Api.Features.Payments.GetPayment.EventStore;
 using AspirePaymentGateway.Api.Storage.DynamoDb;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
-using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.Compliance.Classification;
 using Refit;
+using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.GetPayment.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +38,17 @@ builder.Services.AddRefitClient<IBankApi>()
 
 // classes
 builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
-builder.Services.AddSingleton<IPaymentEventRepository, DynamoDbPaymentEventRepository>();
+builder.Services.AddSingleton<ISavePaymentEvent, DynamoDbPaymentEventRepository>();
+builder.Services.AddSingleton<IGetPaymentEvent, DynamoDbPaymentEventRepository>();
 builder.Services.AddStandardDateTimeProvider();
+builder.Services.AddSingleton<CreatePaymentHandler>();
+builder.Services.AddSingleton<GetPaymentHandler>();
+
+// redaction
+builder.Services.AddRedaction(x =>
+{
+    x.SetRedactor<StarRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData, DataTaxonomy.PiiData));
+});
 
 //builder.Services.ConfigureHttpJsonOptions(options =>
 //{
@@ -52,96 +62,10 @@ app.MapDefaultEndpoints();
 app.MapOpenApiForDevelopment("/scalar/v1");
 app.UseHttpsRedirection();
 
-app.MapPost("/payments",
-async (
-        IValidator<PaymentRequest> validator,
-        IPaymentEventRepository repository,
-        IFraudApi fraudApi,
-        IBankApi bankApi,
-        BusinessMetrics metrics,
-        CancellationToken cancellationToken,
-        IDateTimeProvider dateTimeProvider,
-        PaymentRequest paymentRequest
-    ) =>
-    {
-        // request validation
+// Map endpoints
 
-        var validationResult = await validator.ValidateAsync(paymentRequest);
-        Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
-
-        if (!validationResult.IsValid)
-        {
-            metrics.RecordPaymentRequestRejected();
-            return Results.ValidationProblem(validationResult.ToDictionary());
-        }
-
-        var paymentRequested = new PaymentRequestedEvent
-        {
-            Id = $"pay_{Guid.NewGuid()}",
-            OccurredAt = dateTimeProvider.UtcNowAsString,
-            Amount = paymentRequest.Payment.Amount,
-            Currency = paymentRequest.Payment.CurrencyCode,
-            CardNumber = paymentRequest.Card.CardNumber,
-            CardHolderName = paymentRequest.Card.CardHolderName,
-            Cvv = paymentRequest.Card.CVV,
-            ExpiryMonth = paymentRequest.Card.Expiry.Month,
-            ExpiryYear = paymentRequest.Card.Expiry.Year
-        };
-
-        metrics.RecordPaymentRequestAccepted();
-        var saveResult = await repository.SaveAsync(paymentRequested, cancellationToken);
-
-        // fraud checks
-
-        var screeningRequest = new ScreeningRequest()
-        {
-            CardNumber = paymentRequest.Card.CardNumber,
-            CardHolderName = paymentRequest.Card.CardHolderName,
-            ExpiryMonth = paymentRequest.Card.Expiry.Month,
-            ExpiryYear = paymentRequest.Card.Expiry.Year
-        };
-
-        var screeningResponse = await fraudApi.DoScreening(screeningRequest, cancellationToken);
-        Activity.Current?.AddEvent(new ActivityEvent("Request screened"));
-
-        if (!screeningResponse.Accepted)
-        {
-            var paymentDeclined = new PaymentDeclinedEvent
-            {
-                Id = paymentRequested.Id,
-                OccurredAt = dateTimeProvider.UtcNowAsString,
-                Reason = ""
-            };
-
-            metrics.RecordPaymentFate(paymentDeclined.EventType, paymentDeclined.Reason);
-
-            saveResult = await repository.SaveAsync(paymentDeclined, cancellationToken);
-
-            return Results.Created($"/payments/{paymentRequested.Id}", new PaymentResponse(paymentRequested.Id, PaymentStatus.Declined));
-        }
-
-        // authorisation
-
-        var authorisationRequest = new AuthorisationRequest()
-        {
-
-        };
-
-        var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, cancellationToken);
-        Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
-
-        var paymentAuthorised = new PaymentAuthorisedEvent
-        {
-            Id = paymentRequested.Id,
-            OccurredAt = dateTimeProvider.UtcNowAsString,
-            AuthorisationCode = "abc"
-        };
-
-        metrics.RecordPaymentFate(paymentAuthorised.EventType);
-
-        saveResult = await repository.SaveAsync(paymentAuthorised, cancellationToken);
-
-        return Results.Created($"/payments/{paymentRequested.Id}", new PaymentResponse(paymentRequested.Id, PaymentStatus.Authorised));    })
+app.MapPost("/payments", 
+        async (CreatePaymentHandler handler, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(request, cancellationToken))
     .WithSummary("Make Payment")
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
     .Produces<PaymentResponse>(StatusCodes.Status201Created)
@@ -149,40 +73,12 @@ async (
     .ProducesProblem(StatusCodes.Status500InternalServerError);
 
 
-app.MapGet("/payments/{paymentId}",
-async (
-    HttpContext httpContext,
-    IPaymentEventRepository repository, 
-    string paymentId, 
-    CancellationToken cancellationToken) =>
-{
-    var getPaymentEventResults = await repository.GetAsync(paymentId, cancellationToken);
-    return getPaymentEventResults.Match(
-        paymentEvents =>
-        {
-            if (paymentEvents.Any())
-            {
-                return Results.Ok(new GetPaymentResponse(paymentEvents.OrderBy(@event => @event.OccurredAt)));
-            }
-
-            return Results.NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails() 
-            {
-                //Type,
-                //Title
-                //Status
-                Detail = $"Payment {paymentId} could not be found",
-                Instance = httpContext.Request.Path,  
-            });
-        },
-        storageError =>
-        {
-            return Results.Problem(statusCode: 500, title: "Internal Server Error")
-            ;
-        });
-})
-.WithName("GetPayment")
-.Produces<GetPaymentResponse>(StatusCodes.Status200OK)
-.ProducesProblem(StatusCodes.Status404NotFound)
-.ProducesProblem(StatusCodes.Status500InternalServerError);
+app.MapGet("/payments/{paymentId}", 
+        async (GetPaymentHandler handler, HttpContext httpContext, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(httpContext, paymentId, cancellationToken))
+    .WithSummary("Get Payment")
+    .WithDescription("Retrieves the payment events for the specified payment")
+    .Produces<GetPaymentResponse>(StatusCodes.Status200OK)
+    .ProducesProblem(StatusCodes.Status404NotFound)
+    .ProducesProblem(StatusCodes.Status500InternalServerError);
 
 app.Run();

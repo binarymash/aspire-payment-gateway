@@ -1,7 +1,5 @@
 using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2;
-using Aspire.Hosting.DynamoDbAdmin;
-using Amazon.CDK.AWS.DynamoDB;
 
 var builder = DistributedApplication.CreateBuilder(args);
 

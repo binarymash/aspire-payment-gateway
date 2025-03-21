@@ -1,6 +1,4 @@
-﻿using AspirePaymentGateway.Api.FraudApi;
-
-namespace AspirePaymentGateway.Api.BankApi
+﻿namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi
 {
     public interface IBankApi
     {

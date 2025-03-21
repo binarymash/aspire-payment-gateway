@@ -1,4 +1,4 @@
-﻿namespace AspirePaymentGateway.Api
+﻿namespace AspirePaymentGateway.Api.Features.Payments.Events
 {
     public static class PaymentStatus
     {

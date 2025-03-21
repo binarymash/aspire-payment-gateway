@@ -2,12 +2,14 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using AspirePaymentGateway.Api.Events;
+using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
+using AspirePaymentGateway.Api.Features.Payments.Events;
+using AspirePaymentGateway.Api.Features.Payments.GetPayment.EventStore;
 using OneOf;
 
 namespace AspirePaymentGateway.Api.Storage.DynamoDb
 {
-    public class DynamoDbPaymentEventRepository : IPaymentEventRepository
+    public class DynamoDbPaymentEventRepository : IGetPaymentEvent, ISavePaymentEvent
     {
         private readonly IDynamoDBContext _dynamoContext;
         private readonly IAmazonDynamoDB _dynamoClient;
@@ -18,47 +20,61 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
             _dynamoClient = dynamoClient;
         }
 
-        public async Task<OneOf<IEnumerable<IPaymentEvent>, StorageError>> GetAsync(string paymentId, CancellationToken cancellationToken)
+        public async Task<OneOf<IEnumerable<IPaymentEvent>, Exception>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
-            var events = new List<IPaymentEvent>();
-
-            var request = new QueryRequest
+            try
             {
-                TableName = Constants.TableName,
-                KeyConditionExpression = "Id = :id",
-                ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                var events = new List<IPaymentEvent>();
+
+                var request = new QueryRequest
+                {
+                    TableName = Constants.TableName,
+                    KeyConditionExpression = "Id = :id",
+                    ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
                     { ":id", new AttributeValue { S = paymentId } }
                 }
-            };
-
-            var queryResult = await _dynamoClient.QueryAsync(request, cancellationToken);
-
-            var documents = queryResult.Items.Select(item => Document.FromAttributeMap(item));
-
-            foreach (var document in documents)
-            {
-                var action = document["EventType"].AsString();
-
-                IPaymentEvent @event = action switch
-                {
-                    nameof(PaymentRequestedEvent) => _dynamoContext.FromDocument<PaymentRequestedEvent>(document),
-                    nameof(PaymentAuthorisedEvent) => _dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
-                    nameof(PaymentDeclinedEvent) => _dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
-                    _ => throw new InvalidOperationException($"Unknown event type: {action}")
                 };
 
-                events.Add(@event);
-            }
+                var queryResult = await _dynamoClient.QueryAsync(request, cancellationToken);
 
-            return events;
+                var documents = queryResult.Items.Select(item => Document.FromAttributeMap(item));
+
+                foreach (var document in documents)
+                {
+                    var action = document["EventType"].AsString();
+
+                    IPaymentEvent @event = action switch
+                    {
+                        nameof(PaymentRequestedEvent) => _dynamoContext.FromDocument<PaymentRequestedEvent>(document),
+                        nameof(PaymentAuthorisedEvent) => _dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
+                        nameof(PaymentDeclinedEvent) => _dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
+                        _ => throw new InvalidOperationException($"Unknown event type: {action}") //TODO: don't throw
+                    };
+
+                    events.Add(@event);
+                }
+
+                return events;
+            }
+            catch (Exception ex)
+            {
+                return ex;
+            }
         }
 
-        public async Task<OneOf<StorageOk, StorageError>> SaveAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent: IPaymentEvent
+        public async Task<OneOf<StorageOk, Exception>> SaveAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent: IPaymentEvent
         {
-            await _dynamoContext.SaveAsync(@event, cancellationToken);
+            try
+            {
+                await _dynamoContext.SaveAsync(@event, cancellationToken);
 
-            return new StorageOk();
+                return new StorageOk();
+            }
+            catch(Exception ex)
+            {
+                return ex;
+            }
         }
 
     }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace AspirePaymentGateway.Api.Events
+namespace AspirePaymentGateway.Api.Features.Payments.Events
 {
     public record PaymentDeclinedEvent : PaymentEvent<PaymentDeclinedEvent>
     {

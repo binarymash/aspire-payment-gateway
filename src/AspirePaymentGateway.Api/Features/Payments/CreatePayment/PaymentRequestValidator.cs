@@ -1,6 +1,7 @@
-﻿namespace AspirePaymentGateway.Api
+﻿namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 {
     using FluentValidation;
+    using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
 
     public class PaymentRequestValidator : AbstractValidator<PaymentRequest>
     {
