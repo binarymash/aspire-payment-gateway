@@ -5,6 +5,7 @@ using AspirePaymentGateway.Api.Features.Payments.Events;
 
 namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 {
+    // The annotations are used to generate the OpenAPI spec
     public class Contracts
     {
         // request

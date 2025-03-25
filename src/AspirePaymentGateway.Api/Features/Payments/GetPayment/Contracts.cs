@@ -4,6 +4,7 @@ using System.ComponentModel;
 
 namespace AspirePaymentGateway.Api.Features.Payments.GetPayment
 {
+    // The annotations are used to generate the OpenAPI spec
     public class Contracts
     {
         public record GetPaymentResponse(
