@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations;
 namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 {
     // The annotations are used to generate the OpenAPI spec
-    public class Contracts
+    public static class Contracts
     {
         // request
 
