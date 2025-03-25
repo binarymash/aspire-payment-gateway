@@ -30,29 +30,22 @@ builder.Build().Run();
 
 async Task CreatePaymentsTableAsync(string serviceUrl, CancellationToken cancellationToken)
 {
-    try
-    {
-        var ddbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig { ServiceURL = serviceUrl });
+    var ddbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig { ServiceURL = serviceUrl });
 
-        // Create the Accounts table.
-        var result = await ddbClient.CreateTableAsync(new CreateTableRequest
+    // Create the Accounts table.
+    var result = await ddbClient.CreateTableAsync(new CreateTableRequest
+    {
+        TableName = "Payments",
+        AttributeDefinitions = new List<AttributeDefinition>
         {
-            TableName = "Payments",
-            AttributeDefinitions = new List<AttributeDefinition>
-            {
-                new AttributeDefinition { AttributeName = "Id", AttributeType = ScalarAttributeType.S },
-                new AttributeDefinition { AttributeName = "OccurredAt", AttributeType = ScalarAttributeType.S }
-            },
-            KeySchema = new List<KeySchemaElement>
-            {
-                new KeySchemaElement { AttributeName = "Id", KeyType = KeyType.HASH },
-                new KeySchemaElement {AttributeName = "OccurredAt", KeyType = KeyType.RANGE}
-            },
-            BillingMode = Amazon.DynamoDBv2.BillingMode.PAY_PER_REQUEST
-        }, cancellationToken);
-    }
-    catch (Exception ex)
-    {
-
-    }
+            new AttributeDefinition { AttributeName = "Id", AttributeType = ScalarAttributeType.S },
+            new AttributeDefinition { AttributeName = "OccurredAt", AttributeType = ScalarAttributeType.S }
+        },
+        KeySchema = new List<KeySchemaElement>
+        {
+            new KeySchemaElement { AttributeName = "Id", KeyType = KeyType.HASH },
+            new KeySchemaElement {AttributeName = "OccurredAt", KeyType = KeyType.RANGE}
+        },
+        BillingMode = Amazon.DynamoDBv2.BillingMode.PAY_PER_REQUEST
+    }, cancellationToken);
 }
