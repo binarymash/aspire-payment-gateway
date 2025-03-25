@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.405.37" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
+    <PackageReference Include="FluentResults" Version="3.16.0" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="9.3.0" />

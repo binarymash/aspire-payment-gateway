@@ -1,11 +1,13 @@
-﻿using AspirePaymentGateway.Api.Extensions.DateTime;
+﻿using System.Diagnostics;
+using AspirePaymentGateway.Api.Extensions.DateTime;
+using AspirePaymentGateway.Api.Extensions.Results;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi;
 using AspirePaymentGateway.Api.Features.Payments.Events;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
-using System.Diagnostics;
+using FluentResults;
 using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
 
 namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
@@ -20,7 +22,38 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 {
         public async Task<IResult> PostPaymentAsync(HttpContext context, PaymentRequest paymentRequest, CancellationToken cancellationToken)
         {
-            // request validation
+            // validation
+            var result = await ValidateRequestAsync(paymentRequest, cancellationToken);
+            if (result.IsFailed)
+            {
+                return Results.ValidationProblem(
+                    //errors: paymentRequested.HasError<ValidationFailure>(ValidationResult.ToDictionary(),
+                    instance: $"{context.Request.Method} {context.Request.Path}"
+                );
+            }
+
+            //fraud checks
+            result = await PerformScreening(result.Value, cancellationToken);
+            if (result.IsFailed)
+            {
+                return Results.Created($"/payments/{result.Value.Id}", new PaymentResponse(result.Value.Id, PaymentStatus.Declined));
+            }
+
+            // authorisation
+            result = await Authorise(result.Value, cancellationToken);
+
+            return Results.Created($"/payments/{result.Value.Id}", new PaymentResponse(result.Value.Id, PaymentStatus.Authorised));
+        }
+
+
+
+
+
+
+
+
+        private async Task<Result<Payment>> ValidateRequestAsync(PaymentRequest paymentRequest, CancellationToken cancellationToken)
+        {
 
             var validationResult = await validator.ValidateAsync(paymentRequest);
             Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
@@ -28,9 +61,11 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
             if (!validationResult.IsValid)
             {
                 metrics.RecordPaymentRequestRejected();
-                return Results.ValidationProblem(
-                    errors: validationResult.ToDictionary(),
-                    instance: $"{context.Request.Method} {context.Request.Path}");
+
+                return Result.Fail<PaymentRequestedEvent>(new ValidationError
+                {
+                    ValidationResult = validationResult
+                });
             }
 
             var paymentRequested = new PaymentRequestedEvent
@@ -46,17 +81,24 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
                 ExpiryYear = paymentRequest.Card.Expiry.Year
             };
 
+            var payment = new Payment();
+            payment.Apply(paymentRequested);
+
+            await repository.SaveAsync(paymentRequested, cancellationToken);
+
             metrics.RecordPaymentRequestAccepted();
-            var saveResult = await repository.SaveAsync(paymentRequested, cancellationToken);
 
-            // fraud checks
+            return Result.Ok(payment);
+        }
 
+        private async Task<Result<Payment>> PerformScreening(Payment payment, CancellationToken cancellationToken)
+        {
             var screeningRequest = new ScreeningRequest()
             {
-                CardNumber = paymentRequest.Card.CardNumber,
-                CardHolderName = paymentRequest.Card.CardHolderName,
-                ExpiryMonth = paymentRequest.Card.Expiry.Month,
-                ExpiryYear = paymentRequest.Card.Expiry.Year
+                CardNumber = payment.CardNumber,
+                CardHolderName = payment.CardHolderName,
+                ExpiryMonth = payment.CardExpiry.ExpiryMonth,
+                ExpiryYear = payment.ExpiryYear
             };
 
             var screeningResponse = await fraudApi.DoScreening(screeningRequest, cancellationToken);
@@ -66,20 +108,25 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
             {
                 var paymentDeclined = new PaymentDeclinedEvent
                 {
-                    Id = paymentRequested.Id,
+                    Id = payment.Id,
                     OccurredAt = dateTimeProvider.UtcNowAsString,
                     Reason = ""
                 };
 
+                payment.Apply(paymentDeclined);
+
                 metrics.RecordPaymentFate(paymentDeclined.EventType, paymentDeclined.Reason);
 
-                saveResult = await repository.SaveAsync(paymentDeclined, cancellationToken);
+                var saveResult = await repository.SaveAsync(paymentDeclined, cancellationToken);
 
-                return Results.Created($"/payments/{paymentRequested.Id}", new PaymentResponse(paymentRequested.Id, PaymentStatus.Declined));
+                return Result.Fail(Errors.ScreeningFailure());
             }
 
-            // authorisation
+            return Result.Ok(payment);
+        }
 
+        private async Task<Result<Payment>> Authorise(Payment payment, CancellationToken cancellationToken)
+        {            
             var authorisationRequest = new AuthorisationRequest()
             {
             };
@@ -89,16 +136,18 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 
             var paymentAuthorised = new PaymentAuthorisedEvent
             {
-                Id = paymentRequested.Id,
+                Id = payment.Id,
                 OccurredAt = dateTimeProvider.UtcNowAsString,
                 AuthorisationCode = "abc"
             };
 
+            payment.Apply(paymentAuthorised);
+
             metrics.RecordPaymentFate(paymentAuthorised.EventType);
 
-            saveResult = await repository.SaveAsync(paymentAuthorised, cancellationToken);
+            await repository.SaveAsync(paymentAuthorised, cancellationToken);
 
-            return Results.Created($"/payments/{paymentRequested.Id}", new PaymentResponse(paymentRequested.Id, PaymentStatus.Authorised));
+            return Result.Ok(payment);
         }
     }
 }
