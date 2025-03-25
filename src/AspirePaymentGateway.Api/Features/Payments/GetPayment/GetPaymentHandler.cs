@@ -3,7 +3,7 @@ using static AspirePaymentGateway.Api.Features.Payments.GetPayment.Contracts;
 
 namespace AspirePaymentGateway.Api.Features.Payments.GetPayment
 {
-    public class GetPaymentHandler(IGetPaymentEvent repository, ILogger<GetPaymentHandler> logger)
+    public partial class GetPaymentHandler(IGetPaymentEvent repository, ILogger<GetPaymentHandler> logger)
     {
         public async Task<IResult> GetPaymentAsync(HttpContext httpContext, string paymentId, CancellationToken cancellationToken)
         {
@@ -28,9 +28,12 @@ namespace AspirePaymentGateway.Api.Features.Payments.GetPayment
                 },
                 exception =>
                 {
-                    logger.LogError(exception, "Failed to retrieve payment events");
+                    LogExceptionWhenRetrievingPayment(exception);
                     return Results.Problem(statusCode: 500, title: "Internal Server Error");
                 });
         }
+
+        [LoggerMessage(Level = LogLevel.Error, Message = "Failed to retrieve payment events")]
+        partial void LogExceptionWhenRetrievingPayment(Exception exception);
     }
 }

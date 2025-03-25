@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using AspirePaymentGateway.Api.Extensions.Http.Logging;
 using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment;
 using AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi;
@@ -35,7 +36,9 @@ var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>()
 //    options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(1);
 //});
 builder.Services.AddRefitClient<IBankApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"));
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"))
+    .AddHttpMessageHandler<LoggingDelegatingHandler>()
+    .AddHttpMessageHandler<AnotherLoggingDelegatingHandler>();
 
 // classes
 builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
@@ -44,6 +47,9 @@ builder.Services.AddSingleton<IGetPaymentEvent, DynamoDbPaymentEventRepository>(
 builder.Services.AddStandardDateTimeProvider();
 builder.Services.AddSingleton<CreatePaymentHandler>();
 builder.Services.AddSingleton<GetPaymentHandler>();
+builder.Services.AddSingleton<LoggingDelegatingHandler>();
+builder.Services.AddSingleton<AnotherLoggingDelegatingHandler>();
+
 
 // redaction
 builder.Services.AddRedaction(x =>

@@ -6,4 +6,8 @@
         <PackageReference Include="Roslynator.Formatting.Analyzers" Version="4.13.1"/>
     </ItemGroup>
 
+  <PropertyGroup>
+    <AnalysisMode>Recommended</AnalysisMode>
+  </PropertyGroup>
+  
 </Project>

@@ -2,12 +2,12 @@
 {
     public static class IsoCurrencyCodes
     {
-        public static string GBP = "GBP";
+        public static readonly string GBP = "GBP";
 
-        public static string USD = "USD";
+        public static readonly string USD = "USD";
 
-        public static string EUR = "EUR";
+        public static readonly string EUR = "EUR";
 
-        public static HashSet<string> All = new([GBP, USD, EUR]);
+        public static readonly HashSet<string> All = new([GBP, USD, EUR]);
     }
 }

@@ -1,23 +1,26 @@
-﻿namespace AspirePaymentGateway.Api.Extensions.Http.Logging
+﻿using System.Net;
+
+namespace AspirePaymentGateway.Api.Extensions.Http.Logging
 {
-    public class AnotherLoggingDelegatingHandler : DelegatingHandler
+    public partial class AnotherLoggingDelegatingHandler(ILogger<AnotherLoggingDelegatingHandler> logger) : DelegatingHandler
     {
-        private readonly ILogger<LoggingDelegatingHandler> _logger;
-
-        public AnotherLoggingDelegatingHandler(ILogger<LoggingDelegatingHandler> logger)
-        {
-            _logger = logger;
-        }
-
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Phil. Cool is he?");
+            LogBeforeSendRequest(new MyRecord(123, "ABC"), request.Method, request.RequestUri);
 
             var response = await base.SendAsync(request, cancellationToken);
 
-            _logger.LogInformation("Yes. He is cool");
+            LogAfterReceiveResponse(response.StatusCode);
 
             return response;
         }
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "Phil. Cool is he? {Method} {Path} {TheRecord}")]
+        partial void LogBeforeSendRequest(MyRecord theRecord, HttpMethod method, System.Uri? path);
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "Yes. He is cool {StatusCode}")]
+        partial void LogAfterReceiveResponse(HttpStatusCode statusCode);
+
+        private record MyRecord(int Something, string Nothing);
     }
 }

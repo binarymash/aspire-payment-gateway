@@ -1,23 +1,23 @@
 ﻿namespace AspirePaymentGateway.Api.Extensions.Http.Logging
 {
-    public class LoggingDelegatingHandler : DelegatingHandler
+    public partial class LoggingDelegatingHandler(ILogger<LoggingDelegatingHandler> logger) : DelegatingHandler
     {
-        private readonly ILogger<LoggingDelegatingHandler> _logger;
-
-        public LoggingDelegatingHandler(ILogger<LoggingDelegatingHandler> logger)
-        {
-            _logger = logger;
-        }
-
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Phil is cool");
+            LogBeforeSendRequest();
 
             var response = await base.SendAsync(request, cancellationToken);
 
-            _logger.LogInformation("Phil is still cool");
+            LogAfterReceiveResponse();
 
             return response;
         }
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "Phil is cool")]
+        partial void LogBeforeSendRequest();
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "Phil is still cool")]
+        partial void LogAfterReceiveResponse();
+
     }
 }
