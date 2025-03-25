@@ -13,7 +13,7 @@
 
             RuleFor(r => r.Month)
                 .NotNull()
-                .InclusiveBetween(1,12);
+                .InclusiveBetween(1, 12);
 
             RuleFor(r => r)
                 .Must(IsInTheFuture).WithMessage("Card expiry must not be in the past.");

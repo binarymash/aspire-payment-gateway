@@ -65,7 +65,7 @@ app.UseHttpsRedirection();
 
 // Map endpoints
 
-app.MapPost("/payments", 
+app.MapPost("/payments",
         async (CreatePaymentHandler handler, HttpContext httpContext, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(httpContext, request, cancellationToken))
     .WithSummary("Make Payment")
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
@@ -74,7 +74,7 @@ app.MapPost("/payments",
     .ProducesProblem(StatusCodes.Status500InternalServerError);
 
 
-app.MapGet("/payments/{paymentId}", 
+app.MapGet("/payments/{paymentId}",
         async (GetPaymentHandler handler, HttpContext httpContext, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(httpContext, paymentId, cancellationToken))
     .WithSummary("Get Payment")
     .WithDescription("Retrieves the payment events for the specified payment")

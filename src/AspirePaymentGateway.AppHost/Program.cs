@@ -1,5 +1,5 @@
-using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 
 var builder = DistributedApplication.CreateBuilder(args);
 

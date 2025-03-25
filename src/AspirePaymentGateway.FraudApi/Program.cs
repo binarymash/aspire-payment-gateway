@@ -15,7 +15,7 @@ app.MapOpenApiForDevelopment("/scalar/v1");
 
 app.UseHttpsRedirection();
 
-app.MapPost("/screening", 
+app.MapPost("/screening",
     (ScreeningRequest request) =>
     {
         if (request.CardNumber.EndsWith("11"))

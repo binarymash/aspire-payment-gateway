@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace AspirePaymentGateway.Api.Features.Payments.Events
 {
     [DynamoDBTable(Constants.TableName)]
-    public abstract record PaymentEvent<TPaymentEvent>: IPaymentEvent where TPaymentEvent : class
+    public abstract record PaymentEvent<TPaymentEvent> : IPaymentEvent where TPaymentEvent : class
     {
         [DynamoDBHashKey]
         [Description("The Payment ID")]

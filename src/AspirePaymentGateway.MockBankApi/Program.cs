@@ -1,5 +1,4 @@
 using AspirePaymentGateway.MockBankApi;
-using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 

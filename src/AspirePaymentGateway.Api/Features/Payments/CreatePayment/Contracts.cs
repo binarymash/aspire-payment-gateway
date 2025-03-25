@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
-using AspirePaymentGateway.Api.Extensions.Redaction;
+﻿using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Features.Payments.Events;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 {
@@ -96,7 +96,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
             [property: AllowedValues(PaymentStatus.Pending, PaymentStatus.Authorised, PaymentStatus.Declined)]
             [property: DefaultValue(PaymentStatus.Authorised)]
             string Status)
-            {
-            }
+        {
+        }
     }
 }

@@ -46,7 +46,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                     if (map.TryPickT0(out var @event, out var exception))
                     {
                         events.Add(@event);
-                    } 
+                    }
                     else
                     {
                         return exception;
@@ -61,7 +61,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
             }
         }
 
-        public async Task<OneOf<StorageOk, Exception>> SaveAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent: IPaymentEvent
+        public async Task<OneOf<StorageOk, Exception>> SaveAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : IPaymentEvent
         {
             try
             {
@@ -69,7 +69,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 return new StorageOk();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return ex;
             }

@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.ServiceDiscovery;
 using Microsoft.OpenApi.Models;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
@@ -181,7 +180,7 @@ public static class Extensions
             // app.MapScalarApiReference();
             app.MapScalarApiReference(_ => _.Servers = []);
 
-            app.MapGet("", [ExcludeFromDescription]() =>
+            app.MapGet("", [ExcludeFromDescription] () =>
             {
                 return Results.Redirect(scalarEndpoint);
             });

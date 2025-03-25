@@ -7,7 +7,7 @@ namespace AspirePaymentGateway.Api.Extensions.Redaction
         public static string TaxonomyName { get; } = typeof(DataTaxonomy).FullName!;
 
         public static DataClassification SensitiveData { get; } = new(TaxonomyName, nameof(SensitiveData));
-        
+
         public static DataClassification PiiData { get; } = new(TaxonomyName, nameof(PiiData));
     }
 

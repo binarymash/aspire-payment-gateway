@@ -14,9 +14,9 @@ namespace Microsoft.Extensions.Hosting
             var resolver = new JsonOptionsNameResolver(app.ApplicationServices.GetRequiredService<IOptions<JsonOptions>>());
 
             ValidatorOptions.Global.PropertyNameResolver = resolver.ResolveName;
-            ValidatorOptions.Global.DisplayNameResolver = resolver.ResolveName;           
+            ValidatorOptions.Global.DisplayNameResolver = resolver.ResolveName;
 
-            return app;            
+            return app;
         }
     }
 }

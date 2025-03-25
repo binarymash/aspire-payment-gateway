@@ -17,7 +17,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
         IBankApi bankApi,
         BusinessMetrics metrics,
         IDateTimeProvider dateTimeProvider)
-{
+    {
         public async Task<IResult> PostPaymentAsync(HttpContext context, PaymentRequest paymentRequest, CancellationToken cancellationToken)
         {
             // request validation
