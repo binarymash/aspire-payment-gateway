@@ -73,7 +73,6 @@ app.MapPost("/payments",
     .ProducesValidationProblem(StatusCodes.Status400BadRequest)
     .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-
 app.MapGet("/payments/{paymentId}",
         async (GetPaymentHandler handler, HttpContext httpContext, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(httpContext, paymentId, cancellationToken))
     .WithSummary("Get Payment")

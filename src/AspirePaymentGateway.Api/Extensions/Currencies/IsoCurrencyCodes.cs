@@ -8,6 +8,6 @@
 
         public static string EUR = "EUR";
 
-        public static HashSet<string> All = new HashSet<string>([GBP, USD, EUR]);
+        public static HashSet<string> All = new([GBP, USD, EUR]);
     }
 }

@@ -22,7 +22,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
         {
             // request validation
 
-            var validationResult = await validator.ValidateAsync(paymentRequest);
+            var validationResult = await validator.ValidateAsync(paymentRequest, cancellationToken);
             Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
 
             if (!validationResult.IsValid)
