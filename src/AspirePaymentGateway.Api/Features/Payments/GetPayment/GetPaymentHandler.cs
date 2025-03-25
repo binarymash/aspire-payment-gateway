@@ -3,7 +3,7 @@ using static AspirePaymentGateway.Api.Features.Payments.GetPayment.Contracts;
 
 namespace AspirePaymentGateway.Api.Features.Payments.GetPayment
 {
-    public class GetPaymentHandler(IGetPaymentEvent repository, ILogger logger)
+    public class GetPaymentHandler(IGetPaymentEvent repository, ILogger<GetPaymentHandler> logger)
     {
         public async Task<IResult> GetPaymentAsync(HttpContext httpContext, string paymentId, CancellationToken cancellationToken)
         {
