@@ -35,7 +35,7 @@ app.MapPost("/screening",
 #pragma warning restore CA2201 // Do not raise reserved exception types
         }
 
-        return Results.Ok(new ScreeningResponse() { Accepted = true });
+        return Results.Ok(new ScreeningResponse() {SomeNumber = 123, Accepted = true });
     });
 
 app.Run();

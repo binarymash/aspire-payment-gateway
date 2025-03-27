@@ -1,7 +1,9 @@
 ﻿using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Features.Payments.Events;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 {
@@ -81,7 +83,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
             [property: LogProperties]
             int Year);
 
-
         // response
 
         [Description("Details of the payment")]
@@ -95,8 +96,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
             [property: Required]
             [property: AllowedValues(PaymentStatus.Pending, PaymentStatus.Authorised, PaymentStatus.Declined)]
             [property: DefaultValue(PaymentStatus.Authorised)]
-            string Status)
-        {
-        }
+            string Status);
     }
 }

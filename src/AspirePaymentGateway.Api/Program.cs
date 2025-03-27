@@ -14,6 +14,7 @@ using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;
 using Refit;
+using System.Text.Json;
 using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
 using static AspirePaymentGateway.Api.Features.Payments.GetPayment.Contracts;
 
@@ -28,28 +29,25 @@ builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(Busi
 // infrastructure
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
-var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://fraud-api"));
-//fraudApiClientBuilder.AddStandardResilienceHandler(options => 
-//{
-//    options.Retry.DisableForUnsafeHttpMethods();
-//    options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(1);
-//});
-builder.Services.AddRefitClient<IBankApi>()
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"))
-    .AddHttpMessageHandler<LoggingDelegatingHandler>()
-    .AddHttpMessageHandler<AnotherLoggingDelegatingHandler>();
 
-// classes
+// fraud API
+var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>(new RefitSettings(new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options)))
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://fraud-api"))
+    .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+// bank API
+builder.Services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"))
+    .AddHttpMessageHandler<LoggingDelegatingHandler>();
+
+// domain classes
 builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
 builder.Services.AddSingleton<ISavePaymentEvent, DynamoDbPaymentEventRepository>();
 builder.Services.AddSingleton<IGetPaymentEvent, DynamoDbPaymentEventRepository>();
 builder.Services.AddStandardDateTimeProvider();
 builder.Services.AddSingleton<CreatePaymentHandler>();
 builder.Services.AddSingleton<GetPaymentHandler>();
-builder.Services.AddSingleton<LoggingDelegatingHandler>();
-builder.Services.AddSingleton<AnotherLoggingDelegatingHandler>();
-
+builder.Services.AddTransient<LoggingDelegatingHandler>();
 
 // redaction
 builder.Services.AddRedaction(x =>
@@ -57,10 +55,12 @@ builder.Services.AddRedaction(x =>
     x.SetRedactor<StarRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData, DataTaxonomy.PiiData));
 });
 
-//builder.Services.ConfigureHttpJsonOptions(options =>
-//{
-//    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-//});
+// endpoint serialization configuration
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // .NET pipeline does not play nicely with source-generated JsonSerializerContexts, so lets avoid it.
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+});
 
 var app = builder.Build();
 

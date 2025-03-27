@@ -3,6 +3,6 @@
     public interface IBankApi
     {
         [Refit.Post("/authorisation")]
-        Task<AuthorisationResponse> AuthoriseAsync(AuthorisationRequest request, CancellationToken cancellationToken);
+        Task<Contracts.AuthorisationResponse> AuthoriseAsync(Contracts.AuthorisationRequest request, CancellationToken cancellationToken);
     }
 }

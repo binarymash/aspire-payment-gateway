@@ -51,7 +51,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 
             // fraud checks
 
-            var screeningRequest = new ScreeningRequest()
+            var screeningRequest = new FraudApi.Contracts.ScreeningRequest()
             {
                 CardNumber = paymentRequest.Card.CardNumber,
                 CardHolderName = paymentRequest.Card.CardHolderName,
@@ -80,7 +80,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment
 
             // authorisation
 
-            var authorisationRequest = new AuthorisationRequest()
+            var authorisationRequest = new BankApi.Contracts.AuthorisationRequest()
             {
             };
 
