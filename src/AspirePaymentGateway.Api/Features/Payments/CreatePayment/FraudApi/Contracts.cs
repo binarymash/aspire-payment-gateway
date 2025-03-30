@@ -17,8 +17,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi
 
         public record ScreeningResponse
         {
-            public required int SomeNumber { get; set; }
-
             public required bool Accepted { get; set; }
         }
     }

@@ -1,0 +1,7 @@
+﻿{
+  Value: {
+    PaymentId: pay_Guid_1
+  },
+  StatusCode: 201,
+  Location: /payments/pay_Guid_1
+}

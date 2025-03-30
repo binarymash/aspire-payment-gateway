@@ -5,13 +5,23 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
+    <UserSecretsId>25e47dbb-22f5-479e-b2e9-bb15d8593850</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.3.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
-    <PackageReference Include="xunit" Version="2.9.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Moq.AutoMock" Version="3.5.0" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="Verify.Xunit" Version="28.16.0" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +30,73 @@
 
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.EmptyCard.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.EmptyPayment.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardCvv_cvv=0.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardCvv_cvv=1000.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=1Character.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=36Characters.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=AllDigits.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Empty.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Null.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Whitespace.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=11Characters.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=20Characters.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Empty.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Null.received.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Null.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Text.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=TextAndNumbers.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Whitespace.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidRequest.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.NullRequest.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Payments\CreatePayment\500InternalServerError\" />
   </ItemGroup>
 
 </Project>

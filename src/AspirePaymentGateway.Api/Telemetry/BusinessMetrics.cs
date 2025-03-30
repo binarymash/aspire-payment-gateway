@@ -5,6 +5,8 @@ namespace AspirePaymentGateway.Api.Telemetry
     public class BusinessMetrics
     {
         public const string Name = "BinaryMash.AspirePaymentGateway";
+        public const string PaymentFateCountName = "payment.fate.count";
+        public const string PaymentRequestedCountName = "payment.requested.count";
 
         private readonly Meter _meter;
         private readonly Counter<long> _paymentFateCount;
@@ -14,8 +16,8 @@ namespace AspirePaymentGateway.Api.Telemetry
         {
             _meter = meterFactory.Create(Name);
 
-            _paymentFateCount = _meter.CreateCounter<long>("payment.fate.count");
-            _paymentRequestedCount = _meter.CreateCounter<long>("payment.requested.count");
+            _paymentFateCount = _meter.CreateCounter<long>(PaymentFateCountName);
+            _paymentRequestedCount = _meter.CreateCounter<long>(PaymentRequestedCountName);
         }
 
         public void RecordPaymentRequestAccepted()

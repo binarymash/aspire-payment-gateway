@@ -62,6 +62,15 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 });
 
+// add Instance info to problem details
+builder.Services.AddProblemDetails(configure =>
+{
+    configure.CustomizeProblemDetails = (problemDetailsContext) =>
+    {
+        problemDetailsContext.ProblemDetails.Instance = $"{problemDetailsContext.HttpContext.Request.Method} {problemDetailsContext.HttpContext.Request.Path}";
+    };
+});
+
 var app = builder.Build();
 
 app.UseFluentValidationNamingFromJsonOptions();
@@ -72,7 +81,7 @@ app.UseHttpsRedirection();
 // Map endpoints
 
 app.MapPost("/payments",
-        async (CreatePaymentHandler handler, HttpContext httpContext, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(httpContext, request, cancellationToken))
+        async (CreatePaymentHandler handler, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(request, cancellationToken))
     .WithSummary("Make Payment")
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
     .Produces<PaymentResponse>(StatusCodes.Status201Created)
@@ -80,7 +89,7 @@ app.MapPost("/payments",
     .ProducesProblem(StatusCodes.Status500InternalServerError);
 
 app.MapGet("/payments/{paymentId}",
-        async (GetPaymentHandler handler, HttpContext httpContext, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(httpContext, paymentId, cancellationToken))
+        async (GetPaymentHandler handler, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(paymentId, cancellationToken))
     .WithSummary("Get Payment")
     .WithDescription("Retrieves the payment events for the specified payment")
     .Produces<GetPaymentResponse>(StatusCodes.Status200OK)

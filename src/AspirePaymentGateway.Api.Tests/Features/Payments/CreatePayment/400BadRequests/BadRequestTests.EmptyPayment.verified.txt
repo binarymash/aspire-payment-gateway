@@ -1,0 +1,17 @@
+﻿{
+  ProblemDetails: {
+    Errors: {
+      Payment.Amount: [
+        'Amount' must be greater than '0'.
+      ],
+      Payment.CurrencyCode: [
+        'Currency Code' must be a valid ISO 3-character currency code
+      ]
+    },
+    Type: https://tools.ietf.org/html/rfc9110#section-15.5.1,
+    Title: One or more validation errors occurred.,
+    Status: 400
+  },
+  ContentType: application/problem+json,
+  StatusCode: 400
+}

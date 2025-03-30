@@ -5,7 +5,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.GetPayment
 {
     public partial class GetPaymentHandler(IGetPaymentEvent repository, ILogger<GetPaymentHandler> logger)
     {
-        public async Task<IResult> GetPaymentAsync(HttpContext httpContext, string paymentId, CancellationToken cancellationToken)
+        public async Task<IResult> GetPaymentAsync(string paymentId, CancellationToken cancellationToken)
         {
             var getPaymentEventResults = await repository.GetAsync(paymentId, cancellationToken);
 
@@ -23,7 +23,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.GetPayment
                         //Title
                         //Status
                         Detail = $"Payment {paymentId} could not be found",
-                        Instance = httpContext.Request.Path,
                     });
                 },
                 exception =>

@@ -10,21 +10,21 @@
         public CardDetailsValidator()
         {
             RuleFor(r => r.CardHolderName)
-                .NotNull()
-                .MaximumLength(35)
+                .NotEmpty()
+                .Length(3, 35)
                 .Matches(NameRegex);
 
             RuleFor(r => r.CVV)
-                .NotNull()
-                .ExclusiveBetween(1, 999);
+                .ExclusiveBetween(100, 999);
 
             RuleFor(r => r.CardNumber)
-                .NotNull()
-                .Matches(@"^\d{12,19}$")
+                .NotEmpty()
+                .Length(12, 19)
+                .Matches(@"^\d*$").WithMessage("'{PropertyName}' must be all digits.")
                 .Must(BeValidLuhn);
 
             RuleFor(r => r.Expiry)
-                .NotNull()
+                .NotEmpty()
                 .SetValidator(new CardExpiryValidator());
         }
 

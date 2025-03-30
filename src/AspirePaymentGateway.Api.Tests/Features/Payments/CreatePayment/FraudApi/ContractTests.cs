@@ -37,9 +37,9 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.FraudAp
         [Fact]
         public void SerializeScreeningResponse()
         {
-            var response = new ScreeningResponse{ Accepted = true, SomeNumber = 456 };
+            var response = new ScreeningResponse{ Accepted = true };
             var json = JsonSerializer.Serialize(response, FraudApiContractsContext.Default.ScreeningResponse);
-            Assert.Equivalent("{\"someNumber\":456,\"accepted\":true}", json);
+            Assert.Equivalent("{\"accepted\":true}", json);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.FraudAp
         {
             var json = "{\"someNumber\":123,\"accepted\":true}";
             var response = JsonSerializer.Deserialize(json, FraudApiContractsContext.Default.ScreeningResponse);
-            Assert.Equivalent(new ScreeningResponse{ Accepted = true, SomeNumber = 123 }, response);
+            Assert.Equivalent(new ScreeningResponse{ Accepted = true }, response);
         }
     }
 }

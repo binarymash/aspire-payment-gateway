@@ -4,11 +4,11 @@
     {
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            LogBeforeSendRequest(await request.Content?.ReadAsStringAsync());
+            LogBeforeSendRequest(await request.Content?.ReadAsStringAsync(cancellationToken));
 
             var response = await base.SendAsync(request, cancellationToken);
 
-            LogAfterReceiveResponse(await response.Content?.ReadAsStringAsync());
+            LogAfterReceiveResponse(await response.Content?.ReadAsStringAsync(cancellationToken));
 
             return response;
         }

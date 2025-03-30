@@ -1,0 +1,14 @@
+﻿{
+  ProblemDetails: {
+    Errors: {
+      Card.CVV: [
+        'CVV' must be between 100 and 999 (exclusive). You entered 0.
+      ]
+    },
+    Type: https://tools.ietf.org/html/rfc9110#section-15.5.1,
+    Title: One or more validation errors occurred.,
+    Status: 400
+  },
+  ContentType: application/problem+json,
+  StatusCode: 400
+}
