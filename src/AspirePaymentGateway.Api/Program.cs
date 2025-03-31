@@ -17,6 +17,7 @@ using Refit;
 using System.Text.Json;
 using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
 using static AspirePaymentGateway.Api.Features.Payments.GetPayment.Contracts;
+using static Microsoft.Extensions.Hosting.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(Busi
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 
+// Authentication and authorization
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication()
     .AddKeycloakJwtBearer("keycloak", realm: "payment-gateway", options =>
@@ -37,6 +39,7 @@ builder.Services.AddAuthentication()
         options.RequireHttpsMetadata = false; //non-prod
         options.Audience = "account";
     });
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
 
 // fraud API
 var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>(new RefitSettings(new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options)))

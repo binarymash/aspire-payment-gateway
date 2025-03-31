@@ -18,7 +18,7 @@ var keycloakUser = builder.AddParameter("KeycloakAdminUsername");
 var keycloakPassword = builder.AddParameter("KeycloakAdminPassword", secret: true);
 
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminUsername: keycloakUser, adminPassword: keycloakPassword)
-    //.WithDataVolume()
+    .WithDataVolume()
     .WithRealmImport("./keycloak/realms")
     .WithExternalHttpEndpoints();
 
