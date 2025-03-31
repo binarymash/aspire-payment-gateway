@@ -30,6 +30,14 @@ builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(Busi
 builder.Services.AddAWSService<IAmazonDynamoDB>();
 builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
 
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication()
+    .AddKeycloakJwtBearer("keycloak", realm: "payment-gateway", options =>
+    {
+        options.RequireHttpsMetadata = false; //non-prod
+        options.Audience = "account";
+    });
+
 // fraud API
 var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>(new RefitSettings(new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options)))
     .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://fraud-api"))
@@ -73,8 +81,12 @@ builder.Services.AddProblemDetails(configure =>
 
 var app = builder.Build();
 
-app.UseFluentValidationNamingFromJsonOptions();
+// Middleware
+
 app.MapDefaultEndpoints();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseFluentValidationNamingFromJsonOptions(); 
 app.MapOpenApiForDevelopment("/scalar/v1");
 app.UseHttpsRedirection();
 
@@ -86,7 +98,8 @@ app.MapPost("/payments",
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
     .Produces<PaymentResponse>(StatusCodes.Status201Created)
     .ProducesValidationProblem(StatusCodes.Status400BadRequest)
-    .ProducesProblem(StatusCodes.Status500InternalServerError);
+    .ProducesProblem(StatusCodes.Status500InternalServerError)
+    .RequireAuthorization();
 
 app.MapGet("/payments/{paymentId}",
         async (GetPaymentHandler handler, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(paymentId, cancellationToken))
@@ -94,6 +107,7 @@ app.MapGet("/payments/{paymentId}",
     .WithDescription("Retrieves the payment events for the specified payment")
     .Produces<GetPaymentResponse>(StatusCodes.Status200OK)
     .ProducesProblem(StatusCodes.Status404NotFound)
-    .ProducesProblem(StatusCodes.Status500InternalServerError);
+    .ProducesProblem(StatusCodes.Status500InternalServerError)
+    .RequireAuthorization();
 
 app.Run();

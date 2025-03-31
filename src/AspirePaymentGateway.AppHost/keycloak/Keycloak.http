@@ -1,0 +1,14 @@
+@IdentityProvider.HostAddress = http://localhost:8080
+
+### Get admin access to keycloak
+POST {{IdentityProvider.HostAddress}}/realms/master/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=admin-cli&username=admin&password=password
+     
+
+
+### Get users from keycload - does not include credentials or permissions
+### see https://www.keycloak.org/docs-api/latest/rest-api/index.html#_users
+GET {{IdentityProvider.HostAddress}}/admin/realms/payment-gateway/users
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJTa1pIRUV3aGpRYy1wNUYzRHlBd3ZmTUp4WnVGaXNMa2ZrWFVsbjNfQU5jIn0.eyJleHAiOjE3NDM0MzI3NTIsImlhdCI6MTc0MzQzMjY5MiwianRpIjoiZmY2NTBmMjQtNGRmNS00MmM3LTlhMmYtODMwMjg0YzExMzZkIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL3JlYWxtcy9tYXN0ZXIiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhZG1pbi1jbGkiLCJzaWQiOiI1ODdlYTYwZS0xZTdjLTQ3ZWMtYTU2NC1mNTU3MWM3NjEwYzUiLCJzY29wZSI6InByb2ZpbGUgZW1haWwifQ.tsVmXjzdxHUuJztx5h-6kuV3TdmF3-SHfE6Nu5BriP_drwKKGlYRqYEOVBZK6l-sKV3-AB9Z2keHPueVBwsyU9Ycu1TBRJXE6rnSGRCz0w96tagQNiZJoGWjO_jtgqzjMH-6p4CPQi5j9urzsIy8_2F5HlgB5LLmNtMj1gp5xUjq-s-AGWbTaOFpinDa11qhSbxAYSpdxFnRp4rm7JeolVimgOnat5l9nGWJ5jb1vEjJdH4a56RQ4eoRLYeZbBhh2MvMxsLd99izogAPIuKazD5L3xzlM1Gp-b-SdMCMUPfDWpy0J2lnrb962CylcbPnYm_4Xia80Cuv4INLHKtFHA

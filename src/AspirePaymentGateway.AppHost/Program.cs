@@ -14,6 +14,14 @@ builder.Eventing.Subscribe<ResourceReadyEvent>(dynamoDb.Resource, async (@event,
     await CreatePaymentsTableAsync(endpointUrl, cancellationToken);
 });
 
+var keycloakUser = builder.AddParameter("KeycloakAdminUsername");
+var keycloakPassword = builder.AddParameter("KeycloakAdminPassword", secret: true);
+
+var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminUsername: keycloakUser, adminPassword: keycloakPassword)
+    //.WithDataVolume()
+    .WithRealmImport("./keycloak/realms")
+    .WithExternalHttpEndpoints();
+
 var fraudApi = builder.AddProject<Projects.AspirePaymentGateway_FraudApi>("fraud-api");
 
 var mockBank = builder.AddProject<Projects.AspirePaymentGateway_MockBankApi>("mock-bank-api");
@@ -23,6 +31,8 @@ var paymentGateway = builder.AddProject<Projects.AspirePaymentGateway_Api>("paym
     .WithReference(mockBank)
     .WithReference(fraudApi)
     .WaitFor(dynamoDb)
+    .WithReference(keycloak)
+    .WaitFor(keycloak)
     .WithEnvironment("AWS_ENDPOINT_URL_DYNAMODB", dynamoDb.Resource.GetEndpoint("http"));
 
 

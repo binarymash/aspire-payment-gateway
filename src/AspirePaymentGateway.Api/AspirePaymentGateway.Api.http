@@ -1,6 +1,9 @@
 @AspirePaymentGateway.Api_HostAddress = http://localhost:5249
+@IdentityProvider.HostAddress = http://localhost:8080
 
-GET {{AspirePaymentGateway.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Get OAuth2 Token for Payment Gateway using username/password
 
-###
+POST {{IdentityProvider.HostAddress}}/realms/payment-gateway/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=payment-gateway-customer&scope=email%20openid&username=test@test.com&password=123
