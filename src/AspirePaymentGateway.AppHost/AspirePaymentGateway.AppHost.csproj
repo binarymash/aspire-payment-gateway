@@ -12,11 +12,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.1.0" />
-    <PackageReference Include="Aspire.Hosting.AWS" Version="9.1.5" />
-    <PackageReference Include="Aspire.Hosting.Keycloak" Version="9.1.0-preview.1.25121.10" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.405.37" />
-    <PackageReference Include="Keycloak.AuthServices.Aspire.Hosting" Version="0.1.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting.AWS" />
+    <PackageReference Include="Aspire.Hosting.Keycloak" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" />
+    <PackageReference Include="Keycloak.AuthServices.Aspire.Hosting" />
   </ItemGroup>
 
   <ItemGroup>
