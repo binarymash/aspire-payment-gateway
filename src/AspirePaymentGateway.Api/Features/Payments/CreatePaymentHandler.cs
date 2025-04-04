@@ -23,52 +23,71 @@ namespace AspirePaymentGateway.Api.Features.Payments
     {
         public async Task<IResult> PostPaymentAsync(PaymentRequest paymentRequest, CancellationToken cancellationToken)
         {
-            // request validation
+            var result = await CreatePaymentWorkflow(paymentRequest, cancellationToken);
 
-            var validationResult = await validator.ValidateAsync(paymentRequest ?? new(null!, null!), cancellationToken);
-            Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
-
-            if (!validationResult.IsValid)
+            if (result.IsSuccess)
             {
-                metrics.RecordPaymentRequestRejected();
-                return Results.ValidationProblem(errors: validationResult.ToDictionary());
+                return Results.Created($"/payments/{result.Value.Id}", Contracts.MapPaymentResponse(result.Value));
             }
 
-            var result = await AcceptPaymentRequest(paymentRequest, cancellationToken);
+            if (result.ErrorDetail is Errors.ValidationError)
+            {
+                return Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary());
+            }
+
+            return Results.Problem(detail: result.ErrorDetail.ToString());
+        }
+
+        private async Task<Result<Payment>> CreatePaymentWorkflow(PaymentRequest paymentRequest, CancellationToken ct)
+        {
+            // request validation and acceptance
+            var result = await AcceptPaymentRequest(paymentRequest, ct);
+            if (result.IsFailure)
+            {
+                if (result.ErrorDetail is Errors.ValidationError)
+                {
+                    metrics.RecordPaymentRequestRejected();
+                }
+            }
 
             // screening
             if (result.IsSuccess)
             {
-                result = await ScreenPayment(result.Value, cancellationToken);
-                if (result.IsSuccess &&  result.Value.ScreeningStatus != ScreeningStatus.Passed)
+                result = await ScreenPayment(result.Value, ct);
+                if (result.IsSuccess && result.Value.ScreeningStatus != ScreeningStatus.Passed)
                 {
-                    result = await DeclinePayment(result.Value, "Fraud screening failed", cancellationToken);
+                    result = await DeclinePayment(result.Value, "Fraud screening failed", ct);
                 }
             }
 
             // authorisation
             if (result.IsSuccess && result.Value.ScreeningStatus == ScreeningStatus.Passed)
             {
-                result = await AuthorisePayment(result.Value, cancellationToken);
+                result = await AuthorisePayment(result.Value, ct);
                 if (result.IsSuccess && result.Value.Status != PaymentStatus.Authorised)
                 {
-                    result = await DeclinePayment(result.Value, "Fraud screening failed", cancellationToken);
+                    result = await DeclinePayment(result.Value, "Fraud screening failed", ct);
                 }
             }
 
-            // nominal response
-            if (result.IsSuccess)
+            if (!result.IsSuccess)
             {
-                return Results.Created($"/payments/{result.Value.Id}", Contracts.MapPaymentResponse(result.Value));
+                LogErrorDetail(result.ErrorDetail);
             }
 
-            // error response
-            LogErrorDetail(result.ErrorDetail);
-            return Results.Problem(detail : result.ErrorDetail.ToString());
+            return result;
         }
 
         public async Task<Result<Payment>> AcceptPaymentRequest(PaymentRequest paymentRequest, CancellationToken ct)
         {
+            var validationResult = await validator.ValidateAsync(paymentRequest ?? new(null!, null!), ct);
+            Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
+
+            if (!validationResult.IsValid)
+            { 
+                return new ErrorResult<Payment>(new Errors.ValidationError(validationResult));
+            }
+
             Payment payment = new();
 
             payment.Apply(new PaymentRequestedEvent
