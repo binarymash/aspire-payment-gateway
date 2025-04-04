@@ -13,6 +13,7 @@ using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;
 using Refit;
+using System.Diagnostics;
 using System.Text.Json;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
@@ -20,6 +21,7 @@ using static Microsoft.Extensions.Hosting.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
+builder.Services.AddSingleton(new ActivitySource("whatever"));
 
 //domain-specific metrics
 builder.Services.AddSingleton<BusinessMetrics>();
