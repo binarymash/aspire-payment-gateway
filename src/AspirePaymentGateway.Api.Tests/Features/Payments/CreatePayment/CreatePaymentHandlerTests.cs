@@ -1,5 +1,5 @@
 ﻿using AspirePaymentGateway.Api.Extensions.DateTime;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment;
+using AspirePaymentGateway.Api.Features.Payments;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using FluentValidation.Results;
@@ -8,7 +8,7 @@ using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Moq;
 using Moq.AutoMock;
 using System.Diagnostics.Metrics;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 {

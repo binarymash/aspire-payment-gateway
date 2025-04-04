@@ -1,8 +1,8 @@
 ﻿using Moq;
 using Shouldly;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Services.BankApi.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment._201Created
 {

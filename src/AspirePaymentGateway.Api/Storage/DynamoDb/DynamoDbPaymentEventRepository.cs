@@ -2,21 +2,23 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
-using AspirePaymentGateway.Api.Features.Payments.Events;
-using AspirePaymentGateway.Api.Features.Payments.GetPayment.EventStore;
+using AspirePaymentGateway.Api.Extensions.Results;
+using AspirePaymentGateway.Api.Features.Payments.Domain;
+using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
+using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using OneOf;
+using static AspirePaymentGateway.Api.Features.Payments.Domain.Errors;
 
 namespace AspirePaymentGateway.Api.Storage.DynamoDb
 {
-    public class DynamoDbPaymentEventRepository(IDynamoDBContext dynamoContext, IAmazonDynamoDB dynamoClient) : IGetPaymentEvent, ISavePaymentEvent
+    public partial class DynamoDbPaymentEventRepository(ILogger<DynamoDbPaymentEventRepository> logger, IDynamoDBContext dynamoContext, IAmazonDynamoDB dynamoClient) : IPaymentEventsRepository
     {
-        public async Task<OneOf<IEnumerable<IPaymentEvent>, Exception>> GetAsync(string paymentId, CancellationToken cancellationToken)
+        public async Task<Result<IList<IPaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
+            List<Document> documents = new List<Document>();
+
             try
             {
-                var events = new List<IPaymentEvent>();
-
                 var request = new QueryRequest
                 {
                     TableName = Constants.TableName,
@@ -29,51 +31,88 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 var queryResult = await dynamoClient.QueryAsync(request, cancellationToken);
 
-                var documents = queryResult.Items.Select(item => Document.FromAttributeMap(item));
-
-                foreach (var document in documents)
-                {
-                    var action = document["EventType"].AsString();
-
-                    OneOf<IPaymentEvent, Exception> map = action switch
-                    {
-                        nameof(PaymentRequestedEvent) => dynamoContext.FromDocument<PaymentRequestedEvent>(document),
-                        nameof(PaymentAuthorisedEvent) => dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
-                        nameof(PaymentDeclinedEvent) => dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
-                        _ => new InvalidOperationException($"Unknown event type: {action}")
-                    };
-
-                    if (map.TryPickT0(out var @event, out var exception))
-                    {
-                        events.Add(@event);
-                    }
-                    else
-                    {
-                        return exception;
-                    }
-                }
-
-                return events;
+                documents = queryResult.Items.Select(item => Document.FromAttributeMap(item)).ToList();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                return ex;
+                return new ErrorResult<IList<IPaymentEvent>>(new StorageExceptionError(ex));
             }
+
+            List<IPaymentEvent> events = new List<IPaymentEvent>();
+
+            foreach (var document in documents)
+            {
+                var eventType = document["EventType"].AsString();
+
+                OneOf<PaymentEvent, UnknownEventTypeError> map = eventType switch
+                {
+                    nameof(PaymentRequestedEvent) => dynamoContext.FromDocument<PaymentRequestedEvent>(document),
+                    nameof(PaymentAuthorisedEvent) => dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
+                    nameof(PaymentDeclinedEvent) => dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
+                    _ => new UnknownEventTypeError(eventType)
+                };
+
+                if (map.TryPickT0(out var @event, out var error))
+                {
+                    events.Add(@event);
+                }
+                else
+                {
+                    return new ErrorResult<IList<IPaymentEvent>>(error);
+                }
+            }
+
+            return events;
         }
 
-        public async Task<OneOf<StorageOk, Exception>> SaveAsync<TEvent>(TEvent @event, CancellationToken cancellationToken) where TEvent : IPaymentEvent
+        public async Task<Result> SaveAsync(IList<IPaymentEvent> paymentEvents, CancellationToken cancellationToken)
         {
             try
             {
-                await dynamoContext.SaveAsync(@event, cancellationToken);
+                //BatchWrite<PaymentEvent> batch = dynamoContext.CreateBatchWrite<PaymentEvent>();
+                //foreach (var @event in payment.UncommittedEvents)
+                //{
+                //    batch.AddPutItems(payment.UncommittedEvents);
+                //}
+                //await batch.ExecuteAsync(cancellationToken);
 
-                return new StorageOk();
+                if (paymentEvents.Count == 0)
+                {
+                    LogEmptySaveRequest();
+                    return new OKResult();
+                }
+
+                var transactWriteItemsRequest = new TransactWriteItemsRequest
+                {
+                    TransactItems = new List<TransactWriteItem>()
+                };
+
+                foreach (var @event in paymentEvents)
+                {
+                    var document = dynamoContext.ToDocument<IPaymentEvent>(@event);
+                    var putRequest = new Put
+                    {
+                        TableName = Constants.TableName,
+                        Item = document.ToAttributeMap()
+                    };
+
+                    transactWriteItemsRequest.TransactItems.Add(new TransactWriteItem
+                    {
+                        Put = putRequest
+                    });
+                }
+
+                await dynamoClient.TransactWriteItemsAsync(transactWriteItemsRequest, cancellationToken);
+
+                return new OKResult();
             }
             catch (Exception ex)
             {
-                return ex;
+                return new ErrorResult<Payment>(new StorageExceptionError(ex));
             }
         }
 
+        [LoggerMessage(Level = LogLevel.Information, Message = "Tried to save a payment with no changes")]
+        partial void LogEmptySaveRequest();
     }
 }

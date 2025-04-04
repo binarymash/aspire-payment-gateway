@@ -1,8 +1,8 @@
 ﻿using Moq;
 using Shouldly;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Services.BankApi.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 {
@@ -105,7 +105,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
             var verify = Verify(await _handler.PostPaymentAsync(request, default));
             if (scenario!= null)
             {
-                verify.UseParameters(scenario);
+                await verify.UseParameters(scenario);
             }
 
             _fraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -116,8 +116,6 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 
             var paymentRequestedInstrument = _paymentRequestedCountCollector.GetMeasurementSnapshot();
             paymentRequestedInstrument.Count.ShouldBe(1);
-
-            await verify;
         }
     }
 }

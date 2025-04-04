@@ -1,39 +1,37 @@
-﻿using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
-using AspirePaymentGateway.Api.Features.Payments.Events;
-using AspirePaymentGateway.Api.Features.Payments.GetPayment.EventStore;
-using OneOf;
+﻿using AspirePaymentGateway.Api.Extensions.Results;
+using AspirePaymentGateway.Api.Features.Payments.Domain;
+using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
+using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 
 namespace AspirePaymentGateway.Api.Storage.InMemory
 {
-    public class InMemoryPaymentEventRepository : ISavePaymentEvent, IGetPaymentEvent
+    public class InMemoryPaymentEventRepository : ISavePayment, IPaymentEventsRepository
     {
-        readonly Dictionary<string, List<IPaymentEvent>> _store = new();
+        readonly Dictionary<string, List<IPaymentEvent>> _store = [];
 
-        public async Task<OneOf<IEnumerable<IPaymentEvent>, Exception>> GetAsync(string paymentId, CancellationToken cancellationToken)
+        public async Task<Result<IList<IPaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
-            await Task.CompletedTask;
-
             if (!_store.TryGetValue(paymentId, out var events))
             {
-                events = new List<IPaymentEvent>();
-            }
+                return new ErrorResult<IList<IPaymentEvent>>(new Errors.PaymentNotFoundError());
+            }                      
 
-            return events;
+            return await Task.FromResult(events);
         }
 
-        public async Task<OneOf<StorageOk, Exception>> SaveAsync<TEvent>(TEvent paymentEvent, CancellationToken cancellationToken) where TEvent : IPaymentEvent
+        public async Task<Result> SaveAsync(IList<IPaymentEvent> paymentEvents, CancellationToken cancellationToken)
         {
-            await Task.CompletedTask;
-
-            if (!_store.TryGetValue(paymentEvent.Id, out var events))
+            foreach (var paymentEvent in paymentEvents)
             {
-                events = new List<IPaymentEvent>();
-                _store[paymentEvent.Id] = events;
+                if (!_store.TryGetValue(paymentEvent.Id, out var storedPaymentEvents))
+                {
+                    storedPaymentEvents = new List<IPaymentEvent>();
+                    _store[paymentEvent.Id] = storedPaymentEvents;
+                }
+                storedPaymentEvents.Add(paymentEvent);
             }
 
-            events.Add(paymentEvent);
-
-            return new StorageOk();
+            return await Task.FromResult(new OKResult());
         }
     }
 }

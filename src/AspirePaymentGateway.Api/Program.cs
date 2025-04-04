@@ -2,21 +2,19 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Extensions.Http.Logging;
 using AspirePaymentGateway.Api.Extensions.Redaction;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.EventStore;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.Validation;
-using AspirePaymentGateway.Api.Features.Payments.GetPayment;
-using AspirePaymentGateway.Api.Features.Payments.GetPayment.EventStore;
+using AspirePaymentGateway.Api.Features.Payments;
+using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
+using AspirePaymentGateway.Api.Features.Payments.Validation;
 using AspirePaymentGateway.Api.Storage.DynamoDb;
+using AspirePaymentGateway.Api.Storage.InMemory;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;
 using Refit;
 using System.Text.Json;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.GetPayment.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -53,8 +51,9 @@ builder.Services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonCo
 
 // domain classes
 builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
-builder.Services.AddSingleton<ISavePaymentEvent, DynamoDbPaymentEventRepository>();
-builder.Services.AddSingleton<IGetPaymentEvent, DynamoDbPaymentEventRepository>();
+builder.Services.AddSingleton<PaymentSession>();
+//builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
+builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 builder.Services.AddStandardDateTimeProvider();
 builder.Services.AddSingleton<CreatePaymentHandler>();
 builder.Services.AddSingleton<GetPaymentHandler>();
@@ -99,7 +98,7 @@ app.MapPost("/payments",
         async (CreatePaymentHandler handler, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(request, cancellationToken))
     .WithSummary("Make Payment")
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
-    .Produces<PaymentResponse>(StatusCodes.Status201Created)
+    .Produces<PaymentResponseDto>(StatusCodes.Status201Created)
     .ProducesValidationProblem(StatusCodes.Status400BadRequest)
     .ProducesProblem(StatusCodes.Status500InternalServerError)
     .RequireAuthorization();
@@ -108,7 +107,7 @@ app.MapGet("/payments/{paymentId}",
         async (GetPaymentHandler handler, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(paymentId, cancellationToken))
     .WithSummary("Get Payment")
     .WithDescription("Retrieves the payment events for the specified payment")
-    .Produces<GetPaymentResponse>(StatusCodes.Status200OK)
+    .Produces<PaymentResponseDto>(StatusCodes.Status200OK)
     .ProducesProblem(StatusCodes.Status404NotFound)
     .ProducesProblem(StatusCodes.Status500InternalServerError)
     .RequireAuthorization();

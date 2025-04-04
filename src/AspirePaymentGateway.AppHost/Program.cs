@@ -20,7 +20,8 @@ var keycloakPassword = builder.AddParameter("KeycloakAdminPassword", secret: tru
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminUsername: keycloakUser, adminPassword: keycloakPassword)
     .WithDataVolume()
     .WithRealmImport("./keycloak/realms")
-    .WithExternalHttpEndpoints();
+    .WithExternalHttpEndpoints()
+    .WithLifetime(ContainerLifetime.Persistent);
 
 var fraudApi = builder.AddProject<Projects.AspirePaymentGateway_FraudApi>("fraud-api");
 

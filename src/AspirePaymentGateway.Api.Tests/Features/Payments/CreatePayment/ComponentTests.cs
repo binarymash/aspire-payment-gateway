@@ -1,15 +1,15 @@
 ﻿using AspirePaymentGateway.Api.Extensions.DateTime;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.BankApi;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.FraudApi;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment.Validation;
-using AspirePaymentGateway.Api.Features.Payments.CreatePayment;
 using AspirePaymentGateway.Api.Storage.InMemory;
 using AspirePaymentGateway.Api.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Moq;
 using System.Diagnostics.Metrics;
-using static AspirePaymentGateway.Api.Features.Payments.CreatePayment.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Contracts;
+using AspirePaymentGateway.Api.Features.Payments;
+using AspirePaymentGateway.Api.Features.Payments.Validation;
+using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 {
