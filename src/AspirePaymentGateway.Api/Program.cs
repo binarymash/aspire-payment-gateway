@@ -100,7 +100,7 @@ app.MapPost("/payments",
         async (CreatePaymentHandler handler, PaymentRequest request, CancellationToken cancellationToken) => await handler.PostPaymentAsync(request, cancellationToken))
     .WithSummary("Make Payment")
     .WithDescription("Makes a payment on the specified card: Fraud screening is performed before the request is sent to the bank for authorisation")
-    .Produces<PaymentResponseDto>(StatusCodes.Status201Created)
+    .Produces<PaymentResponse>(StatusCodes.Status201Created)
     .ProducesValidationProblem(StatusCodes.Status400BadRequest)
     .ProducesProblem(StatusCodes.Status500InternalServerError)
     .RequireAuthorization();
@@ -109,7 +109,7 @@ app.MapGet("/payments/{paymentId}",
         async (GetPaymentHandler handler, string paymentId, CancellationToken cancellationToken) => await handler.GetPaymentAsync(paymentId, cancellationToken))
     .WithSummary("Get Payment")
     .WithDescription("Retrieves the payment events for the specified payment")
-    .Produces<PaymentResponseDto>(StatusCodes.Status200OK)
+    .Produces<PaymentResponse>(StatusCodes.Status200OK)
     .ProducesProblem(StatusCodes.Status404NotFound)
     .ProducesProblem(StatusCodes.Status500InternalServerError)
     .RequireAuthorization();

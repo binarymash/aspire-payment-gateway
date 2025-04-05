@@ -8,8 +8,6 @@ namespace AspirePaymentGateway.Api.Features.Payments
     // The annotations are used to generate the OpenAPI spec
     public static class Contracts
     {
-        public static PaymentResponseDto MapPaymentResponse(Payment payment) => new PaymentResponseDto(payment.Id, payment.Status);
-
         // request
 
         public record PaymentRequest(
@@ -86,7 +84,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
         // response
 
         [Description("Details of the payment")]
-        public record PaymentResponseDto(
+        public record PaymentResponse(
             [property: Description("The ID of the payment")]
             [property: Required]
             [property: DefaultValue("pay_1ec62e16-5403-4a93-bd31-5804daec4263")]
@@ -96,6 +94,70 @@ namespace AspirePaymentGateway.Api.Features.Payments
             [property: Required]
             [property: AllowedValues(PaymentStatus.Pending, PaymentStatus.Authorised, PaymentStatus.Declined)]
             [property: DefaultValue(PaymentStatus.Authorised)]
-            string Status);
+            string Status,
+
+            [property: Description("The details of the card being used")]
+            [property: Required]
+            [property: LogProperties]
+            CardDetailsResponse Card,
+
+            [property: Description("The details of the payment")]
+            [property: Required]
+            [property: LogProperties]
+            AmountDetailsResponse Amount,
+
+            [property: Description("The time at which the payment was last updated")]
+            [property: Required]
+            DateTime LastUpdated,
+
+            [property: Description("The reason the payment was declined")]
+            string? DeclineReason = null);
+
+        public record CardDetailsResponse(
+            [property: Description("The card number of the customer")]
+            [property: Required]
+            [property: DefaultValue("4***********1111")]
+            string CardNumber,
+
+            [property: Description("The name of the card holder")]
+            [property: Required]
+            [property: DefaultValue("Philip Wood")]
+            [property: LogProperties]
+            [property: PiiData]
+            string CardHolderName
+            );
+
+        public record AmountDetailsResponse(
+            [property: Description("The amount in minor units")]
+            [property: Required]
+            [property: DefaultValue(999L)]
+            [property: LogProperties]
+            long Amount,
+
+            [property: Description("ISO 3-char currency code")]
+            [property: Required]
+            [property: DefaultValue("GBP")]
+            [property: LogProperties]
+            string CurrencyCode);
+
+        public static PaymentResponse MapPaymentResponse(Payment payment) =>
+            new PaymentResponse(
+                payment.Id,
+                payment.Status,
+                MapCardDetailsResponse(payment.Card),
+                MapAmountDetailsResponse(payment.Amount),
+                payment.LastUpdated,
+                payment.DeclineReason);
+
+        public static CardDetailsResponse MapCardDetailsResponse(Card card) =>
+            new CardDetailsResponse(
+                card.CardNumber,
+                card.CardHolderName);
+
+        public static AmountDetailsResponse MapAmountDetailsResponse(Amount amount) =>
+                    new AmountDetailsResponse(
+                        amount.ValueInMinorUnits,
+                        amount.CurrencyCode);
+
     }
 }
