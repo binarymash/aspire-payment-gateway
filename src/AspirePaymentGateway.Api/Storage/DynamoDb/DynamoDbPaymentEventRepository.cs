@@ -35,7 +35,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
             }
             catch(Exception ex)
             {
-                return new ErrorResult<IList<IPaymentEvent>>(new StorageExceptionError(ex));
+                return Result.Error<IList<IPaymentEvent>>(new StorageExceptionError(ex));
             }
 
             List<IPaymentEvent> events = new List<IPaymentEvent>();
@@ -58,7 +58,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 }
                 else
                 {
-                    return new ErrorResult<IList<IPaymentEvent>>(error);
+                    return Result.Error<IList<IPaymentEvent>>(error);
                 }
             }
 
@@ -79,7 +79,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 if (paymentEvents.Count == 0)
                 {
                     LogEmptySaveRequest();
-                    return new OKResult();
+                    return Result.Ok;
                 }
 
                 var transactWriteItemsRequest = new TransactWriteItemsRequest
@@ -104,11 +104,11 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 await dynamoClient.TransactWriteItemsAsync(transactWriteItemsRequest, cancellationToken);
 
-                return new OKResult();
+                return Result.Ok;
             }
             catch (Exception ex)
             {
-                return new ErrorResult<Payment>(new StorageExceptionError(ex));
+                return Result.Error<Payment>(new StorageExceptionError(ex));
             }
         }
 

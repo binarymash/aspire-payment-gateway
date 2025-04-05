@@ -9,10 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\Payments\CreatePayment\500InternalServerError\**" />
+    <EmbeddedResource Remove="Features\Payments\CreatePayment\500InternalServerError\**" />
+    <None Remove="Features\Payments\CreatePayment\500InternalServerError\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MELT.Xunit" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -96,10 +103,6 @@
     <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.NullRequest.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Payments\CreatePayment\500InternalServerError\" />
   </ItemGroup>
 
 </Project>

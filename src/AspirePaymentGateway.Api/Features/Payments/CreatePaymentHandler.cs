@@ -88,7 +88,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
                 if (!validationResult.IsValid)
                 {
-                    return new ErrorResult<Payment>(new Errors.ValidationError(validationResult));
+                    return Result.Error<Payment>(new Errors.ValidationError(validationResult));
                 }
                 Activity.Current?.AddBaggage("funky", "whatsit");
                 Payment payment = new();
@@ -139,7 +139,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 }
                 catch (Exception ex)
                 {
-                    result = new ErrorResult<Payment>(new Errors.ExceptionError("SOP-whatever", "Fraud API failed", ex));
+                    result = Result.Error<Payment>(new Errors.ExceptionError("SOP-whatever", "Fraud API failed", ex));
                 }
 
                 if (result.IsFailure)

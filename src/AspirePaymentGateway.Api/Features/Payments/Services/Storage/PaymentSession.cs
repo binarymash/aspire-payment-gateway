@@ -13,12 +13,12 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.Storage
 
             if (result.IsFailure)
             {
-                return new ErrorResult<Payment>(result.ErrorDetail);
+                return Result.Error<Payment>(result.ErrorDetail);
             }
 
             if (result.Value.Count == 0)
             {
-                return new ErrorResult<Payment>(new Errors.PaymentNotFoundError());
+                return Result.Error<Payment>(new Errors.PaymentNotFoundError());
             }
 
             foreach (var paymentEvent in result.Value)
@@ -40,7 +40,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.Storage
                 return payment;
             }
 
-            return new ErrorResult<Payment>(result.ErrorDetail);
+            return Result.Error<Payment>(result.ErrorDetail);
         }
     }
 }

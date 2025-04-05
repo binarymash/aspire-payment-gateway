@@ -8,6 +8,7 @@ using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Moq;
 using Moq.AutoMock;
 using System.Diagnostics.Metrics;
+using System.Globalization;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
@@ -32,7 +33,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 
             _mocker = new AutoMocker();
             _mocker.Use<BusinessMetrics>(metrics);
-            _mocker.Use<IDateTimeProvider>(new StubbedDateTimeProvider(DateTime.Parse("2022-01-01T00:00:00Z")));
+            _mocker.Use<IDateTimeProvider>(new StubbedDateTimeProvider(DateTime.Parse("2022-01-01T00:00:00Z", CultureInfo.InvariantCulture)));
 
             _handler = _mocker.CreateInstance<CreatePaymentHandler>();
         }

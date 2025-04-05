@@ -1,5 +1,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using AspirePaymentGateway.Api;
 using AspirePaymentGateway.Api.Extensions.Http.Logging;
 using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Features.Payments;
@@ -13,7 +14,6 @@ using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;
 using Refit;
-using System.Diagnostics;
 using System.Text.Json;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
@@ -21,7 +21,7 @@ using static Microsoft.Extensions.Hosting.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddSingleton(new ActivitySource("whatever"));
+builder.Services.AddSingleton(ActivitySourceHelper.ActivitySource);
 
 //domain-specific metrics
 builder.Services.AddSingleton<BusinessMetrics>();

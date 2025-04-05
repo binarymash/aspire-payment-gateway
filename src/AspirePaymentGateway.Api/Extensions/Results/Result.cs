@@ -8,6 +8,12 @@
 
         public bool IsFailure => !IsSuccess;
 
+        public static Result Ok => new OkResult();
+
+        public static Result Error(ErrorDetail errorDetail) => new ErrorResult(errorDetail);
+
+        public static Result<T> Error<T>(ErrorDetail errorDetail) => new ErrorResult<T>(errorDetail);
+
         protected Result(bool isSuccess, ErrorDetail errorDetail = null!)
         {
             IsSuccess = isSuccess;
@@ -15,21 +21,9 @@
         }
     }
 
-    public abstract record Result<T> : Result
+    public record OkResult : Result
     {
-        public T Value { get; protected set; } = default!;
-
-        protected Result(bool isSuccess, T value = default!, ErrorDetail errorDetail = default!) : base(isSuccess, errorDetail)
-        {
-            Value = value;
-        }
-
-        public static implicit operator Result<T>(T value) => new OKResult<T>(value);
-    }
-
-    public record OKResult : Result
-    {
-        public OKResult() : base(true) { }
+        public OkResult() : base(true) { }
     }
 
     public record ErrorResult : Result
@@ -39,9 +33,22 @@
         }
     }
 
-    public record OKResult<T> : Result<T>
+    public abstract record Result<T> : Result
     {
-        public OKResult(T value) : base(true, value) { }
+        public T Value { get; protected set; } = default!;
+
+        protected Result(bool isSuccess, T value = default!, ErrorDetail errorDetail = default!) 
+            : base(isSuccess, errorDetail)
+        {
+            Value = value;
+        }
+
+        public static implicit operator Result<T>(T value) => new OkResult<T>(value);
+    }
+
+    public record OkResult<T> : Result<T>
+    {
+        public OkResult(T value) : base(true, value) { }
     }
 
     public record ErrorResult<T> : Result<T>

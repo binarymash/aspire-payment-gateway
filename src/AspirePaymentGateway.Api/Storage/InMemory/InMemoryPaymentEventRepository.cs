@@ -13,7 +13,7 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
         {
             if (!_store.TryGetValue(paymentId, out var events))
             {
-                return new ErrorResult<IList<IPaymentEvent>>(new Errors.PaymentNotFoundError());
+                return Result.Error<IList<IPaymentEvent>>(new Errors.PaymentNotFoundError());
             }                      
 
             return await Task.FromResult(events);
@@ -31,7 +31,7 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
                 storedPaymentEvents.Add(paymentEvent);
             }
 
-            return await Task.FromResult(new OKResult());
+            return await Task.FromResult(new OkResult());
         }
     }
 }
