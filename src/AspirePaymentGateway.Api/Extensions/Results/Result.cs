@@ -30,6 +30,7 @@
     {
         public ErrorResult(ErrorDetail errorDetail) : base(false)
         {
+            ErrorDetail = errorDetail;
         }
     }
 

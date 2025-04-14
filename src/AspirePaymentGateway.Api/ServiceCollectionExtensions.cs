@@ -15,9 +15,11 @@ using Refit;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
 using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AspirePaymentGateway.Api
 {
+    [ExcludeFromCodeCoverage]
     public static class ServiceCollectionExtensions
     {
         /// <summary>
