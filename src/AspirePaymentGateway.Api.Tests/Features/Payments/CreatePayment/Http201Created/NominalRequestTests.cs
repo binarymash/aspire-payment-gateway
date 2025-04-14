@@ -52,9 +52,11 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 .ReturnsAsync(authorisationResponseFromBankApi);
 
             // act
-            var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default)).ScrubInlineGuids();
-
+            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default);
+            
             // assert
+            var verify = Verify(result).ScrubInlineGuids();
+
             Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             screeningRequestSentToFraudApi.ShouldBeEquivalentTo(expectedScreeningRequest);
 
@@ -73,6 +75,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
         [Fact]
         public async Task NominalRequestWhichIsDeclinedByBank()
         {
+            // arrange
             PaymentRequest request = TestData.PaymentRequests.Nominal;
 
             ScreeningRequest? screeningRequestSentToFraudApi = null;
@@ -104,7 +107,11 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 .Callback<AuthorisationRequest, CancellationToken>((authorisationRequest, ct) => authorisationRequestSentToBankApi = authorisationRequest)
                 .ReturnsAsync(authorisationResponseFromBankApi);
 
-            var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default)).ScrubInlineGuids();
+            // act
+            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default);
+
+            // assert
+            var verify = Verify(result).ScrubInlineGuids();
 
             Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             screeningRequestSentToFraudApi.ShouldBeEquivalentTo(expectedScreeningRequest);

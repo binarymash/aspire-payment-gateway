@@ -8,7 +8,6 @@ using AspirePaymentGateway.Api.Storage.InMemory;
 using MELT;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment
 {
@@ -42,19 +41,8 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment
 
         public GetPaymentFixture Reset()
         {
+            LoggerFactory.Sink.Clear();
             return this;
         }
-
-        public PaymentRequest NominalPaymentRequest => new(
-            new CardDetails(
-                CardNumber: "4444333322221111",
-                CardHolderName: "Philip Wood",
-                Expiry: new CardExpiry(
-                    Month: 5,
-                    Year: 2029),
-                CVV: 123),
-            new PaymentDetails(
-                Amount: 4567L,
-                CurrencyCode: "GBP"));
     }
 }
