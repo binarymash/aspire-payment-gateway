@@ -21,6 +21,58 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
 
         public List<IPaymentEvent> UncommittedEvents { get; } = [];
 
+        public static Payment Create(
+            string paymentId, 
+            long amountInMinorUnits, 
+            string currencyIsoCode,
+            string cardNumber,
+            string cardHolderName,
+            int cvv,
+            int expiryMonth,
+            int expiryYear)
+        {
+            Payment payment = new();
+            
+            payment.Apply(new PaymentRequestedEvent()
+            {
+                Id = paymentId,
+                OccurredAt = DateTime.UtcNow.ToString("O"),
+                Amount = amountInMinorUnits,
+                Currency = currencyIsoCode,
+                CardNumber = cardNumber,
+                CardHolderName = cardHolderName,
+                Cvv = cvv,
+                ExpiryMonth = expiryMonth,
+                ExpiryYear = expiryYear
+            });
+
+            return payment;
+        }
+
+        public void RecordScreeningResponse(bool accepted)
+        {
+            Apply(new PaymentScreenedEvent
+            {
+                Id = this.Id,
+                OccurredAt = DateTime.UtcNow.ToString("O"),
+                ScreeningAccepted = accepted
+            });
+        }
+
+        internal void RecordAuthorisationResponse(string authorisationRequestId, bool isAuthorised, string? authorisationCode)
+        {
+            Apply(new PaymentAuthorisedEvent()
+            {
+                Id = this.Id,
+                OccurredAt = DateTime.UtcNow.ToString("O"),
+
+                AuthorisationTraceId = authorisationRequestId,
+                IsAuthorised = isAuthorised,
+                AuthorisationCode = authorisationCode,
+
+            });
+        }
+
         public void Apply(IPaymentEvent @event)
         {
             switch (@event)
@@ -40,16 +92,12 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
                 default:
                     throw new InvalidOperationException($"Unknown event type: {@event.GetType()}");
             }
-
-            LastUpdated = DateTime.Parse(@event.OccurredAt, CultureInfo.InvariantCulture);
-            UncommittedEvents.Add(@event);
         }
 
         public void FlushUncommittedEvents()
         {
             UncommittedEvents.Clear();
         }
-
 
         private void Apply(PaymentRequestedEvent @event)
         {
@@ -79,6 +127,9 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
             };
 
             Status = PaymentStatus.Pending;
+
+            LastUpdated = DateTime.Parse(@event.OccurredAt, CultureInfo.InvariantCulture);
+            UncommittedEvents.Add(@event);
         }
 
         private void Apply(PaymentScreenedEvent @event)
@@ -89,6 +140,9 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
             }
             ScreeningStatus = @event.ScreeningAccepted ? ScreeningStatus.Passed : ScreeningStatus.Rejected;
             Status = PaymentStatus.Screened;
+
+            LastUpdated = DateTime.Parse(@event.OccurredAt, CultureInfo.InvariantCulture);
+            UncommittedEvents.Add(@event);
         }
 
         private void Apply(PaymentAuthorisedEvent @event)
@@ -99,6 +153,9 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
             }
 
             Status = PaymentStatus.Authorised;
+
+            LastUpdated = DateTime.Parse(@event.OccurredAt, CultureInfo.InvariantCulture);
+            UncommittedEvents.Add(@event);
         }
 
         private void Apply(PaymentDeclinedEvent @event)
@@ -110,6 +167,9 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
 
             Status = PaymentStatus.Declined;
             DeclineReason = @event.Reason;
+
+            LastUpdated = DateTime.Parse(@event.OccurredAt, CultureInfo.InvariantCulture);
+            UncommittedEvents.Add(@event);
         }
     }
 }

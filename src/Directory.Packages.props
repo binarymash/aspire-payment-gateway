@@ -5,9 +5,9 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.406.13" />
+    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.406.17" />
     <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
-    <PackageVersion Include="Aspire.Hosting.AWS" Version="9.1.5" />
+    <PackageVersion Include="Aspire.Hosting.AWS" Version="9.1.6" />
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.1.0" />
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="9.1.0-preview.1.25121.10" />
     <PackageVersion Include="Aspire.Hosting.Testing" Version="9.1.0" />
@@ -36,9 +36,9 @@
     <PackageVersion Include="Roslynator.Analyzers" Version="4.13.1" />
     <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.13.1" />
     <PackageVersion Include="Roslynator.Formatting.Analyzers" Version="4.13.1" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.1.4" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.1.7" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
-    <PackageVersion Include="Verify.Xunit" Version="29.1.0" />
+    <PackageVersion Include="Verify.Xunit" Version="29.2.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="xunit" Version="2.9.3" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" />

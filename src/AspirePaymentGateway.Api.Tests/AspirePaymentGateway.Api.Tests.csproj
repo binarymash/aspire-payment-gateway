@@ -43,64 +43,67 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.EmptyCard.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.EmptyCard.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.EmptyPayment.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.EmptyPayment.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardCvv_cvv=0.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardCvv_cvv=0.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardCvv_cvv=1000.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardCvv_cvv=1000.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=1Character.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=1Character.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=36Characters.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=36Characters.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=AllDigits.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=AllDigits.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Empty.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Empty.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Null.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Null.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Whitespace.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardholderName_cardholderName=Whitespace.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=11Characters.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=11Characters.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=20Characters.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=20Characters.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Empty.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Empty.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
     <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Null.received.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Null.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Null.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Text.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Text.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=TextAndNumbers.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=TextAndNumbers.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Whitespace.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidCardNumber_cardNumber=Whitespace.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.InvalidRequest.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.InvalidRequest.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
-    <None Update="Features\Payments\CreatePayment\400BadRequests\BadRequestTests.NullRequest.verified.txt">
+    <None Update="Features\Payments\CreatePayment\Http400BadRequests\BadRequestTests.NullRequest.verified.txt">
+      <DependentUpon>BadRequestTests.cs</DependentUpon>
+    </None>
+    <None Update="Features\Payments\GetPayment\Http400BadRequest\BadRequestTests.PaymentDoesNotExist.verified.txt">
       <DependentUpon>BadRequestTests.cs</DependentUpon>
     </None>
   </ItemGroup>

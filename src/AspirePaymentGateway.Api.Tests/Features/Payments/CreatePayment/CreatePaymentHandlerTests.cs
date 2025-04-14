@@ -13,11 +13,12 @@ using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 {
-    public class CreatePaymentHandlerTests
+    public class CreatePaymentHandlerTests : IDisposable
     {
         private readonly MetricCollector<int> _collector;
         readonly AutoMocker _mocker;
         readonly CreatePaymentHandler _handler;
+        private bool disposedValue;
 
         public CreatePaymentHandlerTests()
         {
@@ -57,6 +58,33 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 
             var result = await _handler.PostPaymentAsync(request, CancellationToken.None);
 
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _collector.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~CreatePaymentHandlerTests()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

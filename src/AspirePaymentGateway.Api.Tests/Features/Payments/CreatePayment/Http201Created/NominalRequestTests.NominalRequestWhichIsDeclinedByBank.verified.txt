@@ -1,0 +1,14 @@
+﻿{
+  Value: {
+    PaymentId: pay_Guid_1,
+    Card: {
+      CardNumber: 4444333322221111
+    },
+    Amount: {
+      Amount: 4567
+    },
+    LastUpdated: DateTime_1
+  },
+  StatusCode: 201,
+  Location: /payments/pay_Guid_1
+}

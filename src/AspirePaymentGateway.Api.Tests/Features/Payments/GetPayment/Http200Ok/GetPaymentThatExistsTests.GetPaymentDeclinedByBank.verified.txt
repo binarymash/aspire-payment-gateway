@@ -1,0 +1,14 @@
+﻿{
+  Value: {
+    PaymentId: pay_Guid_1,
+    Card: {
+      CardNumber: 41234567812345678,
+      CardHolderName: John Doe
+    },
+    Amount: {
+      Amount: 12453
+    },
+    LastUpdated: DateTime_1
+  },
+  StatusCode: 200
+}

@@ -24,25 +24,28 @@ namespace AspirePaymentGateway.Api.Features.Payments
     {
         public async Task<IResult> PostPaymentAsync(PaymentRequest paymentRequest, CancellationToken cancellationToken)
         {
-            var result = await CreatePaymentWorkflow(paymentRequest, cancellationToken);
+            var result = await CreatePaymentWorkflowAsync(paymentRequest, cancellationToken);
 
+            // 201 created
             if (result.IsSuccess)
             {
                 return Results.Created($"/payments/{result.Value.Id}", Contracts.MapPaymentResponse(result.Value));
             }
 
+            // 400 bad request
             if (result.ErrorDetail is Errors.ValidationError)
             {
                 return Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary());
             }
 
+            // 500 internal server error
             return Results.Problem(detail: result.ErrorDetail.ToString());
         }
 
-        private async Task<Result<Payment>> CreatePaymentWorkflow(PaymentRequest paymentRequest, CancellationToken ct)
+        private async Task<Result<Payment>> CreatePaymentWorkflowAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
             // request validation and acceptance
-            var result = await AcceptPaymentRequest(paymentRequest, ct);
+            var result = await AcceptPaymentRequestAsync(paymentRequest, ct);
             if (result.IsFailure)
             {
                 if (result.ErrorDetail is Errors.ValidationError)
@@ -54,20 +57,20 @@ namespace AspirePaymentGateway.Api.Features.Payments
             // screening
             if (result.IsSuccess)
             {
-                result = await ScreenPayment(result.Value, ct);
+                result = await ScreenPaymentAsync(result.Value, ct);
                 if (result.IsSuccess && result.Value.ScreeningStatus != ScreeningStatus.Passed)
                 {
-                    result = await DeclinePayment(result.Value, "Fraud screening failed", ct);
+                    result = await DeclinePaymentAsync(result.Value, "Fraud screening failed", ct);
                 }
             }
 
             // authorisation
             if (result.IsSuccess && result.Value.ScreeningStatus == ScreeningStatus.Passed)
             {
-                result = await AuthorisePayment(result.Value, ct);
+                result = await AuthorisePaymentAsync(result.Value, ct);
                 if (result.IsSuccess && result.Value.Status != PaymentStatus.Authorised)
                 {
-                    result = await DeclinePayment(result.Value, "Fraud screening failed", ct);
+                    result = await DeclinePaymentAsync(result.Value, "Fraud screening failed", ct);
                 }
             }
 
@@ -79,32 +82,32 @@ namespace AspirePaymentGateway.Api.Features.Payments
             return result;
         }
 
-        public async Task<Result<Payment>> AcceptPaymentRequest(PaymentRequest paymentRequest, CancellationToken ct)
+        public async Task<Result<Payment>> AcceptPaymentRequestAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Accepting payment", ActivityKind.Internal))
             {
-                var validationResult = await validator.ValidateAsync(paymentRequest ?? new(null!, null!), ct);
+                paymentRequest = paymentRequest ?? new(null!, null!);
+                
+                var validationResult = await validator.ValidateAsync(paymentRequest, ct);
                 Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
 
                 if (!validationResult.IsValid)
                 {
                     return Result.Error<Payment>(new Errors.ValidationError(validationResult));
                 }
-                Activity.Current?.AddBaggage("funky", "whatsit");
-                Payment payment = new();
 
-                payment.Apply(new PaymentRequestedEvent
-                {
-                    Id = $"pay_{Guid.NewGuid()}",
-                    OccurredAt = dateTimeProvider.UtcNowAsString,
-                    Amount = paymentRequest.Payment.Amount,
-                    Currency = paymentRequest.Payment.CurrencyCode,
-                    CardNumber = paymentRequest.Card.CardNumber,
-                    CardHolderName = paymentRequest.Card.CardHolderName,
-                    Cvv = paymentRequest.Card.CVV,
-                    ExpiryMonth = paymentRequest.Card.Expiry.Month,
-                    ExpiryYear = paymentRequest.Card.Expiry.Year
-                });
+                Activity.Current?.AddBaggage("funky", "whatsit");
+
+                var payment = Payment.Create(
+                    paymentId: $"pay_{Guid.NewGuid()}",
+                    amountInMinorUnits: paymentRequest.Payment.Amount,
+                    currencyIsoCode: paymentRequest.Payment.CurrencyCode,
+                    cardNumber: paymentRequest.Card.CardNumber,
+                    cardHolderName: paymentRequest.Card.CardHolderName,
+                    cvv: paymentRequest.Card.CVV,
+                    expiryMonth: paymentRequest.Card.Expiry.Month,
+                    expiryYear: paymentRequest.Card.Expiry.Year
+                    );
 
                 Activity.Current?.AddTag("activity-tag", "jeepers");
 
@@ -117,7 +120,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
         }
 
-        public async Task<Result<Payment>> ScreenPayment(Payment payment, CancellationToken ct)
+        public async Task<Result<Payment>> ScreenPaymentAsync(Payment payment, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Screening payment", ActivityKind.Internal))
             {
@@ -134,7 +137,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 try
                 {
                     var screeningResponse = await fraudApi.DoScreening(screeningRequest, ct);
-                    payment.Apply(new PaymentScreenedEvent { Id = payment.Id, OccurredAt = dateTimeProvider.UtcNowAsString, ScreeningAccepted = screeningResponse.Accepted });
+                    
+                    payment.RecordScreeningResponse(screeningResponse.Accepted);
+
                     result = await session.CommitAsync(payment, ct);
                 }
                 catch (Exception ex)
@@ -151,7 +156,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
         }
 
-        public async Task<Result<Payment>> AuthorisePayment(Payment payment, CancellationToken ct)
+        public async Task<Result<Payment>> AuthorisePaymentAsync(Payment payment, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Authorising payment", ActivityKind.Internal))
             {
@@ -162,12 +167,11 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
                 Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
 
-                payment.Apply(new PaymentAuthorisedEvent
-                {
-                    Id = payment.Id,
-                    OccurredAt = dateTimeProvider.UtcNowAsString,
-                    AuthorisationCode = "abc"
-                });
+                payment.RecordAuthorisationResponse(
+                    authorisationResponse.AuthorisationRequestId, 
+                    authorisationResponse.Authorised, 
+                    authorisationResponse.AuthorisationCode);
+
 
                 var result = await session.CommitAsync(payment, ct);
 
@@ -182,7 +186,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
         }
 
-        public async Task<Result<Payment>> DeclinePayment(Payment payment, string reason, CancellationToken ct)
+        public async Task<Result<Payment>> DeclinePaymentAsync(Payment payment, string reason, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Declining payment", ActivityKind.Internal))
             {

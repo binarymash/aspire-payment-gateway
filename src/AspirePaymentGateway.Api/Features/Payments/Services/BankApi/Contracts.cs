@@ -10,6 +10,11 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.BankApi
 
         public record AuthorisationResponse
         {
+            public required string AuthorisationRequestId { get; init; }
+
+            public required bool Authorised { get; init; }
+
+            public string? AuthorisationCode { get; init; }
         }
     }
 

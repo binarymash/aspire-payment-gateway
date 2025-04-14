@@ -1,87 +1,16 @@
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api;
-using AspirePaymentGateway.Api.Extensions.Http.Logging;
-using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Features.Payments;
-using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
-using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
-using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
-using AspirePaymentGateway.Api.Features.Payments.Validation;
-using AspirePaymentGateway.Api.Storage.DynamoDb;
-using AspirePaymentGateway.Api.Storage.InMemory;
-using AspirePaymentGateway.Api.Telemetry;
-using FluentValidation;
-using Microsoft.Extensions.Compliance.Classification;
-using Refit;
-using System.Text.Json;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
-builder.Services.AddSingleton(ActivitySourceHelper.ActivitySource);
 
-//domain-specific metrics
-builder.Services.AddSingleton<BusinessMetrics>();
-builder.Services.AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(BusinessMetrics.Name));
-
-// infrastructure
-builder.Services.AddAWSService<IAmazonDynamoDB>();
-builder.Services.AddSingleton<IDynamoDBContext, DynamoDBContext>();
-
-// Authentication and authorization
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication()
-    .AddKeycloakJwtBearer("keycloak", realm: "payment-gateway", options =>
-    {
-        options.RequireHttpsMetadata = false; //non-prod
-        options.Audience = "account";
-    });
-builder.Services.AddOpenApi(options => options.AddDocumentTransformer<BearerSecuritySchemeTransformer>());
-
-// fraud API
-var fraudApiClientBuilder = builder.Services.AddRefitClient<IFraudApi>(new RefitSettings(new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options)))
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://fraud-api"))
-    .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-// bank API
-builder.Services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"))
-    .AddHttpMessageHandler<LoggingDelegatingHandler>();
-
-// domain classes
-builder.Services.AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>();
-builder.Services.AddSingleton<PaymentSession>();
-//builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
-builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
-builder.Services.AddStandardDateTimeProvider();
-builder.Services.AddSingleton<CreatePaymentHandler>();
-builder.Services.AddSingleton<GetPaymentHandler>();
-builder.Services.AddTransient<LoggingDelegatingHandler>();
-
-// redaction
-builder.Services.AddRedaction(x =>
-{
-    x.SetRedactor<StarRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData, DataTaxonomy.PiiData));
-});
-
-// endpoint serialization configuration
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-    // .NET pipeline does not play nicely with source-generated JsonSerializerContexts, so lets avoid it.
-    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-});
-
-// add Instance info to problem details
-builder.Services.AddProblemDetails(configure =>
-{
-    configure.CustomizeProblemDetails = (problemDetailsContext) =>
-    {
-        problemDetailsContext.ProblemDetails.Instance = $"{problemDetailsContext.HttpContext.Request.Method} {problemDetailsContext.HttpContext.Request.Path}";
-    };
-});
+builder.Services
+    .AddApiServices()
+    .AddDomainServices()
+    .AddInfrastructure();
 
 var app = builder.Build();
 

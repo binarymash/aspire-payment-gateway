@@ -4,7 +4,7 @@ using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static AspirePaymentGateway.Api.Features.Payments.Services.BankApi.Contracts;
 using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contracts;
 
-namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
+namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400BadRequests
 {
     public class BadRequestTests : ComponentTests
     {
@@ -23,7 +23,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
         [Fact]
         public Task EmptyCard()
         {
-            PaymentRequest request = NominalRequest with
+            PaymentRequest request = NominalPaymentRequest with
             {
                 Card = new(null!, null!, null!, 0)
             };
@@ -42,9 +42,9 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
         [InlineData("abcde67890123456", "TextAndNumbers")]
         public Task InvalidCardNumber(string? cardNumber, string scenario)
         {
-            PaymentRequest request = NominalRequest with
+            PaymentRequest request = NominalPaymentRequest with
             {
-                Card = NominalRequest.Card with
+                Card = NominalPaymentRequest.Card with
                 {
                     CardNumber = cardNumber!
                 }
@@ -58,9 +58,9 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
         [InlineData(1000, "1000")]
         public Task InvalidCardCvv(int cvv, string scenario)
         {
-            PaymentRequest request = NominalRequest with
+            PaymentRequest request = NominalPaymentRequest with
             {
-                Card = NominalRequest.Card with
+                Card = NominalPaymentRequest.Card with
                 {
                     CVV = cvv
                 }
@@ -78,9 +78,9 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
         [InlineData("1234 5678", "AllDigits")]
         public Task InvalidCardholderName(string? cardholderName, string scenario)
         {
-            PaymentRequest request = NominalRequest with
+            PaymentRequest request = NominalPaymentRequest with
             {
-                Card = NominalRequest.Card with
+                Card = NominalPaymentRequest.Card with
                 {
                     CardHolderName = cardholderName!
                 }
@@ -89,10 +89,29 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
             return VerifyPaymentRequestIsRejected(request, scenario);
         }
 
+        [Theory]
+        [InlineData(null, "GBP", "Null Amount")]
+        [InlineData(-1, "GBP", "Negative Amount")]
+        [InlineData(0, "GBP", "Zero Amount")]
+        [InlineData(100000000, "GBP", "Amount Greater Than 99999999")]
+        [InlineData(100, null, "Null Currency Code")]
+        [InlineData(100, "", "Empty Currency Code")]
+        [InlineData(100, " ", "Whitespace Currency Code")]
+        [InlineData(100, "GBPX", "Unsupported Currency Account")]
+        public Task InvalidAmount(long amount, string currencyCode, string scenario)
+        {
+            PaymentRequest request = NominalPaymentRequest with
+            {
+                Payment = new(amount, currencyCode)
+            };
+
+            return VerifyPaymentRequestIsRejected(request, scenario);
+        }
+
         [Fact]
         public Task EmptyPayment()
         {
-            PaymentRequest request = NominalRequest with
+            PaymentRequest request = NominalPaymentRequest with
             {
                 Payment = new(0, null!)
             };
@@ -102,19 +121,19 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 
         private async Task VerifyPaymentRequestIsRejected(PaymentRequest request, string? scenario = null)
         {
-            var verify = Verify(await _handler.PostPaymentAsync(request, default));
+            var verify = Verify(await CreatePaymentHandler.PostPaymentAsync(request, default));
             if (scenario!= null)
             {
                 await verify.UseParameters(scenario);
             }
 
-            _fraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
-            _bankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Never);
 
-            var paymentFateInstrument = _paymentFateCountCollector.GetMeasurementSnapshot();
+            var paymentFateInstrument = PaymentFateCountCollector.GetMeasurementSnapshot();
             paymentFateInstrument.Count.ShouldBe(0);
 
-            var paymentRequestedInstrument = _paymentRequestedCountCollector.GetMeasurementSnapshot();
+            var paymentRequestedInstrument = PaymentRequestedCountCollector.GetMeasurementSnapshot();
             paymentRequestedInstrument.Count.ShouldBe(1);
         }
     }
