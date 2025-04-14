@@ -10,7 +10,7 @@ public class IntegrationTest1
     public async Task GetUnknownPaymentReturns404NotFound()
     {
         // Arrange
-        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspirePaymentGateway_AppHost>();
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspirePaymentGateway_AppHost>(TestContext.Current.CancellationToken);
         appHost.Services.AddLogging(logging =>
         {
             logging.SetMinimumLevel(LogLevel.Debug);
@@ -24,13 +24,13 @@ public class IntegrationTest1
             clientBuilder.AddStandardResilienceHandler();
         });
 
-        await using var app = await appHost.BuildAsync().WaitAsync(DefaultTimeout);
-        await app.StartAsync().WaitAsync(DefaultTimeout);
+        await using var app = await appHost.BuildAsync(TestContext.Current.CancellationToken);
+        await app.StartAsync(TestContext.Current.CancellationToken);
 
         // Act
         var httpClient = app.CreateHttpClient("payment-gateway");
-        await app.ResourceNotifications.WaitForResourceHealthyAsync("payment-gateway").WaitAsync(DefaultTimeout);
-        var response = await httpClient.GetAsync("/payments/abcdefg");
+        await app.ResourceNotifications.WaitForResourceHealthyAsync("payment-gateway", TestContext.Current.CancellationToken);
+        var response = await httpClient.GetAsync("/payments/abcdefg", TestContext.Current.CancellationToken);
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);

@@ -15,7 +15,7 @@
         {
             var paymentId = $"pay_{Guid.NewGuid()}";
 
-            await Verify(await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default)).ScrubInlineGuids();
+            await Verify(await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, TestContext.Current.CancellationToken)).ScrubInlineGuids();
         }
 
     }

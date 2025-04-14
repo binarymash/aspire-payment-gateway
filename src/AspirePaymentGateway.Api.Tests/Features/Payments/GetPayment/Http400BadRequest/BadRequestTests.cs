@@ -16,7 +16,7 @@
         [InlineData("12345678901234567890123456789012345678901", "41 characters is too long")]
         public async Task InvalidPaymentId(string paymentId, string scenario)
         {
-            await Verify(await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default)).ScrubInlineGuids().UseParameters(scenario);
+            await Verify(await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, TestContext.Current.CancellationToken)).ScrubInlineGuids().UseParameters(scenario);
         }
     }
 }

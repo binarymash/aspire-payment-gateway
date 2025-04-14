@@ -52,7 +52,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 .ReturnsAsync(authorisationResponseFromBankApi);
 
             // act
-            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default);
+            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, TestContext.Current.CancellationToken);
             
             // assert
             var verify = Verify(result).ScrubInlineGuids();
@@ -108,7 +108,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 .ReturnsAsync(authorisationResponseFromBankApi);
 
             // act
-            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default);
+            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, TestContext.Current.CancellationToken);
 
             // assert
             var verify = Verify(result).ScrubInlineGuids();

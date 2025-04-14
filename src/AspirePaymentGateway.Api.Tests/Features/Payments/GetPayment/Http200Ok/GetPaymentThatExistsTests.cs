@@ -20,10 +20,10 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
 
             var payment = TestData.Payment.AcceptedByBank(paymentId);
 
-            await _fixture.Repository.SaveAsync(payment.UncommittedEvents, default);
+            await _fixture.Repository.SaveAsync(payment.UncommittedEvents, TestContext.Current.CancellationToken);
 
             // Act
-            var response = await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default);
+            var response = await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, TestContext.Current.CancellationToken);
 
             // Assert
             await Verify(response).ScrubInlineGuids();
@@ -37,10 +37,10 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
 
             var payment = TestData.Payment.DeclinedByBank(paymentId);
 
-            await _fixture.Repository.SaveAsync(payment.UncommittedEvents, default);
+            await _fixture.Repository.SaveAsync(payment.UncommittedEvents, TestContext.Current.CancellationToken);
 
             // Act
-            var response = await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default);
+            var response = await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, TestContext.Current.CancellationToken);
 
             // Assert
             await Verify(response).ScrubInlineGuids();
