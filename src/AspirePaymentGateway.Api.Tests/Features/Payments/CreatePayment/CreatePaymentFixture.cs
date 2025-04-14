@@ -1,38 +1,37 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using AspirePaymentGateway.Api.Extensions.DateTime;
-using AspirePaymentGateway.Api.Features.Payments;
-using AspirePaymentGateway.Api.Features.Payments.Validation;
+﻿using AspirePaymentGateway.Api.Extensions.DateTime;
 using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
-using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
+using AspirePaymentGateway.Api.Features.Payments.Validation;
+using AspirePaymentGateway.Api.Features.Payments;
 using AspirePaymentGateway.Api.Storage.InMemory;
 using AspirePaymentGateway.Api.Telemetry;
+using MELT;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Microsoft.Extensions.Logging;
-using MELT;
+using System.Diagnostics;
+using System.Globalization;
+using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using Moq;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
-using System.Globalization;
+using System.Diagnostics.Metrics;
 
-namespace AspirePaymentGateway.Api.Tests.Features.Payments
+namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 {
-    public abstract class ComponentTests
+    public class CreatePaymentFixture
     {
-        protected ITestLoggerFactory LoggerFactory { get; init; }
-        protected CreatePaymentHandler CreatePaymentHandler { get; init; }
-        protected GetPaymentHandler GetPaymentHandler { get; init; }
-        protected PaymentSession Session { get; init; }
-        protected InMemoryPaymentEventRepository Repository { get; init; }
-        protected Mock<IFraudApi> FraudApi { get; init; }
-        protected Mock<IBankApi> BankApi { get; init; }
-        protected StubbedDateTimeProvider DateTimeProvider { get; init; }
-        protected ActivitySource ActivitySource { get; init; }
-        protected MetricCollector<long> PaymentRequestedCountCollector { get; init; }
-        protected MetricCollector<long> PaymentFateCountCollector { get; init; }
+        public ITestLoggerFactory LoggerFactory { get; init; }
+        public CreatePaymentHandler CreatePaymentHandler { get; init; }
+        public PaymentSession Session { get; init; }
+        public InMemoryPaymentEventRepository Repository { get; init; }
+        public Mock<IFraudApi> FraudApi { get; init; }
+        public Mock<IBankApi> BankApi { get; init; }
+        public StubbedDateTimeProvider DateTimeProvider { get; init; }
+        public ActivitySource ActivitySource { get; init; }
+        public MetricCollector<long> PaymentRequestedCountCollector { get; init; }
+        public MetricCollector<long> PaymentFateCountCollector { get; init; }
 
-        public ComponentTests()
+        public CreatePaymentFixture()
         {
             ServiceCollection services = new ServiceCollection();
             services.AddDomainServices();
@@ -61,11 +60,17 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments
                 businessMetrics,
                 dateTimeProvider: DateTimeProvider,
                 activitySource: ActivitySource);
+        }
 
-            GetPaymentHandler = new GetPaymentHandler(
-                session: Session, 
-                logger: LoggerFactory.CreateLogger<GetPaymentHandler>(),
-                validator: new PaymentIdValidator());
+        public CreatePaymentFixture Reset()
+        {
+            LoggerFactory.Sink.Clear();
+            FraudApi.Reset();
+            BankApi.Reset();
+            //Repository
+            PaymentRequestedCountCollector.Clear();
+            PaymentFateCountCollector.Clear();
+            return this;
         }
 
         private static (BusinessMetrics, IMeterFactory) SetUpBusinessMetrics()
@@ -80,17 +85,5 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments
 
             return (businessMetrics, meterFactory);
         }
-
-        protected static PaymentRequest NominalPaymentRequest => new(
-            new CardDetails(
-                CardNumber: "4444333322221111",
-                CardHolderName: "Philip Wood",
-                Expiry: new CardExpiry(
-                    Month: 5,
-                    Year: 2029),
-                CVV: 123),
-            new PaymentDetails(
-                Amount: 4567L,
-                CurrencyCode: "GBP"));
     }
 }

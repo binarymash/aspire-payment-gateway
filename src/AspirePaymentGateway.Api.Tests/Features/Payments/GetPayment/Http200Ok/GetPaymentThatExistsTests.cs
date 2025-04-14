@@ -2,11 +2,14 @@
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
 {
-    public class GetPaymentThatExistsTests : ComponentTests
+    [Collection(nameof(GetPaymentCollection))]
+    public class GetPaymentThatExistsTests
     {
-        public GetPaymentThatExistsTests()
-        {
+        GetPaymentFixture _fixture;
 
+        public GetPaymentThatExistsTests(GetPaymentFixture fixture)
+        {
+            _fixture = fixture.Reset();
         }
 
         [Fact]
@@ -15,25 +18,12 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
             // Arrange
             string paymentId = $"pay_{Guid.NewGuid().ToString()}";
 
-            var payment = Payment.Create(
-                paymentId,
-                amountInMinorUnits: 12453,
-                currencyIsoCode: "GBP",
-                cardNumber: "41234567812345678",
-                cardHolderName: "John Doe",
-                cvv: 655,
-                expiryMonth: 7,
-                expiryYear: 2026);
-            payment.RecordScreeningResponse(true);
-            payment.RecordAuthorisationResponse(
-                authorisationRequestId: "abcdef",
-                isAuthorised: true,
-                authorisationCode: "184698");
+            var payment = TestData.Payment.AcceptedByBank(paymentId);
 
-            await Repository.SaveAsync(payment.UncommittedEvents, default);
+            await _fixture.Repository.SaveAsync(payment.UncommittedEvents, default);
 
             // Act
-            var response = await GetPaymentHandler.GetPaymentAsync(paymentId, default);
+            var response = await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default);
 
             // Assert
             await Verify(response).ScrubInlineGuids();
@@ -45,68 +35,15 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
             // Arrange
             string paymentId = $"pay_{Guid.NewGuid().ToString()}";
 
-            var payment = Payment.Create(
-                paymentId,
-                amountInMinorUnits: 12453,
-                currencyIsoCode: "GBP",
-                cardNumber: "41234567812345678",
-                cardHolderName: "John Doe",
-                cvv: 655,
-                expiryMonth: 7,
-                expiryYear: 2026);
-            payment.RecordScreeningResponse(true);
-            payment.RecordAuthorisationResponse(
-                authorisationRequestId: "abcdef",
-                isAuthorised: false,
-                authorisationCode: "184698");
+            var payment = TestData.Payment.DeclinedByBank(paymentId);
 
-            await Repository.SaveAsync(payment.UncommittedEvents, default);
+            await _fixture.Repository.SaveAsync(payment.UncommittedEvents, default);
 
             // Act
-            var response = await GetPaymentHandler.GetPaymentAsync(paymentId, default);
+            var response = await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default);
 
             // Assert
             await Verify(response).ScrubInlineGuids();
-        }
-
-        Payment PaymentAcceptedByBank(string paymentId)
-        {
-            var payment = Payment.Create(
-                paymentId,
-                amountInMinorUnits: 12453,
-                currencyIsoCode: "GBP",
-                cardNumber: "41234567812345678",
-                cardHolderName: "John Doe",
-                cvv: 655,
-                expiryMonth: 7,
-                expiryYear: 2026);
-            payment.RecordScreeningResponse(true);
-            payment.RecordAuthorisationResponse(
-                authorisationRequestId: "abcdef",
-                isAuthorised: true,
-                authorisationCode: "184698");
-
-            return payment;
-        }
-
-        Payment PaymentDeclinedByBank(string paymentId)
-        {
-            var payment = Payment.Create(
-                paymentId,
-                amountInMinorUnits: 12453,
-                currencyIsoCode: "GBP",
-                cardNumber: "41234567812345678",
-                cardHolderName: "John Doe",
-                cvv: 655,
-                expiryMonth: 7,
-                expiryYear: 2026);
-            payment.RecordScreeningResponse(true);
-            payment.RecordAuthorisationResponse(
-                authorisationRequestId: "abcdef",
-                isAuthorised: true,
-                authorisationCode: "184698");
-
-            return payment;
         }
     }
 }

@@ -33,5 +33,10 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
 
             return await Task.FromResult(new OkResult());
         }
+
+        public void Clear()
+        {
+            _store.Clear();
+        }
     }
 }

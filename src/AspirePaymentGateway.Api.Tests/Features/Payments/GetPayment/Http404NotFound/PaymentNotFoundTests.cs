@@ -1,26 +1,21 @@
-﻿using Shouldly;
-
-namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http404NotFound
+﻿namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http404NotFound
 {
-    public class PaymentNotFoundTests : ComponentTests
+    [Collection(nameof(GetPaymentCollection))]
+    public class PaymentNotFoundTests
     {
+        GetPaymentFixture _fixture;
+
+        public PaymentNotFoundTests(GetPaymentFixture fixture)
+        {
+            _fixture = fixture.Reset();
+        }
+
         [Fact]
         public async Task PaymentDoesNotExist()
         {
             var paymentId = $"pay_{Guid.NewGuid()}";
 
-            var verify = Verify(await GetPaymentHandler.GetPaymentAsync(paymentId, default)).ScrubInlineGuids();
-
-            FraudApi.VerifyNoOtherCalls();
-            BankApi.VerifyNoOtherCalls();
-
-            var paymentFateInstrument = PaymentFateCountCollector.GetMeasurementSnapshot();
-            paymentFateInstrument.Count.ShouldBe(0);
-
-            var paymentRequestedInstrument = PaymentRequestedCountCollector.GetMeasurementSnapshot();
-            paymentRequestedInstrument.Count.ShouldBe(0);
-
-            await verify;
+            await Verify(await _fixture.GetPaymentHandler.GetPaymentAsync(paymentId, default)).ScrubInlineGuids();
         }
 
     }

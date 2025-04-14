@@ -6,13 +6,21 @@ using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contra
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201Created
 {
-    public class NominalRequestTests : ComponentTests
+    [Collection(nameof(CreatePaymentCollection))]
+    public class NominalRequestTests
     {
+        public NominalRequestTests(CreatePaymentFixture fixture)
+        {
+            Fixture = fixture.Reset();
+        }
+
+        public CreatePaymentFixture Fixture { get; init; }
+
         [Fact]
         public async Task NominalRequestWhichIsAccepted()
         {
             // arrange
-            PaymentRequest request = NominalPaymentRequest;
+            PaymentRequest request = TestData.PaymentRequests.Nominal;
 
             ScreeningRequest? screeningRequestSentToFraudApi = null;
             ScreeningRequest expectedScreeningRequest = new()
@@ -24,7 +32,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             };
             ScreeningResponse screeningResponseFromFraudApi = new() { Accepted = true };
 
-            FraudApi
+            Fixture.FraudApi
                 .Setup(fraud => fraud.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<ScreeningRequest, CancellationToken>((screeningRequest, ct) => screeningRequestSentToFraudApi = screeningRequest)
                 .ReturnsAsync(screeningResponseFromFraudApi);
@@ -38,25 +46,25 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 AuthorisationCode = "ABCDEF",
             };
 
-            BankApi
+            Fixture.BankApi
                 .Setup(bank => bank.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<AuthorisationRequest, CancellationToken>((authorisationRequest, ct) => authorisationRequestSentToBankApi = authorisationRequest)
                 .ReturnsAsync(authorisationResponseFromBankApi);
 
             // act
-            var verify = Verify(await CreatePaymentHandler.PostPaymentAsync(request, default)).ScrubInlineGuids();
+            var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default)).ScrubInlineGuids();
 
             // assert
-            FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             screeningRequestSentToFraudApi.ShouldBeEquivalentTo(expectedScreeningRequest);
 
-            BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             authorisationRequestSentToBankApi.ShouldBeEquivalentTo(expectedAuthorisationRequest);
 
-            var paymentFateInstrument = PaymentFateCountCollector.GetMeasurementSnapshot();
+            var paymentFateInstrument = Fixture.PaymentFateCountCollector.GetMeasurementSnapshot();
             paymentFateInstrument.Count.ShouldBe(1);
 
-            var paymentRequestedInstrument = PaymentRequestedCountCollector.GetMeasurementSnapshot();
+            var paymentRequestedInstrument = Fixture.PaymentRequestedCountCollector.GetMeasurementSnapshot();
             paymentRequestedInstrument.Count.ShouldBe(1);
 
             await verify;
@@ -65,7 +73,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
         [Fact]
         public async Task NominalRequestWhichIsDeclinedByBank()
         {
-            PaymentRequest request = NominalPaymentRequest;
+            PaymentRequest request = TestData.PaymentRequests.Nominal;
 
             ScreeningRequest? screeningRequestSentToFraudApi = null;
             ScreeningRequest expectedScreeningRequest = new()
@@ -77,7 +85,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             };
             ScreeningResponse screeningResponseFromFraudApi = new() { Accepted = true };
 
-            FraudApi
+            Fixture.FraudApi
                 .Setup(fraud => fraud.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<ScreeningRequest, CancellationToken>((screeningRequest, ct) => screeningRequestSentToFraudApi = screeningRequest)
                 .ReturnsAsync(screeningResponseFromFraudApi);
@@ -91,23 +99,23 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 AuthorisationCode = "GHIJK",
             };
 
-            BankApi
+            Fixture.BankApi
                 .Setup(bank => bank.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()))
                 .Callback<AuthorisationRequest, CancellationToken>((authorisationRequest, ct) => authorisationRequestSentToBankApi = authorisationRequest)
                 .ReturnsAsync(authorisationResponseFromBankApi);
 
-            var verify = Verify(await CreatePaymentHandler.PostPaymentAsync(request, default)).ScrubInlineGuids();
+            var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default)).ScrubInlineGuids();
 
-            FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             screeningRequestSentToFraudApi.ShouldBeEquivalentTo(expectedScreeningRequest);
 
-            BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             authorisationRequestSentToBankApi.ShouldBeEquivalentTo(expectedAuthorisationRequest);
 
-            var paymentFateInstrument = PaymentFateCountCollector.GetMeasurementSnapshot();
+            var paymentFateInstrument = Fixture.PaymentFateCountCollector.GetMeasurementSnapshot();
             paymentFateInstrument.Count.ShouldBe(1);
 
-            var paymentRequestedInstrument = PaymentRequestedCountCollector.GetMeasurementSnapshot();
+            var paymentRequestedInstrument = Fixture.PaymentRequestedCountCollector.GetMeasurementSnapshot();
             paymentRequestedInstrument.Count.ShouldBe(1);
 
             await verify;
