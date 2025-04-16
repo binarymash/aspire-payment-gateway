@@ -75,7 +75,14 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             authorisationRequestSentToBankApi.ShouldBeEquivalentTo(new AuthorisationRequest
             { 
-                AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId 
+                AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId,
+                Pan = paymentRequest.Card.CardNumber,
+                CardHolderFullName = paymentRequest.Card.CardHolderName,
+                Cvv = paymentRequest.Card.CVV,
+                ExpiryMonth = paymentRequest.Card.Expiry.Month,
+                ExpiryYear = paymentRequest.Card.Expiry.Year,
+                Amount = paymentRequest.Payment.Amount,
+                CurrencyCode = paymentRequest.Payment.CurrencyCode,
             });
 
             // assert metrics
@@ -145,7 +152,14 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             authorisationRequestSentToBankApi.ShouldBeEquivalentTo(new AuthorisationRequest
             {
-                AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId
+                AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId,
+                Pan = paymentRequest.Card.CardNumber,
+                CardHolderFullName = paymentRequest.Card.CardHolderName,
+                Cvv = paymentRequest.Card.CVV,
+                ExpiryMonth = paymentRequest.Card.Expiry.Month,
+                ExpiryYear = paymentRequest.Card.Expiry.Year,
+                Amount = paymentRequest.Payment.Amount,
+                CurrencyCode = paymentRequest.Payment.CurrencyCode,
             });
 
             // assert metrics

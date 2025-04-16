@@ -10,12 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Payments\CreatePayment\500InternalServerError\**" />
-    <EmbeddedResource Remove="Features\Payments\CreatePayment\500InternalServerError\**" />
-    <None Remove="Features\Payments\CreatePayment\500InternalServerError\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="coverlet.collector">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

@@ -155,9 +155,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 card.CardHolderName);
 
         public static AmountDetailsResponse MapAmountDetailsResponse(Amount amount) =>
-                    new AmountDetailsResponse(
-                        amount.ValueInMinorUnits,
-                        amount.CurrencyCode);
+            new AmountDetailsResponse(
+                amount.ValueInMinorUnits,
+                amount.CurrencyCode);
 
     }
 }

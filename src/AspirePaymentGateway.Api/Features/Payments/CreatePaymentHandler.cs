@@ -162,7 +162,14 @@ namespace AspirePaymentGateway.Api.Features.Payments
             {
                 var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest
                 {
-                    AuthorisationRequestId = Guid.NewGuid().ToString()
+                    AuthorisationRequestId = Guid.NewGuid().ToString(),
+                    Pan = payment.Card.CardNumber,
+                    CardHolderFullName = payment.Card.CardHolderName,
+                    Cvv = payment.Card.CVV,
+                    ExpiryMonth = payment.Card.Expiry.Month,
+                    ExpiryYear = payment.Card.Expiry.Year,
+                    Amount = payment.Amount.ValueInMinorUnits,
+                    CurrencyCode = payment.Amount.CurrencyCode
                 };
 
                 var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
