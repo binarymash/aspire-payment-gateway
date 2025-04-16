@@ -1,6 +1,6 @@
 # aspire-payment-gateway
 
-Playing around with .NET Aspire to build a simple payment gateway in order to explore a variety of modern .NET tech and system architectures in a distributed system.
+Playing around with [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/get-started/aspire-overview) to build a simple payment gateway in order to (1) learn what it can do, and (2) explore a variety of modern .NET tech and system architectures within a distributed system.
 
 ## Requirements
 - .NET 9
