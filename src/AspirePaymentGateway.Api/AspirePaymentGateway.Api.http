@@ -1,4 +1,3 @@
-@AspirePaymentGateway.Api_HostAddress = http://localhost:5249
 @IdentityProvider.HostAddress = http://localhost:8080
 
 ### Get OAuth2 Token for Payment Gateway using username/password

@@ -12,6 +12,8 @@ using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 
 namespace AspirePaymentGateway.Api.Features.Payments
 {
+    // HTTP concerns
+
     public partial class CreatePaymentHandler(
         ILogger<CreatePaymentHandler> logger,
         IValidator<PaymentRequest> validator,
@@ -24,7 +26,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
     {
         public async Task<IResult> PostPaymentAsync(PaymentRequest paymentRequest, CancellationToken cancellationToken)
         {
-            var result = await CreatePaymentWorkflowAsync(paymentRequest, cancellationToken);
+            var result = await RunDomainWorkflowAsync(paymentRequest, cancellationToken);
 
             // 201 created
             if (result.IsSuccess)
@@ -42,7 +44,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
             return Results.Problem(detail: result.ErrorDetail.ToString());
         }
 
-        private async Task<Result<Payment>> CreatePaymentWorkflowAsync(PaymentRequest paymentRequest, CancellationToken ct)
+        // Domain workflow
+
+        private async Task<Result<Payment>> RunDomainWorkflowAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
             // request validation and acceptance
             var result = await AcceptPaymentRequestAsync(paymentRequest, ct);
@@ -82,7 +86,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
             return result;
         }
 
-        public async Task<Result<Payment>> AcceptPaymentRequestAsync(PaymentRequest paymentRequest, CancellationToken ct)
+        // Activities
+
+        private async Task<Result<Payment>> AcceptPaymentRequestAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Accepting payment", ActivityKind.Internal))
             {
@@ -120,7 +126,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
         }
 
-        public async Task<Result<Payment>> ScreenPaymentAsync(Payment payment, CancellationToken ct)
+        private async Task<Result<Payment>> ScreenPaymentAsync(Payment payment, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Screening payment", ActivityKind.Internal))
             {
@@ -156,7 +162,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
         }
 
-        public async Task<Result<Payment>> AuthorisePaymentAsync(Payment payment, CancellationToken ct)
+        private async Task<Result<Payment>> AuthorisePaymentAsync(Payment payment, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Authorising payment", ActivityKind.Internal))
             {
@@ -194,7 +200,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
         }
 
-        public async Task<Result<Payment>> DeclinePaymentAsync(Payment payment, string reason, CancellationToken ct)
+        private async Task<Result<Payment>> DeclinePaymentAsync(Payment payment, string reason, CancellationToken ct)
         {
             using (Activity.Current = activitySource.StartActivity("Declining payment", ActivityKind.Internal))
             {

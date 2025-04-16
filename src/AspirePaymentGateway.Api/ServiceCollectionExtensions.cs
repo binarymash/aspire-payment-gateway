@@ -1,8 +1,9 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Telemetry;
-using Microsoft.Extensions.Compliance.Classification;
 using AspirePaymentGateway.Api.Extensions.Http.Logging;
 using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
@@ -11,11 +12,10 @@ using AspirePaymentGateway.Api.Features.Payments.Validation;
 using AspirePaymentGateway.Api.Features.Payments;
 using AspirePaymentGateway.Api.Storage.InMemory;
 using FluentValidation;
+using Microsoft.Extensions.Compliance.Classification;
 using Refit;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
-using System.Text.Json;
-using System.Diagnostics.CodeAnalysis;
 
 namespace AspirePaymentGateway.Api
 {

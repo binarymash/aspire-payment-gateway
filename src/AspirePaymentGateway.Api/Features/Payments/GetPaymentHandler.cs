@@ -7,9 +7,11 @@ namespace AspirePaymentGateway.Api.Features.Payments
 {
     public partial class GetPaymentHandler(PaymentSession session, ILogger<GetPaymentHandler> logger, PaymentIdValidator validator)
     {
+        // HTTP concerns
+
         public async Task<IResult> GetPaymentAsync(string paymentId, CancellationToken cancellationToken)
         {
-            var result = await GetPaymentWorkflowAsync(paymentId, cancellationToken);
+            var result = await RunDomainWorkflowAsync(paymentId, cancellationToken);
 
             // 200 ok
             if (result.IsSuccess)
@@ -44,7 +46,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
             return Results.Problem(statusCode: 500, title: "Internal Server Error");
         }
 
-        private async Task<Result<Payment>> GetPaymentWorkflowAsync(string paymentId, CancellationToken ct)
+        // Domain Workflow
+
+        private async Task<Result<Payment>> RunDomainWorkflowAsync(string paymentId, CancellationToken ct)
         {
             var validationResult = validator.Validate(paymentId);
             if (!validationResult.IsValid)
