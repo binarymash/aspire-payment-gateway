@@ -46,6 +46,7 @@ namespace AspirePaymentGateway.Api
             // domain
             services
                 .AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>()
+                .AddSingleton<PaymentIdValidator>()
                 .AddSingleton<PaymentSession>()
                 .AddSingleton<CreatePaymentHandler>()
                 .AddSingleton<GetPaymentHandler>()

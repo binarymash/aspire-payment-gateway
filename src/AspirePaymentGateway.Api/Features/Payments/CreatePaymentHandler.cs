@@ -160,8 +160,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             using (Activity.Current = activitySource.StartActivity("Authorising payment", ActivityKind.Internal))
             {
-                var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest()
+                var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest
                 {
+                    AuthorisationRequestId = Guid.NewGuid().ToString()
                 };
 
                 var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);

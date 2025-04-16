@@ -20,16 +20,12 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
         public async Task NominalRequestWhichIsAccepted()
         {
             // arrange
-            PaymentRequest request = TestData.PaymentRequests.Nominal;
 
+            //arrange request from client
+            PaymentRequest paymentRequest = TestData.PaymentRequests.Nominal;
+
+            // arrange fraud api response
             ScreeningRequest? screeningRequestSentToFraudApi = null;
-            ScreeningRequest expectedScreeningRequest = new()
-            {
-                CardHolderName = request.Card.CardHolderName,
-                CardNumber = request.Card.CardNumber,
-                ExpiryMonth = request.Card.Expiry.Month,
-                ExpiryYear = request.Card.Expiry.Year
-            };
             ScreeningResponse screeningResponseFromFraudApi = new() { Accepted = true };
 
             Fixture.FraudApi
@@ -37,55 +33,69 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 .Callback<ScreeningRequest, CancellationToken>((screeningRequest, ct) => screeningRequestSentToFraudApi = screeningRequest)
                 .ReturnsAsync(screeningResponseFromFraudApi);
 
+            // arrange bank api response
             AuthorisationRequest? authorisationRequestSentToBankApi = null;
-            AuthorisationRequest expectedAuthorisationRequest = new();
-            AuthorisationResponse authorisationResponseFromBankApi = new()
-            { 
-                AuthorisationRequestId = Guid.NewGuid().ToString(),
-                Authorised = true,
-                AuthorisationCode = "ABCDEF",
-            };
+            AuthorisationResponse authorisationResponseFromBankApi = null!;
 
             Fixture.BankApi
                 .Setup(bank => bank.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback<AuthorisationRequest, CancellationToken>((authorisationRequest, ct) => authorisationRequestSentToBankApi = authorisationRequest)
-                .ReturnsAsync(authorisationResponseFromBankApi);
+                .ReturnsAsync((AuthorisationRequest authorisationRequest, CancellationToken ct) =>
+                {
+                    authorisationRequestSentToBankApi = authorisationRequest;
+                    
+                    authorisationResponseFromBankApi = new AuthorisationResponse
+                    {
+                        AuthorisationRequestId = authorisationRequest.AuthorisationRequestId,
+                        Authorised = true,
+                        AuthorisationCode = "ABCDE"
+                    };
+
+                    return authorisationResponseFromBankApi;
+                });
 
             // act
-            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, TestContext.Current.CancellationToken);
+            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(paymentRequest, TestContext.Current.CancellationToken);
             
             // assert
-            var verify = Verify(result).ScrubInlineGuids();
 
+            // assert response to client
+            await Verify(result).ScrubInlineGuids();
+
+            // assert fraud api response
             Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-            screeningRequestSentToFraudApi.ShouldBeEquivalentTo(expectedScreeningRequest);
+            screeningRequestSentToFraudApi.ShouldBeEquivalentTo(new ScreeningRequest
+            {
+                CardHolderName = paymentRequest.Card.CardHolderName,
+                CardNumber = paymentRequest.Card.CardNumber,
+                ExpiryMonth = paymentRequest.Card.Expiry.Month,
+                ExpiryYear = paymentRequest.Card.Expiry.Year
+            });
 
+            // assert bank api response
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-            authorisationRequestSentToBankApi.ShouldBeEquivalentTo(expectedAuthorisationRequest);
+            authorisationRequestSentToBankApi.ShouldBeEquivalentTo(new AuthorisationRequest
+            { 
+                AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId 
+            });
 
+            // assert metrics
             var paymentFateInstrument = Fixture.PaymentFateCountCollector.GetMeasurementSnapshot();
             paymentFateInstrument.Count.ShouldBe(1);
 
             var paymentRequestedInstrument = Fixture.PaymentRequestedCountCollector.GetMeasurementSnapshot();
             paymentRequestedInstrument.Count.ShouldBe(1);
-
-            await verify;
         }
 
         [Fact]
         public async Task NominalRequestWhichIsDeclinedByBank()
         {
             // arrange
-            PaymentRequest request = TestData.PaymentRequests.Nominal;
 
+            // arrange request from client
+            PaymentRequest paymentRequest = TestData.PaymentRequests.Nominal;
+
+            // arrange fraud api response
             ScreeningRequest? screeningRequestSentToFraudApi = null;
-            ScreeningRequest expectedScreeningRequest = new()
-            {
-                CardHolderName = request.Card.CardHolderName,
-                CardNumber = request.Card.CardNumber,
-                ExpiryMonth = request.Card.Expiry.Month,
-                ExpiryYear = request.Card.Expiry.Year
-            };
             ScreeningResponse screeningResponseFromFraudApi = new() { Accepted = true };
 
             Fixture.FraudApi
@@ -93,39 +103,57 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
                 .Callback<ScreeningRequest, CancellationToken>((screeningRequest, ct) => screeningRequestSentToFraudApi = screeningRequest)
                 .ReturnsAsync(screeningResponseFromFraudApi);
 
+            // arrange bank api response
             AuthorisationRequest? authorisationRequestSentToBankApi = null;
-            AuthorisationRequest expectedAuthorisationRequest = new();
-            AuthorisationResponse authorisationResponseFromBankApi = new()
-            {
-                AuthorisationRequestId = Guid.NewGuid().ToString(),
-                Authorised = false,
-                AuthorisationCode = "GHIJK",
-            };
+            AuthorisationResponse authorisationResponseFromBankApi = null!;
 
             Fixture.BankApi
                 .Setup(bank => bank.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()))
-                .Callback<AuthorisationRequest, CancellationToken>((authorisationRequest, ct) => authorisationRequestSentToBankApi = authorisationRequest)
-                .ReturnsAsync(authorisationResponseFromBankApi);
+                .ReturnsAsync((AuthorisationRequest authorisationRequest, CancellationToken ct) =>
+                {
+                    authorisationRequestSentToBankApi = authorisationRequest;
+
+                    authorisationResponseFromBankApi = new()
+                    {
+                        AuthorisationRequestId = authorisationRequest.AuthorisationRequestId,
+                        Authorised = false,
+                        AuthorisationCode = "GHIJK",
+                    };
+
+                    return authorisationResponseFromBankApi;
+                });
 
             // act
-            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(request, TestContext.Current.CancellationToken);
+            var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(paymentRequest, TestContext.Current.CancellationToken);
 
-            // assert
-            var verify = Verify(result).ScrubInlineGuids();
+            // assert 
 
+            // assert response to client
+            await Verify(result).ScrubInlineGuids();
+
+            // assert fraud api request
             Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-            screeningRequestSentToFraudApi.ShouldBeEquivalentTo(expectedScreeningRequest);
+            screeningRequestSentToFraudApi.ShouldBeEquivalentTo(new ScreeningRequest
+            {
+                CardHolderName = paymentRequest.Card.CardHolderName,
+                CardNumber = paymentRequest.Card.CardNumber,
+                ExpiryMonth = paymentRequest.Card.Expiry.Month,
+                ExpiryYear = paymentRequest.Card.Expiry.Year
+            });
 
+            // assert bank api request
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
-            authorisationRequestSentToBankApi.ShouldBeEquivalentTo(expectedAuthorisationRequest);
+            authorisationRequestSentToBankApi.ShouldBeEquivalentTo(new AuthorisationRequest
+            {
+                AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId
+            });
 
+            // assert metrics
             var paymentFateInstrument = Fixture.PaymentFateCountCollector.GetMeasurementSnapshot();
             paymentFateInstrument.Count.ShouldBe(1);
 
             var paymentRequestedInstrument = Fixture.PaymentRequestedCountCollector.GetMeasurementSnapshot();
             paymentRequestedInstrument.Count.ShouldBe(1);
-
-            await verify;
         }
     }
 }
