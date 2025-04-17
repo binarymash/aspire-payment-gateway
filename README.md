@@ -70,7 +70,7 @@ Here's a description of each of the systen resources visible in the dashboard.
   - Trade-offs:
     - If a test fails it might be more difficult to discover exactly what is causing the problem.
     - Edge-cases are more difficult to test. In these cases we might want to write class-specific unit tests. However, as our copmonent tests are using real implementations of all classes in a given feature, these edge conditions are often scenarios that can never actually arise - eg, null parames in constructors, etc.
-- We're using [Verify](https://github.com/VerifyTests/Verify) quite a lot to provide assertion tests. This lets us easily assert on complex objects. Stil not sure how I feel about this.
+- We're using [Verify](https://github.com/VerifyTests/Verify) quite a lot to provide approval tests. This lets us easily assert on complex objects. Stil not sure how I feel about this.
 - A code coverage report can be generated with the `./run-tests.sh` script.
 - Static code analysis is provided by [Roslynator](https://github.com/dotnet/roslynator), and applied automatically to all projects. This gives us immediate feedback in the IDE at development time.
 - [.editorconfig](https://editorconfig.org/) is used for consistent styling across IDEs
