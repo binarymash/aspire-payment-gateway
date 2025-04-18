@@ -3,20 +3,13 @@
 namespace AspirePaymentGateway.Tests.Payments.Failures
 {
     [Collection(nameof(PaymentCollection))]
-    public class Http500InternalServerErrorTests
+    public class Http500InternalServerErrorTests(PaymentFixture Fixture)
     {
-        private readonly PaymentFixture _fixture;
-
-        public Http500InternalServerErrorTests(PaymentFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
         [Fact]
         public async Task CreatePaymentWithExceptionInFraudApiReturns500()
         {
             //Arrange
-            using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+            using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent(TestData.PaymentRequest.ThrowsExceptionInFraudApi);
 
             // Act
@@ -27,6 +20,5 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             createPaymentResponse.Headers.Location.ShouldBeNull();
             //todo: validate content
         }
-
     }
 }

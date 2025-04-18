@@ -38,10 +38,7 @@ namespace AspirePaymentGateway.Tests.Payments
 
             IdentityServer = new IdentityServerTestClient(keycloakClient);
             PaymentGateway = new PaymentGatewayTestClient(_app.CreateHttpClient("payment-gateway", "https"), IdentityServer);
-
-
         }
-
 
         protected virtual void Dispose(bool disposing)
         {

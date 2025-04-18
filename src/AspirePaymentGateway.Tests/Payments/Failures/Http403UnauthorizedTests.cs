@@ -3,22 +3,15 @@ using Shouldly;
 namespace AspirePaymentGateway.Tests.Payments.Failures;
 
 [Collection(nameof(PaymentCollection))]
-public class Http403UnauthorizedTests
+public class Http403UnauthorizedTests(PaymentFixture Fixture)
 {
-    private readonly PaymentFixture _fixture;
-
-    public Http403UnauthorizedTests(PaymentFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Fact]
     public async Task CreateWithoutBearerTokenReturns403Unauthorised()
     {
         // Create payment
 
         //Arrange
-        using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+        using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
             .WithContent(TestData.PaymentRequest.Nominal)
             .WithoutBearerToken();
 
@@ -36,7 +29,7 @@ public class Http403UnauthorizedTests
         // Create payment
 
         //Arrange
-        using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+        using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
             .WithContent(TestData.PaymentRequest.Nominal)
             .WithBearerToken(TestData.BearerToken.PaymentGatewayCustomer.Expired);
 
@@ -54,8 +47,8 @@ public class Http403UnauthorizedTests
         // Arrange
         var paymentId = $"pay_{Guid.NewGuid()}";
         var paymentUri = new Uri($"/payments/{paymentId}", UriKind.Relative);
-        
-        using var getPaymentRequest = _fixture.PaymentGateway.GetPaymentRequest
+
+        using var getPaymentRequest = Fixture.PaymentGateway.GetPaymentRequest
             .WithLocation(paymentUri)
             .WithoutBearerToken();
 
@@ -73,7 +66,7 @@ public class Http403UnauthorizedTests
         var paymentId = $"pay_{Guid.NewGuid()}";
         var paymentUri = new Uri($"/payments/{paymentId}", UriKind.Relative);
 
-        using var getPaymentRequest = _fixture.PaymentGateway.GetPaymentRequest
+        using var getPaymentRequest = Fixture.PaymentGateway.GetPaymentRequest
             .WithLocation(paymentUri)
             .WithBearerToken(TestData.BearerToken.PaymentGatewayCustomer.Expired);
 

@@ -4,79 +4,76 @@
     {
         public static class PaymentRequest
         {
-            public static Dictionary<string, object> Nominal =>
-                new Dictionary<string, object>
+            public static Dictionary<string, object> Nominal => new ()
                 {
-                { "card", new Dictionary<string, object>
-                    {
-                        { "card_number", "4444333322221111" },
-                        { "card_holder_name", "Philip Wood" },
-                        { "expiry", new Dictionary<string, object>
-                            {
-                                { "month", 7 },
-                                { "year", 2025 }
-                            }
-                        },
-                        { "cvv", 123 }
+                    { "card", new Dictionary<string, object>
+                        {
+                            { "card_number", "4444333322221111" },
+                            { "card_holder_name", "Philip Wood" },
+                            { "expiry", new Dictionary<string, object>
+                                {
+                                    { "month", 7 },
+                                    { "year", 2025 }
+                                }
+                            },
+                            { "cvv", 123 }
+                        }
+                    },
+                    { "payment", new Dictionary<string, object>
+                        {
+                            { "amount", 999 },
+                            { "currency_code", "GBP" }
+                        }
                     }
-                },
-                { "payment", new Dictionary<string, object>
-                    {
-                        { "amount", 999 },
-                        { "currency_code", "GBP" }
-                    }
-                }
-            };
+                };
 
-            public static Dictionary<string, object> Invalid =>
-                new Dictionary<string, object>
+            public static Dictionary<string, object> Invalid => new()
                 {
-                { "card", new Dictionary<string, object>
-                    {
-                        { "card_number", "444433332222111" },
-                        { "card_holder_name", "Philip Wood" },
-                        { "expiry", new Dictionary<string, object>
-                            {
-                                { "month", 17 },
-                                { "year", 2023 }
-                            }
-                        },
-                        { "cvv", 123456 }
+                    { "card", new Dictionary<string, object>
+                        {
+                            { "card_number", "444433332222111" },
+                            { "card_holder_name", "Philip Wood" },
+                            { "expiry", new Dictionary<string, object>
+                                {
+                                    { "month", 17 },
+                                    { "year", 2023 }
+                                }
+                            },
+                            { "cvv", 123456 }
+                        }
+                    },
+                    { "payment", new Dictionary<string, object>
+                        {
+                            { "amount", -1 },
+                            { "currency_code", "GBP" }
+                        }
                     }
-                },
-                { "payment", new Dictionary<string, object>
-                    {
-                        { "amount", -1 },
-                        { "currency_code", "GBP" }
-                    }
-                }
-            };
+                };
 
-            public static Dictionary<string, object> Empty => new Dictionary<string, object>();
+            public static Dictionary<string, object> Empty => [];
 
-            public static Dictionary<string, object> ThrowsExceptionInFraudApi =>
-                new Dictionary<string, object>
+            public static Dictionary<string, object> ThrowsExceptionInFraudApi => new()
                 {
-                { "card", new Dictionary<string, object>
-                    {
-                        { "card_number", "4444333322221177" },
-                        { "card_holder_name", "Philip Wood" },
-                        { "expiry", new Dictionary<string, object>
-                            {
-                                { "month", 7 },
-                                { "year", 2025 }
-                            }
-                        },
-                        { "cvv", 123 }
+                    { "card", new Dictionary<string, object>
+                        {
+                            { "card_number", "4444333322221177" },
+                            { "card_holder_name", "Philip Wood" },
+                            { "expiry", new Dictionary<string, object>
+                                {
+                                    { "month", 7 },
+                                    { "year", 2025 }
+                                }
+                            },
+                            { "cvv", 123 }
+                        }
+                    },
+                    { "payment", new Dictionary<string, object>
+                        {
+                            { "amount", 999 },
+                            { "currency_code", "GBP" }
+                        }
                     }
-                },
-                { "payment", new Dictionary<string, object>
-                    {
-                        { "amount", 999 },
-                        { "currency_code", "GBP" }
-                    }
-                }
-            };
+                };
         }
 
         public static class BearerToken

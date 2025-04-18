@@ -4,25 +4,17 @@ using System.Text.Json;
 
 namespace AspirePaymentGateway.Tests.Payments
 {
-    public class PaymentGatewayTestClient : IDisposable
+    public class PaymentGatewayTestClient(HttpClient PaymentGateway, IdentityServerTestClient IdServer) : IDisposable
     {
-        private readonly HttpClient _paymentGatewayHttpClient;
-        private IdentityServerTestClient _idServer;
         private bool disposedValue;
 
-        public PaymentGatewayTestClient(HttpClient paymentGateway, IdentityServerTestClient idServer)
-        {
-            _paymentGatewayHttpClient = paymentGateway;
-            _idServer = idServer;
-        }
+        public CreatePaymentRequestBuilder CreatePaymentRequest => new(PaymentGateway, IdServer);
 
-        public CreatePaymentRequestBuilder CreatePaymentRequest => new CreatePaymentRequestBuilder(this);
-
-        public GetPaymentRequestBuilder GetPaymentRequest => new GetPaymentRequestBuilder(this);
+        public GetPaymentRequestBuilder GetPaymentRequest => new(PaymentGateway, IdServer);
 
         public class CreatePaymentRequestBuilder : RequestBuilder
         {
-            public CreatePaymentRequestBuilder(PaymentGatewayTestClient testClient) : base(testClient)
+            public CreatePaymentRequestBuilder(HttpClient PaymentGateway, IdentityServerTestClient IdServer) : base(PaymentGateway, IdServer)
             {
                 RequestMessage.Method = HttpMethod.Post;
                 RequestMessage.RequestUri = new Uri("/payments", UriKind.Relative);
@@ -43,27 +35,20 @@ namespace AspirePaymentGateway.Tests.Payments
 
         public class GetPaymentRequestBuilder : RequestBuilder
         {
-            public GetPaymentRequestBuilder(PaymentGatewayTestClient testClient) : base(testClient)
+            public GetPaymentRequestBuilder(HttpClient PaymentGateway, IdentityServerTestClient IdServer) : base(PaymentGateway, IdServer)
             {
                 RequestMessage.Method = HttpMethod.Get;
                 RequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
             }
         }
 
-        public abstract class RequestBuilder : IDisposable
+        public abstract class RequestBuilder(HttpClient paymentGateway, IdentityServerTestClient idServer) : IDisposable
         {
-            protected HttpRequestMessage RequestMessage { get; init; }
+            protected HttpRequestMessage RequestMessage { get; } = new();
 
-            private readonly PaymentGatewayTestClient _testClient;
             private bool _authorise = true;
             private string? _token;
             private bool disposedValue;
-
-            public RequestBuilder(PaymentGatewayTestClient testClient)
-            {
-                _testClient = testClient;
-                RequestMessage = new HttpRequestMessage();
-            }
 
             public RequestBuilder WithLocation(Uri? paymentLocation)
             {
@@ -88,14 +73,11 @@ namespace AspirePaymentGateway.Tests.Payments
             {
                 if (_authorise)
                 {
-                    if (_token == null)
-                    {
-                        _token = await _testClient._idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
-                    }
+                    _token ??= await idServer.GetPaymentGatewayTokenAsync(ct);
                     RequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
                 }
 
-                return await _testClient._paymentGatewayHttpClient.SendAsync(RequestMessage, TestContext.Current.CancellationToken);
+                return await paymentGateway.SendAsync(RequestMessage, ct);
             }
 
             protected virtual void Dispose(bool disposing)
@@ -127,7 +109,7 @@ namespace AspirePaymentGateway.Tests.Payments
             {
                 if (disposing)
                 {
-                    _paymentGatewayHttpClient.Dispose();
+                    PaymentGateway.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

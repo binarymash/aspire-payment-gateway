@@ -92,8 +92,8 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             using (Activity.Current = activitySource.StartActivity("Accepting payment", ActivityKind.Internal))
             {
-                paymentRequest = paymentRequest ?? new(null!, null!);
-                
+                paymentRequest ??= new(null!, null!);
+
                 var validationResult = await validator.ValidateAsync(paymentRequest, ct);
                 Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
 
@@ -138,12 +138,12 @@ namespace AspirePaymentGateway.Api.Features.Payments
                     ExpiryYear = payment.Card.Expiry.Year
                 };
 
-                Result<Payment> result = null!;
+                Result<Payment> result;
 
                 try
                 {
                     var screeningResponse = await fraudApi.DoScreening(screeningRequest, ct);
-                    
+
                     payment.RecordScreeningResponse(screeningResponse.Accepted);
 
                     result = await session.CommitAsync(payment, ct);
@@ -182,10 +182,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
 
                 payment.RecordAuthorisationResponse(
-                    authorisationResponse.AuthorisationRequestId, 
-                    authorisationResponse.Authorised, 
+                    authorisationResponse.AuthorisationRequestId,
+                    authorisationResponse.Authorised,
                     authorisationResponse.AuthorisationCode);
-
 
                 var result = await session.CommitAsync(payment, ct);
 

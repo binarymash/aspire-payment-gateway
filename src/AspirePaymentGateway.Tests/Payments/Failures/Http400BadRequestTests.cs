@@ -3,20 +3,13 @@
 namespace AspirePaymentGateway.Tests.Payments.Failures
 {
     [Collection(nameof(PaymentCollection))]
-    public class BadRequestTests
+    public class BadRequestTests(PaymentFixture Fixture)
     {
-        private readonly PaymentFixture _fixture;
-
-        public BadRequestTests(PaymentFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
         [Fact]
         public async Task CreatePaymentWithNullContentReturns400()
         {
             //Arrange
-            using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest;
+            using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest;
 
             // Act
             var createPaymentResponse = await createPaymentRequest.SendAsync(TestContext.Current.CancellationToken);
@@ -31,7 +24,7 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
         public async Task CreatePaymentWithEmptyRequestReturns400()
         {
             //Arrange
-            using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+            using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent(TestData.PaymentRequest.Empty);
 
             // Act
@@ -47,7 +40,7 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             // Create payment
 
             //Arrange
-            using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+            using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent("blah");
 
             // Act
@@ -65,7 +58,7 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             // Create payment
 
             //Arrange
-            using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+            using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent(TestData.PaymentRequest.Invalid);
 
             // Act

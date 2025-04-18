@@ -3,22 +3,15 @@
 namespace AspirePaymentGateway.Tests.Payments.Nominal
 {
     [Collection(nameof(PaymentCollection))]
-    public class NominalPaymentTests
+    public class NominalPaymentTest(PaymentFixture Fixture)
     {
-        private readonly PaymentFixture _fixture;
-
-        public NominalPaymentTests(PaymentFixture fixture)
-        {
-            _fixture = fixture;
-        }
-
         [Fact]
         public async Task PaymentCanBeCreatedAndRetrieved()
         {
             // Create payment
 
             //Arrange
-            using var createPaymentRequest = _fixture.PaymentGateway.CreatePaymentRequest
+            using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent(TestData.PaymentRequest.Nominal);
 
             // Act
@@ -30,7 +23,7 @@ namespace AspirePaymentGateway.Tests.Payments.Nominal
             // Get payment
 
             //Arrange
-            using var getPaymentRequest = _fixture.PaymentGateway.GetPaymentRequest
+            using var getPaymentRequest = Fixture.PaymentGateway.GetPaymentRequest
                 .WithLocation(createPaymentResponse.Headers.Location);
 
             // Act
@@ -38,6 +31,6 @@ namespace AspirePaymentGateway.Tests.Payments.Nominal
 
             // Assert
             getPaymentResponse.StatusCode.ShouldBe(HttpStatusCode.OK);
-        }   
+        }
     }
 }

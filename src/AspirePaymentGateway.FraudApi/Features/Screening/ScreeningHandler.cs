@@ -13,14 +13,12 @@ namespace AspirePaymentGateway.FraudApi.Features.Screening
 
             if (request.CardNumber.EndsWith("88", StringComparison.OrdinalIgnoreCase))
             {
-                return Results.Problem(statusCode: StatusCodes.Status500InternalServerError, detail: "Something bad happened");
+                return Results.Problem(detail: "Something bad happened", statusCode: StatusCodes.Status500InternalServerError);
             }
 
             if (request.CardNumber.EndsWith("77", StringComparison.OrdinalIgnoreCase))
             {
-#pragma warning disable CA2201 // Do not raise reserved exception types
-                throw new Exception("boom");
-#pragma warning restore CA2201 // Do not raise reserved exception types
+                throw new ArgumentException("boom");
             }
 
             return Results.Ok(new ScreeningResponse() { SomeNumber = 123, Accepted = true });
