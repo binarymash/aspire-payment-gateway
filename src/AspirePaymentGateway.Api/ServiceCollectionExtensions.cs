@@ -84,8 +84,6 @@ namespace AspirePaymentGateway.Api
                         options.Audience = "account";
                     });
 
-
-
             return services;
         }
 
