@@ -12,7 +12,7 @@ var app = builder.Build();
 app.MapDefaultEndpoints();
 app.MapOpenApiForDevelopment("/scalar/v1");
 
-app.MapPost("/authorisation", (Contracts.AuthorisationRequest request, CancellationToken ct, AuthorisationHandler handler) => handler.HandleAsync(request, ct))
+app.MapPost("/authorisation", (Contracts.AuthorisationRequest request, AuthorisationHandler handler) => handler.Handle(request))
     .WithDisplayName("Capture Payment")
     .WithDescription("Returns mocked responses for payment capture");
 

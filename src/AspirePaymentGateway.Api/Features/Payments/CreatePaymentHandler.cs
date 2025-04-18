@@ -142,7 +142,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
                 try
                 {
-                    var screeningResponse = await fraudApi.DoScreening(screeningRequest, ct);
+                    var screeningResponse = await fraudApi.DoScreeningAsync(screeningRequest, ct);
 
                     payment.RecordScreeningResponse(screeningResponse.Accepted);
 

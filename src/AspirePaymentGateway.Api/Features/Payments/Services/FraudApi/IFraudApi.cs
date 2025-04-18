@@ -5,6 +5,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.FraudApi
     public interface IFraudApi
     {
         [Post("/screening")]
-        Task<Contracts.ScreeningResponse> DoScreening(Contracts.ScreeningRequest request, CancellationToken cancellationToken);
+        Task<Contracts.ScreeningResponse> DoScreeningAsync(Contracts.ScreeningRequest request, CancellationToken cancellationToken);
     }
 }

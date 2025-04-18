@@ -19,13 +19,13 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
         [Fact]
         public Task NullRequest()
         {
-            return VerifyPaymentRequestIsRejected(null!);
+            return VerifyPaymentRequestIsRejectedAsync(null!);
         }
 
         [Fact]
         public Task InvalidRequest()
         {
-            return VerifyPaymentRequestIsRejected(new PaymentRequest(null!, null!));
+            return VerifyPaymentRequestIsRejectedAsync(new PaymentRequest(null!, null!));
         }
 
         [Fact]
@@ -36,8 +36,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
                 Card = new(null!, null!, null!, 0)
             };
 
-            return VerifyPaymentRequestIsRejected(request);
-                
+            return VerifyPaymentRequestIsRejectedAsync(request);
         }
 
         [Theory]
@@ -58,7 +57,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
                 }
             };
 
-            return VerifyPaymentRequestIsRejected(request, scenario);
+            return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
 
         [Theory]
@@ -74,7 +73,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
                 }
             };
 
-            return VerifyPaymentRequestIsRejected(request, scenario);
+            return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
 
         [Theory]
@@ -94,7 +93,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
                 }
             };
 
-            return VerifyPaymentRequestIsRejected(request, scenario);
+            return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
 
         [Theory]
@@ -113,7 +112,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
                 Payment = new(amount, currencyCode)
             };
 
-            return VerifyPaymentRequestIsRejected(request, scenario);
+            return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
 
         [Fact]
@@ -124,10 +123,10 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
                 Payment = new(0, null!)
             };
 
-            return VerifyPaymentRequestIsRejected(request);
+            return VerifyPaymentRequestIsRejectedAsync(request);
         }
 
-        private async Task VerifyPaymentRequestIsRejected(PaymentRequest request, string? scenario = null)
+        private async Task VerifyPaymentRequestIsRejectedAsync(PaymentRequest request, string? scenario = null)
         {
             var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default));
             if (scenario!= null)
@@ -137,7 +136,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
 
             await verify;
 
-            Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            Fixture.FraudApi.Verify(api => api.DoScreeningAsync(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Never);
 
             var paymentFateInstrument = Fixture.PaymentFateCountCollector.GetMeasurementSnapshot();

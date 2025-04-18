@@ -7,14 +7,9 @@ using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contra
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201Created
 {
     [Collection(nameof(CreatePaymentCollection))]
-    public class NominalRequestTests
+    public class NominalRequestTests(CreatePaymentFixture fixture)
     {
-        public NominalRequestTests(CreatePaymentFixture fixture)
-        {
-            Fixture = fixture.Reset();
-        }
-
-        public CreatePaymentFixture Fixture { get; init; }
+        public CreatePaymentFixture Fixture { get; init; } = fixture.Reset();
 
         [Fact]
         public async Task NominalRequestWhichIsAccepted()
@@ -29,8 +24,8 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             ScreeningResponse screeningResponseFromFraudApi = new() { Accepted = true };
 
             Fixture.FraudApi
-                .Setup(fraud => fraud.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()))
-                .Callback<ScreeningRequest, CancellationToken>((screeningRequest, ct) => screeningRequestSentToFraudApi = screeningRequest)
+                .Setup(fraud => fraud.DoScreeningAsync(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<ScreeningRequest, CancellationToken>((screeningRequest, _) => screeningRequestSentToFraudApi = screeningRequest)
                 .ReturnsAsync(screeningResponseFromFraudApi);
 
             // arrange bank api response
@@ -39,10 +34,10 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
 
             Fixture.BankApi
                 .Setup(bank => bank.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((AuthorisationRequest authorisationRequest, CancellationToken ct) =>
+                .ReturnsAsync((AuthorisationRequest authorisationRequest, CancellationToken _) =>
                 {
                     authorisationRequestSentToBankApi = authorisationRequest;
-                    
+
                     authorisationResponseFromBankApi = new AuthorisationResponse
                     {
                         AuthorisationRequestId = authorisationRequest.AuthorisationRequestId,
@@ -55,14 +50,14 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
 
             // act
             var result = await Fixture.CreatePaymentHandler.PostPaymentAsync(paymentRequest, TestContext.Current.CancellationToken);
-            
+
             // assert
 
             // assert response to client
             await Verify(result).ScrubInlineGuids();
 
             // assert fraud api response
-            Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Fixture.FraudApi.Verify(api => api.DoScreeningAsync(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             screeningRequestSentToFraudApi.ShouldBeEquivalentTo(new ScreeningRequest
             {
                 CardHolderName = paymentRequest.Card.CardHolderName,
@@ -74,7 +69,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             // assert bank api response
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             authorisationRequestSentToBankApi.ShouldBeEquivalentTo(new AuthorisationRequest
-            { 
+            {
                 AuthorisationRequestId = authorisationResponseFromBankApi.AuthorisationRequestId,
                 Pan = paymentRequest.Card.CardNumber,
                 CardHolderFullName = paymentRequest.Card.CardHolderName,
@@ -106,8 +101,8 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             ScreeningResponse screeningResponseFromFraudApi = new() { Accepted = true };
 
             Fixture.FraudApi
-                .Setup(fraud => fraud.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()))
-                .Callback<ScreeningRequest, CancellationToken>((screeningRequest, ct) => screeningRequestSentToFraudApi = screeningRequest)
+                .Setup(fraud => fraud.DoScreeningAsync(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()))
+                .Callback<ScreeningRequest, CancellationToken>((screeningRequest, _) => screeningRequestSentToFraudApi = screeningRequest)
                 .ReturnsAsync(screeningResponseFromFraudApi);
 
             // arrange bank api response
@@ -116,7 +111,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
 
             Fixture.BankApi
                 .Setup(bank => bank.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((AuthorisationRequest authorisationRequest, CancellationToken ct) =>
+                .ReturnsAsync((AuthorisationRequest authorisationRequest, CancellationToken _) =>
                 {
                     authorisationRequestSentToBankApi = authorisationRequest;
 
@@ -139,7 +134,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http201
             await Verify(result).ScrubInlineGuids();
 
             // assert fraud api request
-            Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Fixture.FraudApi.Verify(api => api.DoScreeningAsync(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             screeningRequestSentToFraudApi.ShouldBeEquivalentTo(new ScreeningRequest
             {
                 CardHolderName = paymentRequest.Card.CardHolderName,
