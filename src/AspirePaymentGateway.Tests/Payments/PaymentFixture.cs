@@ -5,8 +5,9 @@ namespace AspirePaymentGateway.Tests.Payments
 {
     public class PaymentFixture : IDisposable
     {
-        public HttpClient PaymentGateway { get; init; }
+        public PaymentGatewayTestClient PaymentGateway { get; init; }
         public IdentityServerTestClient IdentityServer { get; init; }
+
         private readonly DistributedApplication _app;
         private bool disposedValue;
 
@@ -38,12 +39,12 @@ namespace AspirePaymentGateway.Tests.Payments
                 _app.ResourceNotifications.WaitForResourceHealthyAsync("payment-gateway", TestContext.Current.CancellationToken),
                 _app.ResourceNotifications.WaitForResourceHealthyAsync("keycloak", TestContext.Current.CancellationToken));
 
-            PaymentGateway = _app.CreateHttpClient("payment-gateway", "https");
-
-            var keycloakResource = _app.GetEndpoint("keycloak");
             var keycloakClient = _app.CreateHttpClient("keycloak");
 
             IdentityServer = new IdentityServerTestClient(keycloakClient);
+            PaymentGateway = new PaymentGatewayTestClient(_app.CreateHttpClient("payment-gateway", "https"), IdentityServer);
+
+
         }
 
 

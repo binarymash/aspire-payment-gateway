@@ -16,7 +16,7 @@ public class Http403UnauthorizedTests
     public async Task GetWithoutTokenReturns403Unauthorised()
     {
         // Act
-        var response = await _fixture.PaymentGateway.GetAsync("/payments/abcdefg", TestContext.Current.CancellationToken);
+        var response = await _fixture.PaymentGateway.HttpClient.GetAsync("/payments/abcdefg", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);

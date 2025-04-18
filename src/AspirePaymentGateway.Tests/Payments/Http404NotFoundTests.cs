@@ -1,5 +1,4 @@
 using Shouldly;
-using System.Net.Http.Headers;
 
 namespace AspirePaymentGateway.Tests.Payments;
 
@@ -18,20 +17,10 @@ public class Http404NotFoundTests
     {
         //Arrange
         var paymentId = $"pay_{Guid.NewGuid()}";
-
-        var token = await _fixture.IdentityServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
-
-        using var message = new HttpRequestMessage
-        {
-            Method = HttpMethod.Get,
-            RequestUri = new Uri($"/payments/{paymentId}", UriKind.Relative),
-        };
-
-        message.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        message.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var paymentUri = new Uri($"/payments/{paymentId}", UriKind.Relative);
 
         // Act
-        var response = await _fixture.PaymentGateway.SendAsync(message, TestContext.Current.CancellationToken);
+        var response = await _fixture.PaymentGateway.GetPaymentAsync(paymentUri, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
