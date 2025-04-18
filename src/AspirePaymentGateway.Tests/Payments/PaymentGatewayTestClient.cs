@@ -20,25 +20,13 @@ namespace AspirePaymentGateway.Tests.Payments
 
         public GetPaymentRequestBuilder GetPaymentRequest => new GetPaymentRequestBuilder(this);
 
-        public class CreatePaymentRequestBuilder : IDisposable
+        public class CreatePaymentRequestBuilder : RequestBuilder
         {
-            private readonly PaymentGatewayTestClient testClient;
-            private readonly HttpRequestMessage _requestMessage;
-            private bool _authorise = true;
-            private string? _token;
-            private bool disposedValue;
-
-            public CreatePaymentRequestBuilder(PaymentGatewayTestClient testClient)
+            public CreatePaymentRequestBuilder(PaymentGatewayTestClient testClient) : base(testClient)
             {
-                this.testClient = testClient;
-                
-                _requestMessage = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Post,
-                    RequestUri = new Uri("/payments", UriKind.Relative),
-                };
-
-                _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+                RequestMessage.Method = HttpMethod.Post;
+                RequestMessage.RequestUri = new Uri("/payments", UriKind.Relative);
+                RequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
             }
 
             public CreatePaymentRequestBuilder WithContent(Dictionary<string, object> requestDictionary)
@@ -48,93 +36,49 @@ namespace AspirePaymentGateway.Tests.Payments
 
             public CreatePaymentRequestBuilder WithContent(string requestJson)
             {
-                _requestMessage.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+                RequestMessage.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
                 return this;
-            }
-
-            public CreatePaymentRequestBuilder WithBearerToken(string token)
-            {
-                _authorise = true;
-                _token = token;
-                return this;
-            }
-
-            public CreatePaymentRequestBuilder WithoutBearerToken()
-            {
-                _authorise = false;
-                _token = null;
-                return this;
-            }
-
-            public async Task<HttpResponseMessage> SendAsync(CancellationToken ct)
-            {
-                if (_authorise)
-                {
-                    if (_token == null)
-                    {
-                        _token = await testClient._idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
-                    }
-                    _requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-                }
-
-                return await testClient._paymentGatewayHttpClient.SendAsync(_requestMessage, TestContext.Current.CancellationToken);
-            }
-
-            protected virtual void Dispose(bool disposing)
-            {
-                if (!disposedValue)
-                {
-                    if (disposing)
-                    {
-                        _requestMessage.Dispose();
-                    }
-
-                    // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                    // TODO: set large fields to null
-                    disposedValue = true;
-                }
-            }
-
-            public void Dispose()
-            {
-                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-                Dispose(disposing: true);
-                GC.SuppressFinalize(this);
             }
         }
 
-        public class GetPaymentRequestBuilder : IDisposable
+        public class GetPaymentRequestBuilder : RequestBuilder
         {
-            private readonly PaymentGatewayTestClient testClient;
-            private readonly HttpRequestMessage _requestMessage;
+            public GetPaymentRequestBuilder(PaymentGatewayTestClient testClient) : base(testClient)
+            {
+                RequestMessage.Method = HttpMethod.Get;
+                RequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+            }
+        }
+
+        public abstract class RequestBuilder : IDisposable
+        {
+            protected HttpRequestMessage RequestMessage { get; init; }
+
+            private readonly PaymentGatewayTestClient _testClient;
             private bool _authorise = true;
             private string? _token;
             private bool disposedValue;
 
-            public GetPaymentRequestBuilder(PaymentGatewayTestClient testClient)
+            public RequestBuilder(PaymentGatewayTestClient testClient)
             {
-                this.testClient = testClient;
-
-                _requestMessage = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Get,
-                };
+                _testClient = testClient;
+                RequestMessage = new HttpRequestMessage();
             }
 
-            public GetPaymentRequestBuilder WithLocation(Uri? paymentLocation)
+            public RequestBuilder WithLocation(Uri? paymentLocation)
             {
-                _requestMessage.RequestUri = paymentLocation;
+                RequestMessage.RequestUri = paymentLocation;
                 return this;
             }
 
-            public GetPaymentRequestBuilder WithBearerToken(string token)
+            public RequestBuilder WithBearerToken(string token)
             {
                 _authorise = true;
                 _token = token;
                 return this;
             }
 
-            public GetPaymentRequestBuilder WithoutBearerToken()
+            public RequestBuilder WithoutBearerToken()
             {
                 _authorise = false;
                 return this;
@@ -146,12 +90,12 @@ namespace AspirePaymentGateway.Tests.Payments
                 {
                     if (_token == null)
                     {
-                        _token = await testClient._idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
+                        _token = await _testClient._idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
                     }
-                    _requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+                    RequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
                 }
 
-                return await testClient._paymentGatewayHttpClient.SendAsync(_requestMessage, TestContext.Current.CancellationToken);
+                return await _testClient._paymentGatewayHttpClient.SendAsync(RequestMessage, TestContext.Current.CancellationToken);
             }
 
             protected virtual void Dispose(bool disposing)
@@ -160,7 +104,7 @@ namespace AspirePaymentGateway.Tests.Payments
                 {
                     if (disposing)
                     {
-                        _requestMessage.Dispose();
+                        RequestMessage.Dispose();
                     }
 
                     // TODO: free unmanaged resources (unmanaged objects) and override finalizer
