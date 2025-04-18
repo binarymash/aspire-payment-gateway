@@ -132,8 +132,10 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
             var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default));
             if (scenario!= null)
             {
-                await verify.UseParameters(scenario);
+                verify = verify.UseParameters(scenario);
             }
+
+            await verify;
 
             Fixture.FraudApi.Verify(api => api.DoScreening(It.IsAny<ScreeningRequest>(), It.IsAny<CancellationToken>()), Times.Never);
             Fixture.BankApi.Verify(api => api.AuthoriseAsync(It.IsAny<AuthorisationRequest>(), It.IsAny<CancellationToken>()), Times.Never);

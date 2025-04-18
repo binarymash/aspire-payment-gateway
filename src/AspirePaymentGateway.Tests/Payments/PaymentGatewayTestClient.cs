@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 
 namespace AspirePaymentGateway.Tests.Payments
 {
@@ -9,46 +10,171 @@ namespace AspirePaymentGateway.Tests.Payments
         private IdentityServerTestClient _idServer;
         private bool disposedValue;
 
-        public HttpClient HttpClient => _paymentGatewayHttpClient;
-
         public PaymentGatewayTestClient(HttpClient paymentGateway, IdentityServerTestClient idServer)
         {
             _paymentGatewayHttpClient = paymentGateway;
             _idServer = idServer;
         }
 
-        public async Task<HttpResponseMessage> CreatePaymentAsync(string createPaymentRequest, CancellationToken ct)
+        public CreatePaymentRequestBuilder CreatePaymentRequest => new CreatePaymentRequestBuilder(this);
+
+        public GetPaymentRequestBuilder GetPaymentRequest => new GetPaymentRequestBuilder(this);
+
+        public class CreatePaymentRequestBuilder : IDisposable
         {
-            var token = await _idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
+            private readonly PaymentGatewayTestClient testClient;
+            private readonly HttpRequestMessage _requestMessage;
+            private bool _authorise = true;
+            private string? _token;
+            private bool disposedValue;
 
-            using var createPaymentMessage = new HttpRequestMessage
+            public CreatePaymentRequestBuilder(PaymentGatewayTestClient testClient)
             {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri("/payments", UriKind.Relative),
-                Content = new StringContent(createPaymentRequest, Encoding.UTF8, "application/json")
-            };
+                this.testClient = testClient;
+                
+                _requestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Post,
+                    RequestUri = new Uri("/payments", UriKind.Relative),
+                };
 
-            createPaymentMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
-            createPaymentMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                _requestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
+            }
 
-            // Act
-            return await _paymentGatewayHttpClient.SendAsync(createPaymentMessage, TestContext.Current.CancellationToken);
+            public CreatePaymentRequestBuilder WithContent(Dictionary<string, object> requestDictionary)
+            {
+                return WithContent(JsonSerializer.Serialize(requestDictionary));
+            }
+
+            public CreatePaymentRequestBuilder WithContent(string requestJson)
+            {
+                _requestMessage.Content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+                return this;
+            }
+
+            public CreatePaymentRequestBuilder WithBearerToken(string token)
+            {
+                _authorise = true;
+                _token = token;
+                return this;
+            }
+
+            public CreatePaymentRequestBuilder WithoutBearerToken()
+            {
+                _authorise = false;
+                _token = null;
+                return this;
+            }
+
+            public async Task<HttpResponseMessage> SendAsync(CancellationToken ct)
+            {
+                if (_authorise)
+                {
+                    if (_token == null)
+                    {
+                        _token = await testClient._idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
+                    }
+                    _requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+                }
+
+                return await testClient._paymentGatewayHttpClient.SendAsync(_requestMessage, TestContext.Current.CancellationToken);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {
+                        _requestMessage.Dispose();
+                    }
+
+                    // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                    // TODO: set large fields to null
+                    disposedValue = true;
+                }
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
         }
 
-        public async Task<HttpResponseMessage> GetPaymentAsync(Uri paymentUri, CancellationToken ct)
+        public class GetPaymentRequestBuilder : IDisposable
         {
-            var token = await _idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
+            private readonly PaymentGatewayTestClient testClient;
+            private readonly HttpRequestMessage _requestMessage;
+            private bool _authorise = true;
+            private string? _token;
+            private bool disposedValue;
 
-            using var getPaymentMessage = new HttpRequestMessage
+            public GetPaymentRequestBuilder(PaymentGatewayTestClient testClient)
             {
-                Method = HttpMethod.Get,
-                RequestUri = paymentUri,
-            };
+                this.testClient = testClient;
 
-            getPaymentMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("*/*"));
-            getPaymentMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                _requestMessage = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                };
+            }
 
-            return await _paymentGatewayHttpClient.SendAsync(getPaymentMessage, TestContext.Current.CancellationToken);
+            public GetPaymentRequestBuilder WithLocation(Uri? paymentLocation)
+            {
+                _requestMessage.RequestUri = paymentLocation;
+                return this;
+            }
+
+            public GetPaymentRequestBuilder WithBearerToken(string token)
+            {
+                _authorise = true;
+                _token = token;
+                return this;
+            }
+
+            public GetPaymentRequestBuilder WithoutBearerToken()
+            {
+                _authorise = false;
+                return this;
+            }
+
+            public async Task<HttpResponseMessage> SendAsync(CancellationToken ct)
+            {
+                if (_authorise)
+                {
+                    if (_token == null)
+                    {
+                        _token = await testClient._idServer.GetPaymentGatewayTokenAsync(TestContext.Current.CancellationToken);
+                    }
+                    _requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _token);
+                }
+
+                return await testClient._paymentGatewayHttpClient.SendAsync(_requestMessage, TestContext.Current.CancellationToken);
+            }
+
+            protected virtual void Dispose(bool disposing)
+            {
+                if (!disposedValue)
+                {
+                    if (disposing)
+                    {
+                        _requestMessage.Dispose();
+                    }
+
+                    // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+                    // TODO: set large fields to null
+                    disposedValue = true;
+                }
+            }
+
+            public void Dispose()
+            {
+                // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                Dispose(disposing: true);
+                GC.SuppressFinalize(this);
+            }
         }
 
         protected virtual void Dispose(bool disposing)

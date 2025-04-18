@@ -1,6 +1,6 @@
 using Shouldly;
 
-namespace AspirePaymentGateway.Tests.Payments;
+namespace AspirePaymentGateway.Tests.Payments.Failures;
 
 [Collection(nameof(PaymentCollection))]
 public class Http404NotFoundTests
@@ -19,8 +19,11 @@ public class Http404NotFoundTests
         var paymentId = $"pay_{Guid.NewGuid()}";
         var paymentUri = new Uri($"/payments/{paymentId}", UriKind.Relative);
 
+        using var getPaymentRequest = _fixture.PaymentGateway.GetPaymentRequest
+            .WithLocation(paymentUri);
+
         // Act
-        var response = await _fixture.PaymentGateway.GetPaymentAsync(paymentUri, TestContext.Current.CancellationToken);
+        var response = await getPaymentRequest.SendAsync(TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.ShouldBe(HttpStatusCode.NotFound);

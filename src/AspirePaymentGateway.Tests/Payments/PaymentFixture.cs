@@ -26,11 +26,6 @@ namespace AspirePaymentGateway.Tests.Payments
                 // To output logs to the xUnit.net ITestOutputHelper, consider adding a package from https://www.nuget.org/packages?q=xunit+logging
             });
 
-            appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
-            {
-                clientBuilder.AddStandardResilienceHandler();
-            });
-
             _app = appHost.Build();
 
             _app.StartAsync(TestContext.Current.CancellationToken).GetAwaiter().GetResult();

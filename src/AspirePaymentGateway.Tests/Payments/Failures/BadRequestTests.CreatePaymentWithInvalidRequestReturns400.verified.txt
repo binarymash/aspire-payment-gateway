@@ -1,0 +1,37 @@
+﻿{
+  Status: 400 Bad Request,
+  Headers: {
+    Date: DateTime_1,
+    Server: Kestrel,
+    Transfer-Encoding: chunked
+  },
+  Content: {
+    Headers: {
+      Content-Type: application/problem+json
+    },
+    Value: {
+      type: https://tools.ietf.org/html/rfc9110#section-15.5.1,
+      title: One or more validation errors occurred.,
+      status: 400,
+      instance: POST /payments,
+      errors: {
+        card.cvv: [
+          'cvv' must be between 100 and 999 (exclusive). You entered 123456.
+        ],
+        card.expiry.year: [
+          'year' must be greater than or equal to '2025'.
+        ],
+        card.expiry.month: [
+          'month' must be between 1 and 12. You entered 17.
+        ],
+        card.expiry: [
+          Card expiry must not be in the past.
+        ],
+        payment.amount: [
+          'amount' must be greater than '0'.
+        ]
+      },
+      traceId: {Scrubbed}
+    }
+  }
+}
