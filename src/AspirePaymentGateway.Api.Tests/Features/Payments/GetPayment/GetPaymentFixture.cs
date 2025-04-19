@@ -23,7 +23,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment
 
         public GetPaymentFixture()
         {
-            ServiceCollection services = new ServiceCollection();
+            ServiceCollection services = new();
             services.AddDomainServices();
 
             var serviceProvider = services.BuildServiceProvider();

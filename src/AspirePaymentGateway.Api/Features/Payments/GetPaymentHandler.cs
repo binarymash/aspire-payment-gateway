@@ -40,7 +40,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             // 500 internal server error
             if (result.ErrorDetail is Errors.ExceptionError)
             {
-                LogExceptionWhenRetrievingPayment((result.ErrorDetail as Errors.ExceptionError)!.exception);
+                LogExceptionWhenRetrievingPayment((result.ErrorDetail as Errors.ExceptionError)!.Exception);
             }
 
             return Results.Problem(statusCode: 500, title: "Internal Server Error");

@@ -38,10 +38,7 @@ namespace AspirePaymentGateway.Api
             // core extensions
             services
                 .AddStandardDateTimeProvider()
-                .AddRedaction(x =>
-                {
-                    x.SetRedactor<StarRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData, DataTaxonomy.PiiData));
-                });
+                .AddRedaction(x => x.SetRedactor<StarRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData, DataTaxonomy.PiiData)));
 
             // domain
             services
@@ -71,10 +68,7 @@ namespace AspirePaymentGateway.Api
                 .AddProblemDetails(configure =>
                     {
                         // add Instance info to problem details
-                        configure.CustomizeProblemDetails = (problemDetailsContext) =>
-                        {
-                            problemDetailsContext.ProblemDetails.Instance = $"{problemDetailsContext.HttpContext.Request.Method} {problemDetailsContext.HttpContext.Request.Path}";
-                        };
+                        configure.CustomizeProblemDetails = (problemDetailsContext) => problemDetailsContext.ProblemDetails.Instance = $"{problemDetailsContext.HttpContext.Request.Method} {problemDetailsContext.HttpContext.Request.Path}";
                     })
                 .AddAuthorization()
                 .AddAuthentication()

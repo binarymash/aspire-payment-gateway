@@ -13,6 +13,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
 
         public record StorageExceptionError(Exception Exception) : ExceptionError("SOP_456", "There was an error with Dynamo", Exception);
 
-        public record ExceptionError(string Code, string Message, Exception exception) : ErrorDetail(Code, Message);
+        public record ExceptionError(string Code, string Message, Exception Exception) : ErrorDetail(Code, Message);
     }
 }

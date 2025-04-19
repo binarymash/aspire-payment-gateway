@@ -15,7 +15,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
     {
         public async Task<Result<IList<IPaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
-            List<Document> documents = new List<Document>();
+            List<Document> documents = [];
 
             try
             {
@@ -38,7 +38,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 return Result.Error<IList<IPaymentEvent>>(new StorageExceptionError(ex));
             }
 
-            List<IPaymentEvent> events = new List<IPaymentEvent>();
+            List<IPaymentEvent> events = [];
 
             foreach (var document in documents)
             {

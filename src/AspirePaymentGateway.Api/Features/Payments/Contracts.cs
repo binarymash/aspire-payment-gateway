@@ -141,7 +141,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             string CurrencyCode);
 
         public static PaymentResponse MapPaymentResponse(Payment payment) =>
-            new PaymentResponse(
+            new(
                 payment.Id,
                 payment.Status,
                 MapCardDetailsResponse(payment.Card),
@@ -150,12 +150,12 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 payment.DeclineReason);
 
         public static CardDetailsResponse MapCardDetailsResponse(Card card) =>
-            new CardDetailsResponse(
+            new(
                 card.CardNumber,
                 card.CardHolderName);
 
         public static AmountDetailsResponse MapAmountDetailsResponse(Amount amount) =>
-            new AmountDetailsResponse(
+            new(
                 amount.ValueInMinorUnits,
                 amount.CurrencyCode);
 

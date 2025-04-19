@@ -7,7 +7,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.Storage
     {
         public async Task<Result<Payment>> GetAsync(string paymentId, CancellationToken ct)
         {
-            Payment payment = new Payment();
+            Payment payment = new();
 
             var result = await repository.GetAsync(paymentId, ct);
 
