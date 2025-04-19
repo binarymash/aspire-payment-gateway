@@ -47,16 +47,16 @@ async Task CreatePaymentsTableAsync(string serviceUrl, CancellationToken cancell
     var result = await ddbClient.CreateTableAsync(new CreateTableRequest
     {
         TableName = "Payments",
-        AttributeDefinitions = new List<AttributeDefinition>
-        {
+        AttributeDefinitions =
+        [
             new() { AttributeName = "Id", AttributeType = ScalarAttributeType.S },
             new() { AttributeName = "OccurredAt", AttributeType = ScalarAttributeType.S }
-        },
-        KeySchema = new List<KeySchemaElement>
-        {
+        ],
+        KeySchema =
+        [
             new() { AttributeName = "Id", KeyType = KeyType.HASH },
             new() {AttributeName = "OccurredAt", KeyType = KeyType.RANGE}
-        },
+        ],
         BillingMode = Amazon.DynamoDBv2.BillingMode.PAY_PER_REQUEST
     }, cancellationToken);
 }

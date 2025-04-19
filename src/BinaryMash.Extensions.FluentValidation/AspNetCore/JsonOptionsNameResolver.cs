@@ -5,14 +5,9 @@ using Microsoft.Extensions.Options;
 
 namespace BinaryMash.Extensions.FluentValidation.AspNetCore
 {
-    public class JsonOptionsNameResolver
+    public class JsonOptionsNameResolver(IOptions<JsonOptions> jsonOptions)
     {
-        private readonly JsonOptions _jsonOptions;
-
-        public JsonOptionsNameResolver(IOptions<JsonOptions> jsonOptions)
-        {
-            _jsonOptions = jsonOptions.Value;
-        }
+        private readonly JsonOptions _jsonOptions = jsonOptions.Value;
 
         public string ResolveName(Type type, MemberInfo memberInfo, LambdaExpression expression)
         {

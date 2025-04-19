@@ -22,7 +22,7 @@
         private static bool IsInTheFuture(CardExpiry cardExpiry)
         {
             var now = DateTime.UtcNow;
-            return cardExpiry.Year > now.Year || cardExpiry.Year == now.Year && cardExpiry.Month > now.Month;
+            return cardExpiry.Year > now.Year || (cardExpiry.Year == now.Year && cardExpiry.Month >= now.Month);
         }
     }
 }

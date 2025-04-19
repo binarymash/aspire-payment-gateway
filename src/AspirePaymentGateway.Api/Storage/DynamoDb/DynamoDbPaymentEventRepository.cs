@@ -31,7 +31,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 var queryResult = await dynamoClient.QueryAsync(request, cancellationToken);
 
-                documents = queryResult.Items.Select(item => Document.FromAttributeMap(item)).ToList();
+                documents = queryResult.Items.ConvertAll(item => Document.FromAttributeMap(item));
             }
             catch (Exception ex)
             {
@@ -84,7 +84,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 var transactWriteItemsRequest = new TransactWriteItemsRequest
                 {
-                    TransactItems = new List<TransactWriteItem>()
+                    TransactItems = []
                 };
 
                 foreach (var @event in paymentEvents)
