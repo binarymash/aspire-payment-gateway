@@ -16,6 +16,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.BankApi
             public required string CurrencyCode { get; set; }
         }
 
+#pragma warning disable CS8618 // Marking properties as required will break deserialization
         public record AuthorisationResponse
         {
             public string AuthorisationRequestId { get; set; }
@@ -24,6 +25,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.BankApi
 
             public string? AuthorisationCode { get; set; }
         }
+#pragma warning restore CS8618 
     }
 
     [JsonSourceGenerationOptions(WriteIndented = false)]

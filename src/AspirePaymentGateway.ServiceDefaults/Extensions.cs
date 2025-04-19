@@ -16,7 +16,9 @@ using OpenTelemetry.Trace;
 using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.Hosting;
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 
 // Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
 // This project should be referenced by each service project in your solution.
@@ -56,7 +58,7 @@ public static class Extensions
         builder.Services.AddOpenApi(options =>
         {
             // We need this because ProblemDetails and ValidationProblemDetails are not annotated, and so do not generate sufficiently details OpenAPI specs by default
-            options.AddSchemaTransformer((schema, context, cancellationToken) =>
+            options.AddSchemaTransformer((schema, context, _) =>
             {
                 if (context.JsonTypeInfo.Type == typeof(ProblemDetails))
                 {
@@ -179,16 +181,13 @@ public static class Extensions
         if (app.Environment.IsDevelopment())
         {
             app.MapOpenApi();
-            
+
             app.MapScalarApiReference(options => {
                 //see https://github.com/dotnet/aspnetcore/issues/57332
                 options.Servers = [];
             });
 
-            app.MapGet("", [ExcludeFromDescription] () =>
-            {
-                return Results.Redirect(scalarEndpoint);
-            });
+            app.MapGet("", [ExcludeFromDescription] () => Results.Redirect(scalarEndpoint));
         }
 
         return app;
@@ -212,7 +211,7 @@ public static class Extensions
                         Type = SecuritySchemeType.Http,
                         Scheme = "bearer", // "bearer" refers to the header name here
                         In = ParameterLocation.Header,
-                        BearerFormat = "Json Web Token"                        
+                        BearerFormat = "Json Web Token"
                     }
                 };
                 document.Components ??= new OpenApiComponents();

@@ -7,14 +7,9 @@ using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contra
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400BadRequests
 {
     [Collection(nameof(CreatePaymentCollection))]
-    public class BadRequestTests
+    public class BadRequestTests(CreatePaymentFixture fixture)
     {
-        public CreatePaymentFixture Fixture { get; init; }
-
-        public BadRequestTests(CreatePaymentFixture fixture)
-        {
-            Fixture = fixture.Reset();
-        }
+        public CreatePaymentFixture Fixture { get; init; } = fixture.Reset();
 
         [Fact]
         public Task NullRequest()
@@ -96,6 +91,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
             return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
 
+#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [Theory]
         [InlineData(null, "GBP", "Null Amount")]
         [InlineData(-1, "GBP", "Negative Amount")]
@@ -114,6 +110,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
 
             return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
+#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
 
         [Fact]
         public Task EmptyPayment()

@@ -122,6 +122,6 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
             result.ErrorDetail.ShouldBe(errorDetail);
         }
 
-        private record class MyClass();
+        private sealed record class MyClass();
     }
 }
