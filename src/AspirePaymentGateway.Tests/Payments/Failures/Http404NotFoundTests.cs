@@ -3,15 +3,8 @@ using Shouldly;
 namespace AspirePaymentGateway.Tests.Payments.Failures;
 
 [Collection(nameof(PaymentCollection))]
-public class Http404NotFoundTests
+public class Http404NotFoundTests(PaymentFixture fixture)
 {
-    private readonly PaymentFixture _fixture;
-
-    public Http404NotFoundTests(PaymentFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Fact]
     public async Task GetUnknownPaymentReturns404NotFound()
     {
@@ -19,7 +12,7 @@ public class Http404NotFoundTests
         var paymentId = $"pay_{Guid.NewGuid()}";
         var paymentUri = new Uri($"/payments/{paymentId}", UriKind.Relative);
 
-        using var getPaymentRequest = _fixture.PaymentGateway.GetPaymentRequest
+        using var getPaymentRequest = fixture.PaymentGateway.GetPaymentRequest
             .WithLocation(paymentUri);
 
         // Act

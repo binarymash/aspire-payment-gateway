@@ -19,7 +19,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
         public abstract string EventType { get; init; }
 
         [Description("The event ID")]
-        public string EventId { get; private init; } = $"evt_{Guid.NewGuid().ToString()}";
-
+        public string EventId { get; private init; } = $"evt_{Guid.NewGuid()}";
     }
 }

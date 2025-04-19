@@ -2,15 +2,9 @@
 
 namespace AspirePaymentGateway.Tests.Payments
 {
-    public class IdentityServerTestClient : IDisposable
+    public class IdentityServerTestClient(HttpClient httpClient) : IDisposable
     {
-        private HttpClient _httpClient;
         private bool disposedValue;
-
-        public IdentityServerTestClient(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
-        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -18,7 +12,7 @@ namespace AspirePaymentGateway.Tests.Payments
             {
                 if (disposing)
                 {
-                    _httpClient.Dispose();
+                    httpClient.Dispose();
                 }
 
                 disposedValue = true;
@@ -27,7 +21,7 @@ namespace AspirePaymentGateway.Tests.Payments
 
         public async Task<string> GetPaymentGatewayTokenAsync(CancellationToken ct)
         {
-            var address = $"{_httpClient.BaseAddress}realms/payment-gateway/protocol/openid-connect/token";
+            var address = $"{httpClient.BaseAddress}realms/payment-gateway/protocol/openid-connect/token";
 
             PasswordTokenRequest request = new()
             {
@@ -39,7 +33,7 @@ namespace AspirePaymentGateway.Tests.Payments
                 Password = "123"
             };
 
-            var response = await _httpClient.RequestPasswordTokenAsync(request, TestContext.Current.CancellationToken);
+            var response = await httpClient.RequestPasswordTokenAsync(request, ct);
 
             return response.AccessToken!;
         }

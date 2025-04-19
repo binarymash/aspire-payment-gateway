@@ -6,7 +6,7 @@
 
     public class PaymentDetailsValidator : AbstractValidator<PaymentDetails>
     {
-        private long maxAmount = 99999999;
+        private const long maxAmount = 99999999;
 
         public PaymentDetailsValidator()
         {

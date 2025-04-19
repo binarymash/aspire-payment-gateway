@@ -1,20 +1,15 @@
 ﻿namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
 {
     [Collection(nameof(GetPaymentCollection))]
-    public class GetPaymentThatExistsTests
+    public class GetPaymentThatExistsTests(GetPaymentFixture fixture)
     {
-        GetPaymentFixture _fixture;
-
-        public GetPaymentThatExistsTests(GetPaymentFixture fixture)
-        {
-            _fixture = fixture.Reset();
-        }
+        readonly GetPaymentFixture _fixture = fixture.Reset();
 
         [Fact]
         public async Task GetAcceptedPayment()
         {
             // Arrange
-            string paymentId = $"pay_{Guid.NewGuid().ToString()}";
+            string paymentId = $"pay_{Guid.NewGuid()}";
 
             var payment = TestData.Payment.AcceptedByBank(paymentId);
 
@@ -31,7 +26,7 @@
         public async Task GetPaymentDeclinedByBank()
         {
             // Arrange
-            string paymentId = $"pay_{Guid.NewGuid().ToString()}";
+            string paymentId = $"pay_{Guid.NewGuid()}";
 
             var payment = TestData.Payment.DeclinedByBank(paymentId);
 

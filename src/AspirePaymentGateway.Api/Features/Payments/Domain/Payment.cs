@@ -69,7 +69,6 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
                 AuthorisationTraceId = authorisationRequestId,
                 IsAuthorised = isAuthorised,
                 AuthorisationCode = authorisationCode,
-
             });
         }
 

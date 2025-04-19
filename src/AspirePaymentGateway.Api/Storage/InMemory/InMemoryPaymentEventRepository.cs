@@ -25,7 +25,7 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
             {
                 if (!_store.TryGetValue(paymentEvent.Id, out var storedPaymentEvents))
                 {
-                    storedPaymentEvents = new List<IPaymentEvent>();
+                    storedPaymentEvents = [];
                     _store[paymentEvent.Id] = storedPaymentEvents;
                 }
                 storedPaymentEvents.Add(paymentEvent);

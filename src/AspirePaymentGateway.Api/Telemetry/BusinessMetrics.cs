@@ -39,6 +39,5 @@ namespace AspirePaymentGateway.Api.Telemetry
         {
             _paymentRequestedCount.Add(1, [new("Valid", accepted)]);
         }
-
     }
 }

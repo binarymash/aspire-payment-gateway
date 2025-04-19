@@ -14,6 +14,5 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
 
         [Description("Authorisation code from the bank")]
         public string? AuthorisationCode { get; init; }
-
     }
 }

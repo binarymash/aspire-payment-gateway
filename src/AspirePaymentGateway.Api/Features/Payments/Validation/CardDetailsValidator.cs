@@ -5,7 +5,7 @@
 
     public class CardDetailsValidator : AbstractValidator<CardDetails>
     {
-        private static string NameRegex = @"^[a-z'\- A-Z\s]*$";
+        private const string NameRegex = @"^[a-z'\- A-Z\s]*$";
 
         public CardDetailsValidator()
         {
