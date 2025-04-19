@@ -4,7 +4,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Telemetry;
-using AspirePaymentGateway.Api.Extensions.Http.Logging;
 using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
@@ -16,6 +15,7 @@ using Microsoft.Extensions.Compliance.Classification;
 using Refit;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
+using AspirePaymentGateway.Api.Extensions.Http.Auth;
 
 namespace AspirePaymentGateway.Api
 {
