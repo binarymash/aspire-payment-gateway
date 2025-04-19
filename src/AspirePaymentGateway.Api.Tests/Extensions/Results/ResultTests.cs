@@ -64,7 +64,7 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
         public void ErrorResultConstructor()
         {
             // Arrange
-            ErrorDetail errorDetail = new ("SomeError", "Some error message");
+            ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
             var result = new ErrorResult(errorDetail);
@@ -79,7 +79,7 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
         public void ErrorResultConstructorViaStaticConstruction()
         {
             // Arrange
-            ErrorDetail errorDetail = new ("SomeError", "Some error message");
+            ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
             var result = Result.Error(errorDetail);
@@ -94,7 +94,7 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
         public void ErrorResultWithValueConstructor()
         {
             // Arrange
-            ErrorDetail errorDetail = new ("SomeError", "Some error message");
+            ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
             var result = new ErrorResult<MyClass>(errorDetail);
@@ -110,7 +110,7 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
         public void ErrorResultWithValueViaStaticConstruction()
         {
             // Arrange
-            ErrorDetail errorDetail = new ("SomeError", "Some error message");
+            ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
             Result<MyClass> result = Result.Error<MyClass>(errorDetail);

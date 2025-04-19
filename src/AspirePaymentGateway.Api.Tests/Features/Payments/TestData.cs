@@ -56,7 +56,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments
                     expiryYear: 2026);
 
                 payment.RecordScreeningResponse(true);
-                
+
                 payment.RecordAuthorisationResponse(
                     authorisationRequestId: "abcdef",
                     isAuthorised: false,

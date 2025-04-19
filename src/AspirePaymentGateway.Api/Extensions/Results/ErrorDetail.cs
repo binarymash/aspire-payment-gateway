@@ -1,4 +1,4 @@
 ﻿namespace AspirePaymentGateway.Api.Extensions.Results
 {
-    public record ErrorDetail (string Code, string Message);
+    public record ErrorDetail(string Code, string Message);
 }

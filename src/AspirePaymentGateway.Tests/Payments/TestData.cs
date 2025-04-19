@@ -4,7 +4,7 @@
     {
         public static class PaymentRequest
         {
-            public static Dictionary<string, object> Nominal => new ()
+            public static Dictionary<string, object> Nominal => new()
                 {
                     { "card", new Dictionary<string, object>
                         {

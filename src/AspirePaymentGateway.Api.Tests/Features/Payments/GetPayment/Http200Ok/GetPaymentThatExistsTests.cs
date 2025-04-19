@@ -1,6 +1,4 @@
-﻿using AspirePaymentGateway.Api.Features.Payments.Domain;
-
-namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
+﻿namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http200Ok
 {
     [Collection(nameof(GetPaymentCollection))]
     public class GetPaymentThatExistsTests

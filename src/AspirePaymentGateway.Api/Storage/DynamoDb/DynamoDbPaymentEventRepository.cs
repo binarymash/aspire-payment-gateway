@@ -33,7 +33,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 documents = queryResult.Items.Select(item => Document.FromAttributeMap(item)).ToList();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Result.Error<IList<IPaymentEvent>>(new StorageExceptionError(ex));
             }

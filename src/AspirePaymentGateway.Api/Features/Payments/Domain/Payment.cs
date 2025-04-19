@@ -22,8 +22,8 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
         public List<IPaymentEvent> UncommittedEvents { get; } = [];
 
         public static Payment Create(
-            string paymentId, 
-            long amountInMinorUnits, 
+            string paymentId,
+            long amountInMinorUnits,
             string currencyIsoCode,
             string cardNumber,
             string cardHolderName,
@@ -32,7 +32,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
             int expiryYear)
         {
             Payment payment = new();
-            
+
             payment.Apply(new PaymentRequestedEvent()
             {
                 Id = paymentId,

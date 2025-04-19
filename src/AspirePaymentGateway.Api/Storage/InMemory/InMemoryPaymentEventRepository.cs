@@ -14,7 +14,7 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
             if (!_store.TryGetValue(paymentId, out var events))
             {
                 return Result.Error<IList<IPaymentEvent>>(new Errors.PaymentNotFoundError());
-            }                      
+            }
 
             return await Task.FromResult(events);
         }

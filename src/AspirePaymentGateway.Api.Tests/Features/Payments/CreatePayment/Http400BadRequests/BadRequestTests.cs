@@ -126,7 +126,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
         private async Task VerifyPaymentRequestIsRejectedAsync(PaymentRequest request, string? scenario = null)
         {
             var verify = Verify(await Fixture.CreatePaymentHandler.PostPaymentAsync(request, default));
-            if (scenario!= null)
+            if (scenario != null)
             {
                 verify = verify.UseParameters(scenario);
             }

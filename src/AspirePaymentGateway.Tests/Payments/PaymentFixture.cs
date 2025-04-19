@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using Aspire.Hosting;
+﻿using Aspire.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace AspirePaymentGateway.Tests.Payments
 {

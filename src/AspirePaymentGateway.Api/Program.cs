@@ -19,7 +19,7 @@ var app = builder.Build();
 app.MapDefaultEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseFluentValidationNamingFromJsonOptions(); 
+app.UseFluentValidationNamingFromJsonOptions();
 app.MapOpenApiForDevelopment("/scalar/v1");
 app.UseHttpsRedirection();
 

@@ -3,7 +3,7 @@
     public abstract record Result
     {
         public bool IsSuccess { get; protected set; }
-        
+
         public ErrorDetail ErrorDetail { get; protected set; }
 
         public bool IsFailure => !IsSuccess;
@@ -38,7 +38,7 @@
     {
         public T Value { get; protected set; } = default!;
 
-        protected Result(bool isSuccess, T value = default!, ErrorDetail errorDetail = default!) 
+        protected Result(bool isSuccess, T value = default!, ErrorDetail errorDetail = default!)
             : base(isSuccess, errorDetail)
         {
             Value = value;

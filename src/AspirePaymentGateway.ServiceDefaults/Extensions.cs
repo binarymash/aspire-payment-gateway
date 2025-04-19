@@ -182,7 +182,8 @@ public static class Extensions
         {
             app.MapOpenApi();
 
-            app.MapScalarApiReference(options => {
+            app.MapScalarApiReference(options =>
+            {
                 //see https://github.com/dotnet/aspnetcore/issues/57332
                 options.Servers = [];
             });
