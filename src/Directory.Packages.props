@@ -12,6 +12,7 @@
     <PackageVersion Include="Aspire.Hosting.Keycloak" Version="9.2.0-preview.1.25209.2" />
     <PackageVersion Include="Aspire.Hosting.Testing" Version="9.2.0" />
     <PackageVersion Include="Aspire.Keycloak.Authentication" Version="9.2.0-preview.1.25209.2" />
+	<PackageVersion Include="AsyncFixer" Version="1.6.0" />
     <PackageVersion Include="Duende.IdentityModel" Version="7.0.0" />
     <PackageVersion Include="FluentValidation" Version="11.11.0" />
     <PackageVersion Include="Keycloak.AuthServices.Aspire.Hosting" Version="0.1.0" />
@@ -47,6 +48,7 @@
 
   <!-- Add static code analysis to all projects -->	
   <ItemGroup>
+    <PackageReference Include="AsyncFixer" PrivateAssets="all" />
     <PackageReference Include="Roslynator.Analyzers" />
     <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" />
