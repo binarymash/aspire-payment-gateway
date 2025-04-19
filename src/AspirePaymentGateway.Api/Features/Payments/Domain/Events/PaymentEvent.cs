@@ -1,6 +1,6 @@
-﻿using Amazon.DynamoDBv2.DataModel;
+﻿using System.ComponentModel;
+using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Storage.DynamoDb;
-using System.ComponentModel;
 
 namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
 {

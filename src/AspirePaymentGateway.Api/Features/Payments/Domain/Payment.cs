@@ -1,5 +1,5 @@
-﻿using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
-using System.Globalization;
+﻿using System.Globalization;
+using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
 
 namespace AspirePaymentGateway.Api.Features.Payments.Domain
 {

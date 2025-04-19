@@ -1,4 +1,6 @@
-﻿using AspirePaymentGateway.Api.Extensions.DateTime;
+﻿using System.Diagnostics;
+using System.Globalization;
+using AspirePaymentGateway.Api.Extensions.DateTime;
 using AspirePaymentGateway.Api.Features.Payments;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
@@ -6,8 +8,6 @@ using AspirePaymentGateway.Api.Storage.InMemory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Diagnostics;
-using System.Globalization;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment
 {

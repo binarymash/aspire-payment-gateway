@@ -1,4 +1,5 @@
-﻿using AspirePaymentGateway.Api.Extensions.DateTime;
+﻿using System.Diagnostics;
+using AspirePaymentGateway.Api.Extensions.DateTime;
 using AspirePaymentGateway.Api.Extensions.Results;
 using AspirePaymentGateway.Api.Features.Payments.Domain;
 using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
@@ -7,7 +8,6 @@ using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
-using System.Diagnostics;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 
 namespace AspirePaymentGateway.Api.Features.Payments

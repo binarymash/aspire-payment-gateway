@@ -1,5 +1,5 @@
-﻿using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
-using System.Text.Json;
+﻿using System.Text.Json;
+using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
 using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.Services.FraudApi

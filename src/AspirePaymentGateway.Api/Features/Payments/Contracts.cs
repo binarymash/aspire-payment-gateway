@@ -1,7 +1,7 @@
-﻿using AspirePaymentGateway.Api.Extensions.Redaction;
-using AspirePaymentGateway.Api.Features.Payments.Domain;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using AspirePaymentGateway.Api.Extensions.Redaction;
+using AspirePaymentGateway.Api.Features.Payments.Domain;
 
 namespace AspirePaymentGateway.Api.Features.Payments
 {

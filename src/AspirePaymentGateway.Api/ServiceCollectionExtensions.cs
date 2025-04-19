@@ -1,4 +1,6 @@
-﻿using Amazon.DynamoDBv2;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Extensions.Http.Auth;
 using AspirePaymentGateway.Api.Extensions.Redaction;
@@ -12,8 +14,6 @@ using AspirePaymentGateway.Api.Telemetry;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;
 using Refit;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
 

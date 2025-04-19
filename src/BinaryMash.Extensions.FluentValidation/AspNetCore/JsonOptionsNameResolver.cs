@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http.Json;
-using Microsoft.Extensions.Options;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.Options;
 
 namespace BinaryMash.Extensions.FluentValidation.AspNetCore
 {
