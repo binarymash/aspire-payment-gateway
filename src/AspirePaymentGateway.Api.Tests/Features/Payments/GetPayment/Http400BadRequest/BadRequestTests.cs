@@ -1,4 +1,4 @@
-﻿namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http404NotFound
+﻿namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http400BadRequest
 {
     [Collection(nameof(GetPaymentCollection))]
     public class BadRequestTests

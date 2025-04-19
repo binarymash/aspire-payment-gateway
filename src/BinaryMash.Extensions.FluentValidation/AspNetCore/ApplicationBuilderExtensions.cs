@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+#pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.Extensions.Hosting
+#pragma warning restore IDE0130 // Namespace does not match folder structure
 {
     public static class ApplicationBuilderExtensions
     {
