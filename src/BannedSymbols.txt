@@ -1,0 +1,5 @@
+# https://github.com/dotnet/roslyn-analyzers/blob/master/src/Microsoft.CodeAnalysis.BannedApiAnalyzers/BannedApiAnalyzers.Help.md
+P:System.DateTime.Now;Use System.DateTime.UtcNow instead
+P:System.DateTimeOffset.Now;Use System.DateTimeOffset.UtcNow instead
+P:System.DateTimeOffset.DateTime;Use System.DateTimeOffset.UtcDateTime instead
+M:System.DateTimeOffset.op_Implicit(System.DateTime); Do not implicitly cast DateTime to DateTimeOffset.

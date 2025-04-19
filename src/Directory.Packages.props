@@ -17,6 +17,7 @@
     <PackageVersion Include="Keycloak.AuthServices.Aspire.Hosting" Version="0.1.0" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
 	<PackageVersion Include="Microsoft.CodeAnalysis" Version="4.13.0" />
+	<PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4"/>
     <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="9.4.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.4" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.4.0" />
@@ -50,5 +51,10 @@
     <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" />
     <PackageReference Include="Roslynator.Formatting.Analyzers" />
 	<PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" />
+	<PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />	  
   </ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
+	</ItemGroup>
 </Project>
