@@ -1,5 +1,5 @@
 ﻿{
-  Status: 500 Internal Server Error,
+  Status: 400 Bad Request,
   Headers: {
     Date: DateTime_1,
     Server: Kestrel,
@@ -10,9 +10,9 @@
       Content-Type: application/problem+json
     },
     Value: {
-      type: https://tools.ietf.org/html/rfc9110#section-15.6.1,
-      title: An error occurred while processing your request.,
-      status: 500,
+      type: https://tools.ietf.org/html/rfc9110#section-15.5.1,
+      title: The request was malformed,
+      status: 400,
       instance: POST /payments,
       traceId: {Scrubbed}
     }

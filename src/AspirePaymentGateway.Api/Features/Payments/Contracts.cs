@@ -158,6 +158,5 @@ namespace AspirePaymentGateway.Api.Features.Payments
             new(
                 amount.ValueInMinorUnits,
                 amount.CurrencyCode);
-
     }
 }

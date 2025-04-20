@@ -28,17 +28,19 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             var result = await RunDomainWorkflowAsync(paymentRequest, cancellationToken);
 
-            // 201 created
             if (result.IsSuccess)
             {
+                // 201 created
                 return Results.Created($"/payments/{result.Value.Id}", Contracts.MapPaymentResponse(result.Value));
             }
 
-            // 400 bad request
             return result.ErrorDetail switch
             {
+                // 400 bad request
                 Errors.ValidationError => Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary()),
-                _ => Results.Problem(detail: result.ErrorDetail.ToString()),// 500 internal server error
+
+                // 500 internal server error
+                _ => Results.Problem(),
             };
         }
 

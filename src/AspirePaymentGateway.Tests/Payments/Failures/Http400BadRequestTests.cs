@@ -1,6 +1,4 @@
-﻿using Shouldly;
-
-namespace AspirePaymentGateway.Tests.Payments.Failures
+﻿namespace AspirePaymentGateway.Tests.Payments.Failures
 {
     [Collection(nameof(PaymentCollection))]
     public class BadRequestTests(PaymentFixture Fixture)
@@ -15,10 +13,7 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             var createPaymentResponse = await createPaymentRequest.SendAsync(TestContext.Current.CancellationToken);
 
             // Assert
-            createPaymentResponse.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            createPaymentResponse.Headers.Location.ShouldBeNull();
-
-            //TODO: validate content
+            await Verify(createPaymentResponse).ScrubMember("traceId");
         }
 
         [Fact]
@@ -38,8 +33,6 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
         [Fact]
         public async Task CreatePaymentWithMalformedJsonReturns400()
         {
-            // Create payment
-
             //Arrange
             using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent("blah");
@@ -48,17 +41,12 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             var createPaymentResponse = await createPaymentRequest.SendAsync(TestContext.Current.CancellationToken);
 
             // Assert
-            createPaymentResponse.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-            createPaymentResponse.Headers.Location.ShouldBeNull();
-
-            //TODO: validate content
+            await Verify(createPaymentResponse).ScrubMember("traceId");
         }
 
         [Fact]
         public async Task CreatePaymentWithInvalidRequestReturns400()
         {
-            // Create payment
-
             //Arrange
             using var createPaymentRequest = Fixture.PaymentGateway.CreatePaymentRequest
                 .WithContent(TestData.PaymentRequest.Invalid);

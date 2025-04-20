@@ -1,5 +1,6 @@
 using AspirePaymentGateway.Api;
 using AspirePaymentGateway.Api.Features.Payments;
+using AspirePaymentGateway.Api.Middleware;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 using static Microsoft.Extensions.Hosting.Extensions;
 
@@ -19,6 +20,8 @@ var app = builder.Build();
 app.MapDefaultEndpoints();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<GlobalExceptionHandler>();
+app.UseMiddleware<BadHttpRequestExceptionHandler>();
 app.UseFluentValidationNamingFromJsonOptions();
 app.MapOpenApiForDevelopment("/scalar/v1");
 app.UseHttpsRedirection();
