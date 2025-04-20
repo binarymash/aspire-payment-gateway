@@ -17,7 +17,8 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             // Assert
             createPaymentResponse.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
             createPaymentResponse.Headers.Location.ShouldBeNull();
-            //todo: validate content
+
+            //TODO: validate content
         }
 
         [Fact]
@@ -49,7 +50,8 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             // Assert
             createPaymentResponse.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
             createPaymentResponse.Headers.Location.ShouldBeNull();
-            //todo: validate content
+
+            //TODO: validate content
         }
 
         [Fact]

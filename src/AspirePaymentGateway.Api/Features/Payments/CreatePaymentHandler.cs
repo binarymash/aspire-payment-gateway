@@ -35,13 +35,11 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
 
             // 400 bad request
-            if (result.ErrorDetail is Errors.ValidationError)
+            return result.ErrorDetail switch
             {
-                return Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary());
-            }
-
-            // 500 internal server error
-            return Results.Problem(detail: result.ErrorDetail.ToString());
+                Errors.ValidationError => Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary()),
+                _ => Results.Problem(detail: result.ErrorDetail.ToString()),// 500 internal server error
+            };
         }
 
         // Domain workflow
@@ -50,12 +48,9 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             // request validation and acceptance
             var result = await AcceptPaymentRequestAsync(paymentRequest, ct);
-            if (result.IsFailure)
+            if (result.IsFailure && result.ErrorDetail is Errors.ValidationError)
             {
-                if (result.ErrorDetail is Errors.ValidationError)
-                {
-                    metrics.RecordPaymentRequestRejected();
-                }
+                metrics.RecordPaymentRequestRejected();
             }
 
             // screening

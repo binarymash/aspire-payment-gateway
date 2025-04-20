@@ -32,7 +32,7 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
         public void OkResultWithValueConstructor()
         {
             // Arrange
-            MyClass myClass = new();
+            MyClass myClass = new(123);
 
             // Act
             var result = new OkResult<MyClass>(myClass);
@@ -48,7 +48,7 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
         public void OkResultWithValueViaImplicitConstruction()
         {
             // Arrange
-            MyClass myClass = new();
+            MyClass myClass = new(456);
 
             // Act
             Result<MyClass> result = myClass;
@@ -122,6 +122,6 @@ namespace AspirePaymentGateway.Api.Tests.Extensions.Results
             result.ErrorDetail.ShouldBe(errorDetail);
         }
 
-        private sealed record class MyClass();
+        private sealed record class MyClass(int SomeValue);
     }
 }

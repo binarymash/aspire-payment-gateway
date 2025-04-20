@@ -18,7 +18,8 @@ namespace AspirePaymentGateway.Tests.Payments.Failures
             // Assert
             createPaymentResponse.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
             createPaymentResponse.Headers.Location.ShouldBeNull();
-            //todo: validate content
+
+            //TODO: validate content
         }
     }
 }

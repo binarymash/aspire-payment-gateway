@@ -43,4 +43,4 @@ app.MapGet("/payments/{paymentId}",
     .ProducesProblem(StatusCodes.Status500InternalServerError)
     .RequireAuthorization();
 
-app.Run();
+await app.RunAsync();

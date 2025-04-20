@@ -11,6 +11,7 @@ namespace AspirePaymentGateway.Api.Extensions.Redaction
         public static DataClassification PiiData { get; } = new(TaxonomyName, nameof(PiiData));
     }
 
+    [AttributeUsage(AttributeTargets.Property)]
     public class SensitiveDataAttribute : DataClassificationAttribute
     {
         public SensitiveDataAttribute() : base(DataTaxonomy.SensitiveData)
@@ -18,6 +19,7 @@ namespace AspirePaymentGateway.Api.Extensions.Redaction
         }
     }
 
+    [AttributeUsage(AttributeTargets.Property)]
     public class PiiDataAttribute : DataClassificationAttribute
     {
         public PiiDataAttribute() : base(DataTaxonomy.PiiData)

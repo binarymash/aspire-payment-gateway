@@ -18,4 +18,4 @@ app.MapPost("/authorisation", (Contracts.AuthorisationRequest request, Authorisa
 
 app.UseHttpsRedirection();
 
-app.Run();
+await app.RunAsync();

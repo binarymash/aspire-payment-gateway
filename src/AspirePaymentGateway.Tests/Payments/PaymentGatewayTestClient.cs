@@ -89,8 +89,8 @@ namespace AspirePaymentGateway.Tests.Payments
                         RequestMessage.Dispose();
                     }
 
-                    // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                    // TODO: set large fields to null
+                    // Free unmanaged resources (unmanaged objects) and override finalizer
+                    // Set large fields to null
                     disposedValue = true;
                 }
             }
@@ -112,8 +112,8 @@ namespace AspirePaymentGateway.Tests.Payments
                     PaymentGateway.Dispose();
                 }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
+                // Free unmanaged resources (unmanaged objects) and override finalizer
+                // Set large fields to null
                 disposedValue = true;
             }
         }

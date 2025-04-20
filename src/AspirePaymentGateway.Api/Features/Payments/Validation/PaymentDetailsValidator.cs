@@ -20,7 +20,7 @@
 
         private static bool BeValidIsoCurrencyCode(string currencyCode)
         {
-            return IsoCurrencyCodes.All.Contains(currencyCode);
+            return IsoCurrencyCodes.IsValid(currencyCode);
         }
     }
 }

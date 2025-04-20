@@ -21,4 +21,4 @@ app.MapPost("/screening",
     (ScreeningHandler handler, ScreeningRequest request) => handler.Handle(request)
 );
 
-app.Run();
+await app.RunAsync();

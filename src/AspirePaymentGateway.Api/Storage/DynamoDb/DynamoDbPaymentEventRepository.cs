@@ -13,9 +13,11 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 {
     public partial class DynamoDbPaymentEventRepository(ILogger<DynamoDbPaymentEventRepository> logger, IDynamoDBContext dynamoContext, IAmazonDynamoDB dynamoClient) : IPaymentEventsRepository
     {
+        //TODO: fix this
+
         public async Task<Result<IList<IPaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
-            List<Document> documents = [];
+            List<Document> documents;
 
             try
             {
@@ -69,13 +71,12 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
         {
             try
             {
-                //BatchWrite<PaymentEvent> batch = dynamoContext.CreateBatchWrite<PaymentEvent>();
-                //foreach (var @event in payment.UncommittedEvents)
-                //{
-                //    batch.AddPutItems(payment.UncommittedEvents);
-                //}
-                //await batch.ExecuteAsync(cancellationToken);
-
+                ///BatchWrite<PaymentEvent> batch = dynamoContext.CreateBatchWrite<PaymentEvent>();
+                ///foreach (var @event in payment.UncommittedEvents)
+                ///{
+                ///    batch.AddPutItems(payment.UncommittedEvents);
+                ///}
+                ///await batch.ExecuteAsync(cancellationToken);
                 if (paymentEvents.Count == 0)
                 {
                     LogEmptySaveRequest();

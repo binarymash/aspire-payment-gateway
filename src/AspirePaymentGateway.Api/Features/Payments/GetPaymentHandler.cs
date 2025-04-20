@@ -20,27 +20,21 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
 
             // 400 bad request
-            if (result.ErrorDetail is Errors.ValidationError)
+            switch (result.ErrorDetail)
             {
-                return Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary());
-            }
-
-            // 404 not found
-            if (result.ErrorDetail is Errors.PaymentNotFoundError)
-            {
-                return Results.NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails()
-                {
-                    //Type,
-                    //Title
-                    //Status
-                    Detail = $"Payment {paymentId} could not be found",
-                });
-            }
-
-            // 500 internal server error
-            if (result.ErrorDetail is Errors.ExceptionError)
-            {
-                LogExceptionWhenRetrievingPayment((result.ErrorDetail as Errors.ExceptionError)!.Exception);
+                case Errors.ValidationError:
+                    return Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary());
+                case Errors.PaymentNotFoundError:
+                    return Results.NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails()
+                    {
+                        //Type,
+                        //Title
+                        //Status
+                        Detail = $"Payment {paymentId} could not be found",
+                    });
+                case Errors.ExceptionError:
+                    LogExceptionWhenRetrievingPayment((result.ErrorDetail as Errors.ExceptionError)!.Exception);
+                    break;
             }
 
             return Results.Problem(statusCode: 500, title: "Internal Server Error");

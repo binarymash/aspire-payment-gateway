@@ -8,6 +8,11 @@
 
         public static readonly string EUR = "EUR";
 
-        public static readonly HashSet<string> All = new([GBP, USD, EUR]);
+        static readonly HashSet<string> All = new([GBP, USD, EUR]);
+
+        public static bool IsValid(string currencyCode)
+        {
+            return All.Contains(currencyCode);
+        }
     }
 }

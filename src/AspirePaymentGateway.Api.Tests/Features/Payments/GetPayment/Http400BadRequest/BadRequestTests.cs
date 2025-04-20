@@ -1,14 +1,9 @@
 ﻿namespace AspirePaymentGateway.Api.Tests.Features.Payments.GetPayment.Http400BadRequest
 {
     [Collection(nameof(GetPaymentCollection))]
-    public class BadRequestTests
+    public class BadRequestTests(GetPaymentFixture fixture)
     {
-        GetPaymentFixture _fixture;
-
-        public BadRequestTests(GetPaymentFixture fixture)
-        {
-            _fixture = fixture.Reset();
-        }
+        readonly GetPaymentFixture _fixture = fixture.Reset();
 
         [Theory]
         [InlineData("1", "1 character")]

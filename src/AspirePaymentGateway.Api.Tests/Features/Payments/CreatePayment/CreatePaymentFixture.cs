@@ -14,7 +14,6 @@ using Microsoft.Extensions.Diagnostics.Metrics.Testing;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 {
     public class CreatePaymentFixture
@@ -33,10 +32,6 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
 
         public CreatePaymentFixture()
         {
-            ServiceCollection services = new();
-            services.AddDomainServices();
-            var serviceProvider = services.BuildServiceProvider();
-
             Repository = new InMemoryPaymentEventRepository();
             Session = new(Repository);
             FraudApi = new();

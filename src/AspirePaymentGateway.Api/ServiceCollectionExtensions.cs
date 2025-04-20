@@ -96,7 +96,7 @@ namespace AspirePaymentGateway.Api
             // infrastructure
 
             // events repo
-            //.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
+            //TODO: fix AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
             services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
             // fraud API
