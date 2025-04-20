@@ -96,17 +96,17 @@ namespace AspirePaymentGateway.Api
             // infrastructure
 
             // events repo
-            //TODO: fix AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
+            ///services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
             services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
             // fraud API
             services.AddRefitClient<IFraudApi>(new RefitSettings(new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options)))
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://fraud-api"))
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi))
                 .AddHttpMessageHandler<AuthDelegatingHandler>();
 
             // bank API
             services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri("https://mock-bank-api"))
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi))
                 .AddHttpMessageHandler<AuthDelegatingHandler>();
 
             return services;

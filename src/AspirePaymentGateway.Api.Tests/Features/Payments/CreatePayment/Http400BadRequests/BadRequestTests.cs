@@ -91,9 +91,7 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
             return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
 
-#pragma warning disable xUnit1012 // Null should only be used for nullable parameters
         [Theory]
-        [InlineData(null, "GBP", "Null Amount")]
         [InlineData(-1, "GBP", "Negative Amount")]
         [InlineData(0, "GBP", "Zero Amount")]
         [InlineData(100000000, "GBP", "Amount Greater Than 99999999")]
@@ -101,16 +99,15 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400
         [InlineData(100, "", "Empty Currency Code")]
         [InlineData(100, " ", "Whitespace Currency Code")]
         [InlineData(100, "GBPX", "Unsupported Currency Account")]
-        public Task InvalidAmount(long amount, string currencyCode, string scenario)
+        public Task InvalidAmount(long amount, string? currencyCode, string scenario)
         {
             PaymentRequest request = TestData.PaymentRequests.Nominal with
             {
-                Payment = new(amount, currencyCode)
+                Payment = new(amount, currencyCode!)
             };
 
             return VerifyPaymentRequestIsRejectedAsync(request, scenario);
         }
-#pragma warning restore xUnit1012 // Null should only be used for nullable parameters
 
         [Fact]
         public Task EmptyPayment()

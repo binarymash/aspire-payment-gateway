@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 using Amazon.DynamoDBv2.DataModel;
-using AspirePaymentGateway.Api.Storage.DynamoDb;
 
 namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
 {
-    [DynamoDBTable(Constants.TableName)]
+    [DynamoDBTable(tableName: Storage.DynamoDb.Constants.TableName)]
     public abstract record PaymentEvent : IPaymentEvent
     {
         [DynamoDBHashKey]
