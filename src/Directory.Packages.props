@@ -5,7 +5,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
-    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.406.22" />
+    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="3.7.406.25" />
     <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
     <PackageVersion Include="Aspire.Hosting.AWS" Version="9.1.8" />
     <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.2.0" />
@@ -37,7 +37,7 @@
     <PackageVersion Include="Roslynator.Analyzers" Version="4.13.1" />
     <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.13.1" />
     <PackageVersion Include="Roslynator.Formatting.Analyzers" Version="4.13.1" />
-    <PackageVersion Include="Scalar.AspNetCore" Version="2.1.13" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.1.17" />
     <PackageVersion Include="Shouldly" Version="4.3.0" />
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.8.0.113526" />
@@ -54,7 +54,7 @@
     <PackageReference Include="Roslynator.Formatting.Analyzers" />
     <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />
-	<PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
