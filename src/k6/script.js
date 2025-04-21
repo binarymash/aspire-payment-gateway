@@ -6,8 +6,8 @@ export let errorRate = new Rate('errors');
 
 export let options = {
     stages: [
-        { duration: '15s', target: 10 }, // ramp-up to 10 users
-        { duration: '1m', target: 10 },  // stay at 10 users
+        { duration: '15s', target: 50 }, // ramp-up to 50 users
+        { duration: '1m', target: 50 },  // stay at 50 users
         { duration: '15s', target: 0 },  // ramp-down to 0 users
     ],
     thresholds: {
@@ -16,27 +16,49 @@ export let options = {
     },
 };
 
-export default function () {
+export function setup() {
+    const authUrl = 'http://localhost:8080/realms/payment-gateway/protocol/openid-connect/token'; 
+    const authPayload = 'grant_type=password&client_id=payment-gateway-customer&scope=email%20openid&username=test@test.com&password=123'
+
+    const authParams = {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    };
+
+    const authResponse = http.post(authUrl, authPayload, authParams);
+
+    check(authResponse, {
+        'is auth status 200': (r) => r.status === 200,
+    });
+
+    const token = authResponse.json('access_token');
+    return { token };
+}
+
+export default function (data) {
+
     const url = 'https://localhost:7161/payments';
     const payload = JSON.stringify({
-        Card: {
-            CardNumber: '4444333322221122',
-            CardHolderName: 'Philip Wood',
-            Expiry: {
-                Month: 7,
-                Year: 2025
+        card: {
+            card_number: '4444333322221122',
+            card_holder_name: 'Philip Wood',
+            expiry: {
+                month: 7,
+                year: 2025
             },
-            CVV: 123
+            cvv: 123
         },
-        Payment: {
-            Amount: 999,
-            CurrencyCode: 'GBP'
+        payment: {
+            amount: 999,
+            currency_code: 'GBP'
         }
     });
 
     const params = {
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${data.token}`,
         },
     };
 
