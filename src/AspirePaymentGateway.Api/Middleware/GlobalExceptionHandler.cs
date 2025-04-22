@@ -19,17 +19,17 @@
             {
                 await next(context);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                LogException();
+                LogException(ex);
 
-                IResult result = Microsoft.AspNetCore.Http.Results.Problem(title: "An unexpected error occurred");
+                IResult result = Results.Problem(title: "An unexpected error occurred");
 
                 await result.ExecuteAsync(context);
             }
         }
 
         [LoggerMessage(Level = LogLevel.Error, Message = "An unhandled exception occurred")]
-        partial void LogException();
+        partial void LogException(Exception exception);
     }
 }

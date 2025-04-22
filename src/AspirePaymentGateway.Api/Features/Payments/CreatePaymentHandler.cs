@@ -75,7 +75,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 }
             }
 
-            if (!result.IsSuccess)
+            if (result.IsFailure)
             {
                 LogErrorDetail(result.ErrorDetail);
             }
@@ -116,8 +116,15 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
                 var result = await session.CommitAsync(payment, ct);
 
-                metrics.RecordPaymentRequestAccepted();
-                LogPaymentAccepted(payment.Id);
+                if (result.IsSuccess)
+                {
+                    metrics.RecordPaymentRequestAccepted();
+                    LogPaymentAccepted(payment.Id);
+                }
+                else
+                {
+                    Activity.Current?.SetStatus(ActivityStatusCode.Error);
+                }
 
                 return result;
             }
@@ -135,19 +142,22 @@ namespace AspirePaymentGateway.Api.Features.Payments
                     ExpiryYear = payment.Card.Expiry.Year
                 };
 
-                Result<Payment> result;
+                Result<Payment> result = payment;
 
                 try
                 {
                     var screeningResponse = await fraudApi.DoScreeningAsync(screeningRequest, ct);
 
                     payment.RecordScreeningResponse(screeningResponse.Accepted);
-
-                    result = await session.CommitAsync(payment, ct);
                 }
                 catch (Exception ex)
                 {
-                    result = Result.Error<Payment>(new Errors.ExceptionError("SOP-whatever", "Fraud API failed", ex));
+                    result = Result.Error<Payment>(new Errors.FraudApiExceptionError(ex));
+                }
+
+                if (result.IsSuccess)
+                {
+                    result = await session.CommitAsync(payment, ct);
                 }
 
                 if (result.IsFailure)
@@ -175,17 +185,29 @@ namespace AspirePaymentGateway.Api.Features.Payments
                     CurrencyCode = payment.Amount.CurrencyCode
                 };
 
-                var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
-                Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
+                Result<Payment> result = payment;
 
-                payment.RecordAuthorisationResponse(
-                    authorisationResponse.AuthorisationRequestId,
-                    authorisationResponse.Authorised,
-                    authorisationResponse.AuthorisationCode);
+                try
+                {
+                    var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
 
-                var result = await session.CommitAsync(payment, ct);
+                    Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
 
-                metrics.RecordPaymentFate(payment.Status);
+                    payment.RecordAuthorisationResponse(
+                        authorisationResponse.AuthorisationRequestId,
+                        authorisationResponse.Authorised,
+                        authorisationResponse.AuthorisationCode);
+                }
+                catch (Exception ex)
+                {
+                    result = Result.Error<Payment>(new Errors.BankApiExceptionError(ex));
+                }
+
+                if (result.IsSuccess)
+                {
+                    result = await session.CommitAsync(payment, ct);
+                    metrics.RecordPaymentFate(payment.Status);
+                }
 
                 if (result.IsFailure)
                 {

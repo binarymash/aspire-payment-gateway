@@ -37,7 +37,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
             }
             catch (Exception ex)
             {
-                return Result.Error<IList<IPaymentEvent>>(new StorageExceptionError(ex));
+                return Result.Error<IList<IPaymentEvent>>(new StorageReadExceptionError(ex));
             }
 
             List<IPaymentEvent> events = [];
@@ -109,7 +109,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
             }
             catch (Exception ex)
             {
-                return Result.Error<Payment>(new StorageExceptionError(ex));
+                return Result.Error<Payment>(new StorageWriteExceptionError(ex));
             }
         }
 
