@@ -13,7 +13,7 @@ namespace BinaryMash.Extensions.OAuth2.AuthorizationProvider
     {
         readonly AuthorizationOptions _options = options.Value;
 
-        public async Task<string> GetClientCredentialAccessTokenAsync(HttpRequestMessage message, CancellationToken ct)
+        public async Task<string> GetClientCredentialAccessTokenAsync(HttpRequestMessage _, CancellationToken ct)
         {
             var address = $"{httpClient.BaseAddress}realms/{_options.Realm}/protocol/openid-connect/token";
 
@@ -23,7 +23,6 @@ namespace BinaryMash.Extensions.OAuth2.AuthorizationProvider
                 GrantType = GrantTypes.ClientCredentials,
                 ClientId = _options.ClientId,
                 ClientSecret = _options.ClientSecret,
-                //Scope = _options.Scope,
             };
 
             var response = await httpClient.RequestClientCredentialsTokenAsync(request, ct);

@@ -9,7 +9,6 @@ using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
 using AspirePaymentGateway.Api.Storage.InMemory;
 using AspirePaymentGateway.Api.Telemetry;
-using BinaryMash.Extensions.Http.Auth;
 using BinaryMash.Extensions.OAuth2.AuthorizationProvider;
 using BinaryMash.Extensions.Redaction;
 using FluentValidation;
@@ -27,36 +26,33 @@ namespace AspirePaymentGateway.Api
         /// <summary>
         /// Adds domain-specific service dependencies
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddDomainServices(this IServiceCollection services)
+        public static WebApplicationBuilder AddDomainServices(this WebApplicationBuilder builder)
         {
             //telemetry
-            services
+            builder.Services
                 .AddSingleton(ActivitySourceHelper.ActivitySource)
                 .AddSingleton<BusinessMetrics>()
                     .AddOpenTelemetry().WithMetrics(metrics => metrics.AddMeter(BusinessMetrics.Name));
 
             // core extensions
-            services
+            builder.Services
                 .AddStandardDateTimeProvider()
                 .AddRedaction(x => x.SetRedactor<StarRedactor>(new DataClassificationSet(DataTaxonomy.SensitiveData, DataTaxonomy.PiiData)));
 
             // domain
-            services
+            builder.Services
                 .AddSingleton<IValidator<PaymentRequest>, PaymentRequestValidator>()
                 .AddSingleton<PaymentIdValidator>()
                 .AddSingleton<PaymentSession>()
                 .AddSingleton<CreatePaymentHandler>()
-                .AddSingleton<GetPaymentHandler>()
-                .AddTransient<AuthDelegatingHandler>();
+                .AddSingleton<GetPaymentHandler>();
 
-            return services;
+            return builder;
         }
 
-        public static IServiceCollection AddApiServices(this IServiceCollection services)
+        public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder)
         {
-            services
+            builder.Services
                 .AddOpenApi(options =>
                     {
                         // add authentication to OpenAPI spec
@@ -80,50 +76,38 @@ namespace AspirePaymentGateway.Api
                         options.Audience = "account";
                     });
 
-            return services;
+            return builder;
         }
 
         /// <summary>
         /// Adds infrastructure-specific service dependencies
         /// </summary>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+        public static WebApplicationBuilder AddInfrastructureServices(this WebApplicationBuilder builder)
         {
             // core infrastructure
-            services
+            builder.Services
                 .AddAWSService<IAmazonDynamoDB>()
                 .AddSingleton<IDynamoDBContext, DynamoDBContext>();
 
             // infrastructure
 
             // events repo
-            ///services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
-            services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
-
+            ///builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
+            builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
             // identity server
-            services.AddHttpClient("IdentityServer", config =>
-            {
-                config.BaseAddress = new Uri(Constants.BaseUrls.IdentityServer);
-            });
+            builder.Services.AddHttpClient("IdentityServer", config => config.BaseAddress = new Uri(Constants.BaseUrls.IdentityServer));
 
-            // fraud API 
+            // fraud API
 
-            IOptions<AuthorizationOptions> fraudApiAuthorizationOptions = Options.Create(new AuthorizationOptions(
-                Realm: "fraud-api",
-                ClientId: "payment-gateway",
-                ClientSecret: "EKZZOAmSQwnH1y4xerd5Zkf2hfLobpmD",
-                Scope: "screen-payment"));
-
-            services.AddSingleton<FraudApiTokenProvider>(sp =>
+            builder.Services.AddSingleton<FraudApiTokenProvider>(sp =>
             {
                 return new FraudApiTokenProvider(
                     httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("IdentityServer"),
-                    options: fraudApiAuthorizationOptions);
+                    options: Options.Create(builder.Configuration.GetSection("services:fraud-api:auth").Get<AuthorizationOptions>()!));
             });
 
-            services.AddRefitClient<IFraudApi>(sp =>
+            builder.Services.AddRefitClient<IFraudApi>(sp =>
             {
                 return new RefitSettings
                 {
@@ -133,12 +117,10 @@ namespace AspirePaymentGateway.Api
             }).ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi));
 
             // bank API
-            services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi))
-                .AddHttpMessageHandler<AuthDelegatingHandler>();
+            builder.Services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi));
 
-
-            return services;
+            return builder;
         }
     }
 }

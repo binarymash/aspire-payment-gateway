@@ -6,25 +6,27 @@ using static Microsoft.Extensions.Hosting.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
-
-builder.Services
+builder
+    .AddServiceDefaults()
     .AddApiServices()
     .AddDomainServices()
-    .AddInfrastructure();
+    .AddInfrastructureServices();
 
 var app = builder.Build();
 
 // Middleware
 
-app.MapDefaultEndpoints();
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseMiddleware<GlobalExceptionHandler>();
-app.UseMiddleware<BadHttpRequestExceptionHandler>();
-app.UseFluentValidationNamingFromJsonOptions();
-app.MapOpenApiForDevelopment("/scalar/v1");
-app.UseHttpsRedirection();
+app
+    .MapDefaultEndpoints()
+    .UseAuthentication()
+    .UseAuthorization()
+    .UseMiddleware<GlobalExceptionHandler>()
+    .UseMiddleware<BadHttpRequestExceptionHandler>()
+    .UseFluentValidationNamingFromJsonOptions();
+
+app
+    .MapOpenApiForDevelopment("/scalar/v1")
+    .UseHttpsRedirection();
 
 // Map endpoints
 
