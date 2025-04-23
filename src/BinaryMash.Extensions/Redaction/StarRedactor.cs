@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Compliance.Redaction;
 
-namespace AspirePaymentGateway.Api.Extensions.Redaction
+namespace BinaryMash.Extensions.Redaction
 {
     public class StarRedactor : Redactor
     {

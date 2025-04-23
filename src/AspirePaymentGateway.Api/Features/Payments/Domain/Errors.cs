@@ -1,4 +1,4 @@
-﻿using AspirePaymentGateway.Api.Extensions.Results;
+﻿using BinaryMash.Extensions.Results;
 using FluentValidation.Results;
 
 namespace AspirePaymentGateway.Api.Features.Payments.Domain

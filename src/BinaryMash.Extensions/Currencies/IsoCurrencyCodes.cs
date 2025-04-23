@@ -1,4 +1,4 @@
-﻿namespace AspirePaymentGateway.Api.Extensions.Currencies
+﻿namespace BinaryMash.Extensions.Currencies
 {
     public static class IsoCurrencyCodes
     {

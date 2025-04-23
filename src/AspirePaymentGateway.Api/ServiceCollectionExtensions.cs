@@ -2,8 +2,6 @@
 using System.Text.Json;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using AspirePaymentGateway.Api.Extensions.Http.Auth;
-using AspirePaymentGateway.Api.Extensions.Redaction;
 using AspirePaymentGateway.Api.Features.Payments;
 using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
@@ -11,6 +9,8 @@ using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
 using AspirePaymentGateway.Api.Storage.InMemory;
 using AspirePaymentGateway.Api.Telemetry;
+using BinaryMash.Extensions.Http.Auth;
+using BinaryMash.Extensions.Redaction;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;
 using Refit;
@@ -99,15 +99,22 @@ namespace AspirePaymentGateway.Api
             ///services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
             services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
+            // fraud API Identity Server
+
             // fraud API
-            services.AddRefitClient<IFraudApi>(new RefitSettings(new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options)))
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi))
-                .AddHttpMessageHandler<AuthDelegatingHandler>();
+
+            services.AddRefitClient<IFraudApi>(
+                new RefitSettings()
+                {
+                    ContentSerializer = new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options),
+                })
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi));
 
             // bank API
             services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
                 .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi))
                 .AddHttpMessageHandler<AuthDelegatingHandler>();
+
 
             return services;
         }

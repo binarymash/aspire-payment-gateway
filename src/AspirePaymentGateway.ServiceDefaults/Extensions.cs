@@ -211,7 +211,7 @@ public static class Extensions
                         Scheme = "bearer", // "bearer" refers to the header name here
                         In = ParameterLocation.Header,
                         BearerFormat = "Json Web Token"
-                    }
+                    },
                 };
                 document.Components ??= new OpenApiComponents();
                 document.Components.SecuritySchemes = requirements;

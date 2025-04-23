@@ -1,4 +1,4 @@
-﻿namespace AspirePaymentGateway.Api.Extensions.Http.Auth
+﻿namespace BinaryMash.Extensions.Http.Auth
 {
     public class AuthDelegatingHandler : DelegatingHandler
     {

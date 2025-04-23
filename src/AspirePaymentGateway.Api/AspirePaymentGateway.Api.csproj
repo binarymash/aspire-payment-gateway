@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AspirePaymentGateway.ServiceDefaults\AspirePaymentGateway.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\BinaryMash.Extensions.FluentValidation\BinaryMash.Extensions.FluentValidation.csproj" />
+    <ProjectReference Include="..\BinaryMash.Extensions\BinaryMash.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

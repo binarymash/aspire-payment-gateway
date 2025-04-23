@@ -7,11 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aspire.Keycloak.Authentication" />	  
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AspirePaymentGateway.ServiceDefaults\AspirePaymentGateway.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\BinaryMash.Extensions\BinaryMash.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

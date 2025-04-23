@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Compliance.Classification;
 
-namespace AspirePaymentGateway.Api.Extensions.Redaction
+namespace BinaryMash.Extensions.Redaction
 {
     public static class DataTaxonomy
     {

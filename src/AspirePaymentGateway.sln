@@ -12,8 +12,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.MockBa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.FraudApi", "AspirePaymentGateway.FraudApi\AspirePaymentGateway.FraudApi.csproj", "{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryMash.Extensions.FluentValidation", "BinaryMash.Extensions.FluentValidation\BinaryMash.Extensions.FluentValidation.csproj", "{E69F0BE8-88D7-4CA1-8D75-08A9C5C9101F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.Tests", "AspirePaymentGateway.Tests\AspirePaymentGateway.Tests.csproj", "{D48B5933-DEAA-4D4F-A36B-C4AAC7B23798}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspirePaymentGateway.Api.Tests", "AspirePaymentGateway.Api.Tests\AspirePaymentGateway.Api.Tests.csproj", "{D6C34AAE-7848-4F20-AA5A-07179A805C9D}"
@@ -31,6 +29,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "k6", "k6", "{02EA681E-C7D8-
 	ProjectSection(SolutionItems) = preProject
 		k6\script.js = k6\script.js
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryMash.Extensions", "BinaryMash.Extensions\BinaryMash.Extensions.csproj", "{B91E8BD9-4385-45BE-8991-A72298C2F97D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BinaryMash.Extensions.Tests", "BinaryMash.Extensions.Tests\BinaryMash.Extensions.Tests.csproj", "{9B0436FD-4043-4AD3-AA75-26E6E9EE9F03}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,10 +60,6 @@ Global
 		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2F10EED-F6EB-56A8-BF5A-BE82C036215B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E69F0BE8-88D7-4CA1-8D75-08A9C5C9101F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E69F0BE8-88D7-4CA1-8D75-08A9C5C9101F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E69F0BE8-88D7-4CA1-8D75-08A9C5C9101F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E69F0BE8-88D7-4CA1-8D75-08A9C5C9101F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D48B5933-DEAA-4D4F-A36B-C4AAC7B23798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D48B5933-DEAA-4D4F-A36B-C4AAC7B23798}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D48B5933-DEAA-4D4F-A36B-C4AAC7B23798}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -70,6 +68,14 @@ Global
 		{D6C34AAE-7848-4F20-AA5A-07179A805C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6C34AAE-7848-4F20-AA5A-07179A805C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6C34AAE-7848-4F20-AA5A-07179A805C9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B91E8BD9-4385-45BE-8991-A72298C2F97D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B91E8BD9-4385-45BE-8991-A72298C2F97D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B91E8BD9-4385-45BE-8991-A72298C2F97D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B91E8BD9-4385-45BE-8991-A72298C2F97D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B0436FD-4043-4AD3-AA75-26E6E9EE9F03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B0436FD-4043-4AD3-AA75-26E6E9EE9F03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B0436FD-4043-4AD3-AA75-26E6E9EE9F03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B0436FD-4043-4AD3-AA75-26E6E9EE9F03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

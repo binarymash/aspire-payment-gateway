@@ -1,6 +1,6 @@
 ﻿namespace AspirePaymentGateway.Api.Features.Payments.Validation
 {
-    using AspirePaymentGateway.Api.Extensions.Currencies;
+    using BinaryMash.Extensions.Currencies;
     using FluentValidation;
     using static AspirePaymentGateway.Api.Features.Payments.Contracts;
 

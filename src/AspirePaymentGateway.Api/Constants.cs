@@ -10,6 +10,8 @@
             public const string FraudApi = "https://fraud-api";
 
             public const string BankApi = "https://mock-bank-api";
+
+            public const string IdentityServer = "https://keycloak";
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace AspirePaymentGateway.Api.Extensions.DateTime
+﻿namespace BinaryMash.Extensions.DateTime
 {
     public class DateTimeProvider : IDateTimeProvider
     {

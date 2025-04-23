@@ -1,7 +1,7 @@
-﻿using AspirePaymentGateway.Api.Extensions.Results;
-using AspirePaymentGateway.Api.Features.Payments.Domain;
+﻿using AspirePaymentGateway.Api.Features.Payments.Domain;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
+using BinaryMash.Extensions.Results;
 
 namespace AspirePaymentGateway.Api.Features.Payments
 {

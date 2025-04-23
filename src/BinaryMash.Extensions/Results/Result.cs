@@ -1,4 +1,4 @@
-﻿namespace AspirePaymentGateway.Api.Extensions.Results
+﻿namespace BinaryMash.Extensions.Results
 {
     public abstract record Result
     {

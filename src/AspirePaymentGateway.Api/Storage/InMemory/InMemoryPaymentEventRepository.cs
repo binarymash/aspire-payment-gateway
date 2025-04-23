@@ -1,7 +1,7 @@
-﻿using AspirePaymentGateway.Api.Extensions.Results;
-using AspirePaymentGateway.Api.Features.Payments.Domain;
+﻿using AspirePaymentGateway.Api.Features.Payments.Domain;
 using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
+using BinaryMash.Extensions.Results;
 
 namespace AspirePaymentGateway.Api.Storage.InMemory
 {

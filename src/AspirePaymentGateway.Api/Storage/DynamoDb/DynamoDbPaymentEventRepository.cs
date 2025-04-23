@@ -2,10 +2,10 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
-using AspirePaymentGateway.Api.Extensions.Results;
 using AspirePaymentGateway.Api.Features.Payments.Domain;
 using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
+using BinaryMash.Extensions.Results;
 using OneOf;
 using static AspirePaymentGateway.Api.Features.Payments.Domain.Errors;
 

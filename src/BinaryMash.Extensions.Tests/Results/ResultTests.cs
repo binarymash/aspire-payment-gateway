@@ -1,7 +1,7 @@
 ﻿using BinaryMash.Extensions.Results;
 using Shouldly;
 
-namespace AspirePaymentGateway.Api.Tests.Extensions.Results
+namespace BinaryMash.Extensions.Tests.Results
 {
     public class ResultTests
     {
