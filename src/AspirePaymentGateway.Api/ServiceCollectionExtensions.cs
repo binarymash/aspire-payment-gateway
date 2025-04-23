@@ -9,7 +9,7 @@ using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
 using AspirePaymentGateway.Api.Storage.InMemory;
 using AspirePaymentGateway.Api.Telemetry;
-using BinaryMash.Extensions.OAuth2.AuthorizationProvider;
+using BinaryMash.Extensions.OAuth2.ClientCredentialsAuthorizationProvider;
 using BinaryMash.Extensions.Redaction;
 using FluentValidation;
 using Microsoft.Extensions.Compliance.Classification;

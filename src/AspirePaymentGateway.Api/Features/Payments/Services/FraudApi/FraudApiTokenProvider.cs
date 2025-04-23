@@ -1,4 +1,4 @@
-﻿using BinaryMash.Extensions.OAuth2.AuthorizationProvider;
+﻿using BinaryMash.Extensions.OAuth2.ClientCredentialsAuthorizationProvider;
 using Microsoft.Extensions.Options;
 
 namespace AspirePaymentGateway.Api.Features.Payments.Services.FraudApi
