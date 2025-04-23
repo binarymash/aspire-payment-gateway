@@ -1,5 +1,8 @@
-﻿namespace AspirePaymentGateway.Api.Features.Payments.Services.BankApi
+﻿using Refit;
+
+namespace AspirePaymentGateway.Api.Features.Payments.Services.BankApi
 {
+    [Headers("Authorization: Bearer")]
     public interface IBankApi
     {
         [Refit.Post("/authorisation")]

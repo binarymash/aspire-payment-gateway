@@ -1,6 +1,11 @@
-@AspirePaymentGateway.MockBankApi_HostAddress = http://localhost:5029
+@IdentityProvider.HostAddress = http://localhost:8080
 
-GET {{AspirePaymentGateway.MockBankApi_HostAddress}}/weatherforecast/
-Accept: application/json
+# get client credentials token for payment-gateway
+# Authorization is Base64 for payment-gateway:ZGcvLL9sXlHivHpmuodtL2RQO9gxrNoz
+POST {{IdentityProvider.HostAddress}}/realms/bank-api/protocol/openid-connect/token HTTP/1.1
+Authorization: Basic cGF5bWVudC1nYXRld2F5OlpHY3ZMTDlzWGxIaXZIcG11b2R0TDJSUU85Z3hyTm96
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials
 
 ###

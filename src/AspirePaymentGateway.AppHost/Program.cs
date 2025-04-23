@@ -16,7 +16,6 @@ builder.Eventing.Subscribe<ResourceReadyEvent>(dynamoDb.Resource, async (_, canc
 
 var keycloakUser = builder.AddParameter("KeycloakAdminUsername");
 var keycloakPassword = builder.AddParameter("KeycloakAdminPassword", secret: true);
-
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminUsername: keycloakUser, adminPassword: keycloakPassword)
     .WithDataVolume()
     .WithRealmImport("./keycloak/realms")
@@ -26,7 +25,9 @@ var fraudApi = builder.AddProject<Projects.AspirePaymentGateway_FraudApi>("fraud
     .WithReference(keycloak)
     .WaitFor(keycloak);
 
-var mockBank = builder.AddProject<Projects.AspirePaymentGateway_MockBankApi>("mock-bank-api");
+var mockBank = builder.AddProject<Projects.AspirePaymentGateway_MockBankApi>("mock-bank-api")
+    .WithReference(keycloak)
+    .WaitFor(keycloak);
 
 builder.AddProject<Projects.AspirePaymentGateway_Api>("payment-gateway")
     .WithReference(awsConfig)

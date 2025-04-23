@@ -85,6 +85,7 @@ namespace AspirePaymentGateway.Api
         public static WebApplicationBuilder AddInfrastructureServices(this WebApplicationBuilder builder)
         {
             // core infrastructure
+
             builder.Services
                 .AddAWSService<IAmazonDynamoDB>()
                 .AddSingleton<IDynamoDBContext, DynamoDBContext>();
@@ -92,10 +93,12 @@ namespace AspirePaymentGateway.Api
             // infrastructure
 
             // events repo
+
             ///builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
             builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
             // identity server
+
             builder.Services.AddHttpClient("IdentityServer", config => config.BaseAddress = new Uri(Constants.BaseUrls.IdentityServer));
 
             // fraud API
@@ -117,8 +120,19 @@ namespace AspirePaymentGateway.Api
             }).ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi));
 
             // bank API
-            builder.Services.AddRefitClient<IBankApi>(new RefitSettings(new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options)))
-                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi));
+
+            builder.Services.AddRefitClient<IBankApi>(sp =>
+            {
+                var tokenProvider = new BankApiTokenProvider(
+                    httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("IdentityServer"),
+                    options: Options.Create(builder.Configuration.GetSection("services:bank-api:auth").Get<AuthorizationOptions>()!));
+
+                return new RefitSettings
+                {
+                    ContentSerializer = new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options),
+                    AuthorizationHeaderValueGetter = tokenProvider.GetClientCredentialAccessTokenAsync,
+                };
+            }).ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi));
 
             return builder;
         }
