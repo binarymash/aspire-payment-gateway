@@ -32,7 +32,7 @@ namespace BinaryMash.Extensions.Keycloak
             return Task.FromResult(principal);
         }
 
-        public class RealmAccess
+        public sealed class RealmAccess
         {
             public List<string>? Roles { get; set; }
         }

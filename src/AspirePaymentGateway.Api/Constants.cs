@@ -11,7 +11,7 @@
 
             public const string BankApi = "https://mock-bank-api";
 
-            public const string IdentityServer = "https://keycloak";
+            public const string IdentityServer = "http://keycloak";
         }
     }
 }

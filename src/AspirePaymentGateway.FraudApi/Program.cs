@@ -13,7 +13,7 @@ builder.Services
         options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
     })
     .AddSingleton<ScreeningHandler>()
-    .AddAuthorization(options => options.AddPolicy("ScreenPayment", configure => configure.RequireRole("screen-payments")))
+    .AddAuthorization(options => options.AddPolicy("ScreenPayment", configure => configure.RequireRole("screen-payment")))
     .AddKeycloakRoleClaimsTransformation()
     .AddAuthentication()
     .AddKeycloakJwtBearer("keycloak", realm: "fraud-api", options =>

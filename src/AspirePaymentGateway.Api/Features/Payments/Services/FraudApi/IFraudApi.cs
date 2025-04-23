@@ -2,6 +2,7 @@
 
 namespace AspirePaymentGateway.Api.Features.Payments.Services.FraudApi
 {
+    [Headers("Authorization: Bearer")]
     public interface IFraudApi
     {
         [Post("/screening")]
