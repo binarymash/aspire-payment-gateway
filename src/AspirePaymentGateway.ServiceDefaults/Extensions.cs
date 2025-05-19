@@ -194,6 +194,7 @@ public static class Extensions
 
     /// <summary>
     /// See <see cref="https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/customize-openapi?view=aspnetcore-9.0#use-document-transformers"/>
+    /// See also https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#oauth2-authentication
     /// </summary>
     /// <param name="authenticationSchemeProvider"></param>
     public sealed class BearerSecuritySchemeTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider) : IOpenApiDocumentTransformer
