@@ -50,6 +50,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             // request validation and acceptance
             var result = await AcceptPaymentRequestAsync(paymentRequest, ct);
+
             if (result.IsFailure && result.ErrorDetail is Errors.ValidationError)
             {
                 metrics.RecordPaymentRequestRejected();
@@ -87,19 +88,19 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
         private async Task<Result<Payment>> AcceptPaymentRequestAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
-            using (Activity.Current = activitySource.StartActivity("Accepting payment", ActivityKind.Internal))
+            using (var activity = activitySource.StartActivity("Accepting payment", ActivityKind.Internal))
             {
                 paymentRequest ??= new(null!, null!);
 
                 var validationResult = await validator.ValidateAsync(paymentRequest, ct);
-                Activity.Current?.AddEvent(new ActivityEvent("Request validated"));
+                activity?.AddEvent(new ActivityEvent("Request validated"));
 
                 if (!validationResult.IsValid)
                 {
                     return Result.Error<Payment>(new Errors.ValidationError(validationResult));
                 }
 
-                Activity.Current?.AddBaggage("funky", "whatsit");
+                activity?.AddBaggage("funky", "whatsit");
 
                 var payment = Payment.Create(
                     paymentId: $"pay_{Guid.NewGuid()}",
@@ -112,7 +113,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
                     expiryYear: paymentRequest.Card.Expiry.Year
                     );
 
-                Activity.Current?.AddTag("activity-tag", "jeepers");
+                activity?.AddTag("activity-tag", "jeepers");
 
                 var result = await session.CommitAsync(payment, ct);
 
@@ -123,7 +124,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 }
                 else
                 {
-                    Activity.Current?.SetStatus(ActivityStatusCode.Error);
+                    activity?.SetStatus(ActivityStatusCode.Error);
                 }
 
                 return result;
@@ -132,7 +133,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
         private async Task<Result<Payment>> ScreenPaymentAsync(Payment payment, CancellationToken ct)
         {
-            using (Activity.Current = activitySource.StartActivity("Screening payment", ActivityKind.Internal))
+            using (var activity = activitySource.StartActivity("Screening payment", ActivityKind.Internal))
             {
                 var screeningRequest = new Services.FraudApi.Contracts.ScreeningRequest()
                 {
@@ -162,7 +163,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
                 if (result.IsFailure)
                 {
-                    Activity.Current?.SetStatus(ActivityStatusCode.Error);
+                    activity?.SetStatus(ActivityStatusCode.Error);
                 }
 
                 return result;
@@ -171,7 +172,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
         private async Task<Result<Payment>> AuthorisePaymentAsync(Payment payment, CancellationToken ct)
         {
-            using (Activity.Current = activitySource.StartActivity("Authorising payment", ActivityKind.Internal))
+            using (var activity = activitySource.StartActivity("Authorising payment", ActivityKind.Internal))
             {
                 var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest
                 {
@@ -191,7 +192,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 {
                     var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
 
-                    Activity.Current?.AddEvent(new ActivityEvent("Request authorised"));
+                    activity?.AddEvent(new ActivityEvent("Request authorised"));
 
                     payment.RecordAuthorisationResponse(
                         authorisationResponse.AuthorisationRequestId,
@@ -211,7 +212,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
                 if (result.IsFailure)
                 {
-                    Activity.Current?.SetStatus(ActivityStatusCode.Error);
+                    activity?.SetStatus(ActivityStatusCode.Error);
                 }
 
                 return result;
@@ -220,7 +221,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
         private async Task<Result<Payment>> DeclinePaymentAsync(Payment payment, string reason, CancellationToken ct)
         {
-            using (Activity.Current = activitySource.StartActivity("Declining payment", ActivityKind.Internal))
+            using (var activity = activitySource.StartActivity("Declining payment", ActivityKind.Internal))
             {
                 payment.Apply(new PaymentDeclinedEvent
                 {
@@ -235,7 +236,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
                 if (result.IsFailure)
                 {
-                    Activity.Current?.SetStatus(ActivityStatusCode.Error);
+                    activity?.SetStatus(ActivityStatusCode.Error);
                 }
 
                 return result;
