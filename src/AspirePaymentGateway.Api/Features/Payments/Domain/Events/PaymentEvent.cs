@@ -4,7 +4,7 @@ using Amazon.DynamoDBv2.DataModel;
 namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
 {
     [DynamoDBTable(tableName: Storage.DynamoDb.Constants.TableName)]
-    public abstract record PaymentEvent : IPaymentEvent
+    public record PaymentEvent
     {
         [DynamoDBHashKey]
         [Description("The Payment ID")]
@@ -15,7 +15,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
         public required string OccurredAt { get; init; }
 
         [Description("The event type")]
-        public abstract string EventType { get; init; }
+        public virtual string EventType { get; init; }
 
         [Description("The event ID")]
         public string EventId { get; private init; } = $"evt_{Guid.NewGuid()}";

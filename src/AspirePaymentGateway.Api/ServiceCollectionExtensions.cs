@@ -7,7 +7,7 @@ using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
-using AspirePaymentGateway.Api.Storage.InMemory;
+using AspirePaymentGateway.Api.Storage.DynamoDb;
 using AspirePaymentGateway.Api.Telemetry;
 using BinaryMash.Extensions.OAuth2.ClientCredentialsAuthorizationProvider;
 using BinaryMash.Extensions.Redaction;
@@ -94,8 +94,8 @@ namespace AspirePaymentGateway.Api
 
             // events repo
 
-            ///builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
-            builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
+            builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
+            //builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
             // identity server
 

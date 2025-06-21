@@ -7,19 +7,19 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
 {
     public class InMemoryPaymentEventRepository : ISavePayment, IPaymentEventsRepository
     {
-        readonly Dictionary<string, List<IPaymentEvent>> _store = [];
+        readonly Dictionary<string, List<PaymentEvent>> _store = [];
 
-        public async Task<Result<IList<IPaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
+        public async Task<Result<IList<PaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
             if (!_store.TryGetValue(paymentId, out var events))
             {
-                return Result.Error<IList<IPaymentEvent>>(new Errors.PaymentNotFoundError());
+                return Result.Error<IList<PaymentEvent>>(new Errors.PaymentNotFoundError());
             }
 
             return await Task.FromResult(events);
         }
 
-        public async Task<Result> SaveAsync(IList<IPaymentEvent> paymentEvents, CancellationToken cancellationToken)
+        public async Task<Result> SaveAsync(IList<PaymentEvent> paymentEvents, CancellationToken cancellationToken)
         {
             foreach (var paymentEvent in paymentEvents)
             {

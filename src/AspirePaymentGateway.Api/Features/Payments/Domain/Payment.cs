@@ -19,7 +19,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
 
         public DateTime LastUpdated { get; private set; } = default!;
 
-        public List<IPaymentEvent> UncommittedEvents { get; } = [];
+        public List<PaymentEvent> UncommittedEvents { get; } = [];
 
         public static Payment Create(
             string paymentId,
@@ -72,7 +72,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
             });
         }
 
-        public void Apply(IPaymentEvent @event)
+        public void Apply(PaymentEvent @event)
         {
             switch (@event)
             {

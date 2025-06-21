@@ -5,8 +5,8 @@ namespace AspirePaymentGateway.Api.Features.Payments.Services.Storage
 {
     public interface IPaymentEventsRepository
     {
-        Task<Result<IList<IPaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken);
+        Task<Result<IList<PaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken);
 
-        Task<Result> SaveAsync(IList<IPaymentEvent> paymentEvents, CancellationToken cancellationToken);
+        Task<Result> SaveAsync(IList<PaymentEvent> paymentEvents, CancellationToken cancellationToken);
     }
 }
