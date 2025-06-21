@@ -41,8 +41,8 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
             foreach (var document in documents)
             {
-                OneOf<PaymentEvent, UnknownEventTypeError> map = MapFromDocument(document);
-                //OneOf<PaymentEvent, UnknownEventTypeError> map = MapFromDocumentUsingReflection(document);
+                OneOf<PaymentEvent, UnknownEventTypeError> map = DocumentMapper.MapToPaymentEvent(document, dynamoContext);
+                //OneOf<PaymentEvent, UnknownEventTypeError> map = DocumentMapper.MapToPaymentEventUsingReflection(document, dynamoContext);
 
                 if (map.TryPickT0(out var @event, out var error))
                 {
@@ -74,8 +74,8 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
                 foreach (var paymentEvent in paymentEvents)
                 {
-                    var map = MapToDocument(paymentEvent);
-                    //var map = MapToDocumentUsingReflection(paymentEvent);
+                    var map = DocumentMapper.MapToDocument(paymentEvent, dynamoContext);
+                    //var map = DocumentMapper.MapToDocumentUsingReflection(paymentEvent, dynamoContext);
 
                     if (map.TryPickT0(out var document, out var error))
                     {
@@ -105,85 +105,6 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 return Result.Error<PaymentEvent>(new StorageWriteExceptionError(ex));
             }
         }
-
-        private OneOf<PaymentEvent, UnknownEventTypeError> MapFromDocument(Document document)
-        {
-            //TODO: can we source-generate this?
-            var eventType = document["EventType"].AsString();
-
-            return eventType switch
-            {
-                nameof(PaymentRequestedEvent) => dynamoContext.FromDocument<PaymentRequestedEvent>(document),
-                nameof(PaymentScreenedEvent) => dynamoContext.FromDocument<PaymentScreenedEvent>(document),
-                nameof(PaymentAuthorisedEvent) => dynamoContext.FromDocument<PaymentAuthorisedEvent>(document),
-                nameof(PaymentDeclinedEvent) => dynamoContext.FromDocument<PaymentDeclinedEvent>(document),
-                _ => new UnknownEventTypeError(eventType)
-            };
-        }
-
-        private OneOf<Document, UnknownEventTypeError> MapToDocument(PaymentEvent paymentEvent)
-        {
-            //TODO: can we source-generate this?
-            return paymentEvent.EventType switch
-            {
-                nameof(PaymentRequestedEvent) => dynamoContext.ToDocument<PaymentRequestedEvent>(paymentEvent as PaymentRequestedEvent),
-                nameof(PaymentScreenedEvent) => dynamoContext.ToDocument<PaymentScreenedEvent>(paymentEvent as PaymentScreenedEvent),
-                nameof(PaymentAuthorisedEvent) => dynamoContext.ToDocument<PaymentAuthorisedEvent>(paymentEvent as PaymentAuthorisedEvent),
-                nameof(PaymentDeclinedEvent) => dynamoContext.ToDocument<PaymentDeclinedEvent>(paymentEvent as PaymentDeclinedEvent),
-                _ => new UnknownEventTypeError(paymentEvent.EventType)
-            };
-        }
-
-        //private OneOf<PaymentEvent, UnknownEventTypeError> MapFromDocumentUsingReflection(Document document)
-        //{
-        //    //TODO: add caching for the reflection lookups, or this will be sloooooooooww
-
-        //    var eventType = document["EventType"].AsString();
-
-        //    var type = Type.GetType($"AspirePaymentGateway.Api.Features.Payments.Domain.Events.{eventType}");
-
-        //    if (type is not null && typeof(PaymentEvent).IsAssignableFrom(type))
-        //    {
-        //        var method = typeof(IDynamoDBContext)
-        //            .GetMethod("FromDocument", new[] { typeof(Document) })?
-        //            .MakeGenericMethod(type);
-
-        //        if (method is not null)
-        //        {
-        //            if (method.Invoke(dynamoContext, [document]) is PaymentEvent result)
-        //            {
-        //                return result;
-        //            }
-        //        }
-        //    }
-
-        //    return new UnknownEventTypeError(eventType);
-        //}
-
-        //public OneOf<Document, UnknownEventTypeError> MapToDocumentUsingReflection(PaymentEvent paymentEvent)
-        //{
-        //    //TODO: add caching for the reflection lookups, or this will be sloooooooooww
-
-        //    var type = paymentEvent.GetType();
-
-        //    var method = typeof(IDynamoDBContext)
-        //        .GetMethods()
-        //        .FirstOrDefault(m =>
-        //            m.Name == "ToDocument" &&
-        //            m.IsGenericMethod &&
-        //            m.GetParameters().Length == 1)?
-        //        .MakeGenericMethod(type);
-
-        //    if (method is not null)
-        //    {
-        //        if (method.Invoke(dynamoContext, [paymentEvent]) is Document result)
-        //        {
-        //            return result;
-        //        }
-        //    }
-
-        //    return new UnknownEventTypeError(paymentEvent.EventType);
-        //}
 
         [LoggerMessage(Level = LogLevel.Information, Message = "Tried to save a payment with no changes")]
         partial void LogEmptySaveRequest();

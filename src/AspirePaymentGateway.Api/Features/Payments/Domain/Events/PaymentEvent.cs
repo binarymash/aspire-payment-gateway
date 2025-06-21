@@ -15,7 +15,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
         public required string OccurredAt { get; init; }
 
         [Description("The event type")]
-        public virtual string EventType { get; init; }
+        public required virtual string EventType { get; init; }
 
         [Description("The event ID")]
         public string EventId { get; private init; } = $"evt_{Guid.NewGuid()}";

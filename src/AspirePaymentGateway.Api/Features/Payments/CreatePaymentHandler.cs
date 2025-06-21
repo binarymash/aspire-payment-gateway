@@ -88,159 +88,155 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
         private async Task<Result<Payment>> AcceptPaymentRequestAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
-            using (var activity = activitySource.StartActivity("Accepting payment", ActivityKind.Internal))
+            using var activity = activitySource.StartActivity("Accepting payment", ActivityKind.Internal);
+
+            paymentRequest ??= new(null!, null!);
+
+            var validationResult = await validator.ValidateAsync(paymentRequest, ct);
+            activity?.AddEvent(new ActivityEvent("Request validated"));
+
+            if (!validationResult.IsValid)
             {
-                paymentRequest ??= new(null!, null!);
-
-                var validationResult = await validator.ValidateAsync(paymentRequest, ct);
-                activity?.AddEvent(new ActivityEvent("Request validated"));
-
-                if (!validationResult.IsValid)
-                {
-                    return Result.Error<Payment>(new Errors.ValidationError(validationResult));
-                }
-
-                activity?.AddBaggage("funky", "whatsit");
-
-                var payment = Payment.Create(
-                    paymentId: $"pay_{Guid.NewGuid()}",
-                    amountInMinorUnits: paymentRequest.Payment.Amount,
-                    currencyIsoCode: paymentRequest.Payment.CurrencyCode,
-                    cardNumber: paymentRequest.Card.CardNumber,
-                    cardHolderName: paymentRequest.Card.CardHolderName,
-                    cvv: paymentRequest.Card.CVV,
-                    expiryMonth: paymentRequest.Card.Expiry.Month,
-                    expiryYear: paymentRequest.Card.Expiry.Year
-                    );
-
-                activity?.AddTag("activity-tag", "jeepers");
-
-                var result = await session.CommitAsync(payment, ct);
-
-                if (result.IsSuccess)
-                {
-                    metrics.RecordPaymentRequestAccepted();
-                    LogPaymentAccepted(payment.Id);
-                }
-                else
-                {
-                    activity?.SetStatus(ActivityStatusCode.Error);
-                }
-
-                return result;
+                return Result.Error<Payment>(new Errors.ValidationError(validationResult));
             }
+
+            activity?.AddBaggage("funky", "whatsit");
+
+            var payment = Payment.Create(
+                paymentId: $"pay_{Guid.NewGuid()}",
+                amountInMinorUnits: paymentRequest.Payment.Amount,
+                currencyIsoCode: paymentRequest.Payment.CurrencyCode,
+                cardNumber: paymentRequest.Card.CardNumber,
+                cardHolderName: paymentRequest.Card.CardHolderName,
+                cvv: paymentRequest.Card.CVV,
+                expiryMonth: paymentRequest.Card.Expiry.Month,
+                expiryYear: paymentRequest.Card.Expiry.Year
+                );
+
+            activity?.AddTag("activity-tag", "jeepers");
+
+            var result = await session.CommitAsync(payment, ct);
+
+            if (result.IsSuccess)
+            {
+                metrics.RecordPaymentRequestAccepted();
+                LogPaymentAccepted(payment.Id);
+            }
+            else
+            {
+                activity?.SetStatus(ActivityStatusCode.Error);
+            }
+
+            return result;
         }
 
         private async Task<Result<Payment>> ScreenPaymentAsync(Payment payment, CancellationToken ct)
         {
-            using (var activity = activitySource.StartActivity("Screening payment", ActivityKind.Internal))
+            using var activity = activitySource.StartActivity("Screening payment", ActivityKind.Internal);
+
+            var screeningRequest = new Services.FraudApi.Contracts.ScreeningRequest()
             {
-                var screeningRequest = new Services.FraudApi.Contracts.ScreeningRequest()
-                {
-                    CardNumber = payment.Card.CardNumber,
-                    CardHolderName = payment.Card.CardHolderName,
-                    ExpiryMonth = payment.Card.Expiry.Month,
-                    ExpiryYear = payment.Card.Expiry.Year
-                };
+                CardNumber = payment.Card.CardNumber,
+                CardHolderName = payment.Card.CardHolderName,
+                ExpiryMonth = payment.Card.Expiry.Month,
+                ExpiryYear = payment.Card.Expiry.Year
+            };
 
-                Result<Payment> result = payment;
+            Result<Payment> result = payment;
 
-                try
-                {
-                    var screeningResponse = await fraudApi.DoScreeningAsync(screeningRequest, ct);
+            try
+            {
+                var screeningResponse = await fraudApi.DoScreeningAsync(screeningRequest, ct);
 
-                    payment.RecordScreeningResponse(screeningResponse.Accepted);
-                }
-                catch (Exception ex)
-                {
-                    result = Result.Error<Payment>(new Errors.FraudApiExceptionError(ex));
-                }
-
-                if (result.IsSuccess)
-                {
-                    result = await session.CommitAsync(payment, ct);
-                }
-
-                if (result.IsFailure)
-                {
-                    activity?.SetStatus(ActivityStatusCode.Error);
-                }
-
-                return result;
+                payment.RecordScreeningResponse(screeningResponse.Accepted);
             }
+            catch (Exception ex)
+            {
+                result = Result.Error<Payment>(new Errors.FraudApiExceptionError(ex));
+            }
+
+            if (result.IsSuccess)
+            {
+                result = await session.CommitAsync(payment, ct);
+            }
+
+            if (result.IsFailure)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error);
+            }
+
+            return result;
         }
 
         private async Task<Result<Payment>> AuthorisePaymentAsync(Payment payment, CancellationToken ct)
         {
-            using (var activity = activitySource.StartActivity("Authorising payment", ActivityKind.Internal))
+            using var activity = activitySource.StartActivity("Authorising payment", ActivityKind.Internal);
+
+            var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest
             {
-                var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest
-                {
-                    AuthorisationRequestId = Guid.NewGuid().ToString(),
-                    Pan = payment.Card.CardNumber,
-                    CardHolderFullName = payment.Card.CardHolderName,
-                    Cvv = payment.Card.CVV,
-                    ExpiryMonth = payment.Card.Expiry.Month,
-                    ExpiryYear = payment.Card.Expiry.Year,
-                    Amount = payment.Amount.ValueInMinorUnits,
-                    CurrencyCode = payment.Amount.CurrencyCode
-                };
+                AuthorisationRequestId = Guid.NewGuid().ToString(),
+                Pan = payment.Card.CardNumber,
+                CardHolderFullName = payment.Card.CardHolderName,
+                Cvv = payment.Card.CVV,
+                ExpiryMonth = payment.Card.Expiry.Month,
+                ExpiryYear = payment.Card.Expiry.Year,
+                Amount = payment.Amount.ValueInMinorUnits,
+                CurrencyCode = payment.Amount.CurrencyCode
+            };
 
-                Result<Payment> result = payment;
+            Result<Payment> result = payment;
 
-                try
-                {
-                    var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
+            try
+            {
+                var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
 
-                    activity?.AddEvent(new ActivityEvent("Request authorised"));
+                activity?.AddEvent(new ActivityEvent("Request authorised"));
 
-                    payment.RecordAuthorisationResponse(
-                        authorisationResponse.AuthorisationRequestId,
-                        authorisationResponse.Authorised,
-                        authorisationResponse.AuthorisationCode);
-                }
-                catch (Exception ex)
-                {
-                    result = Result.Error<Payment>(new Errors.BankApiExceptionError(ex));
-                }
-
-                if (result.IsSuccess)
-                {
-                    result = await session.CommitAsync(payment, ct);
-                    metrics.RecordPaymentFate(payment.Status);
-                }
-
-                if (result.IsFailure)
-                {
-                    activity?.SetStatus(ActivityStatusCode.Error);
-                }
-
-                return result;
+                payment.RecordAuthorisationResponse(
+                    authorisationResponse.AuthorisationRequestId,
+                    authorisationResponse.Authorised,
+                    authorisationResponse.AuthorisationCode);
             }
+            catch (Exception ex)
+            {
+                result = Result.Error<Payment>(new Errors.BankApiExceptionError(ex));
+            }
+
+            if (result.IsSuccess)
+            {
+                result = await session.CommitAsync(payment, ct);
+                metrics.RecordPaymentFate(payment.Status);
+            }
+
+            if (result.IsFailure)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error);
+            }
+
+            return result;
         }
 
         private async Task<Result<Payment>> DeclinePaymentAsync(Payment payment, string reason, CancellationToken ct)
         {
-            using (var activity = activitySource.StartActivity("Declining payment", ActivityKind.Internal))
+            using var activity = activitySource.StartActivity("Declining payment", ActivityKind.Internal);
+
+            payment.Apply(new PaymentDeclinedEvent
             {
-                payment.Apply(new PaymentDeclinedEvent
-                {
-                    Id = payment.Id,
-                    OccurredAt = dateTimeProvider.UtcNowAsString,
-                    Reason = reason
-                });
+                Id = payment.Id,
+                OccurredAt = dateTimeProvider.UtcNowAsString,
+                Reason = reason
+            });
 
-                metrics.RecordPaymentFate(payment.Status, payment.DeclineReason);
+            metrics.RecordPaymentFate(payment.Status, payment.DeclineReason);
 
-                var result = await session.CommitAsync(payment, ct);
+            var result = await session.CommitAsync(payment, ct);
 
-                if (result.IsFailure)
-                {
-                    activity?.SetStatus(ActivityStatusCode.Error);
-                }
-
-                return result;
+            if (result.IsFailure)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error);
             }
+
+            return result;
         }
 
         [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred: {ErrorDetail}")]
