@@ -85,6 +85,5 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
 
             return new UnknownEventTypeError(eventType);
         }
-
     }
 }
