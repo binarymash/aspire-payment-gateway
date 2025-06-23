@@ -90,22 +90,21 @@ namespace AspirePaymentGateway.Api
             //                .AddAWSService<IAmazonDynamoDB>()
             //                .AddSingleton<IDynamoDBContext, DynamoDBContext>();
 
-            builder.AddAzureCosmosClient(
-                "Payments",
-                configureClientOptions: clientOptions =>
-                {
-                    clientOptions.Serializer = new CosmosSystemTextJsonSerializer(
-                        new JsonSerializerOptions
-                        {
-                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                        });
-                });
 
             // infrastructure
 
             // events repo
 
-            builder.Services.AddSingleton<IPaymentEventsRepository, CosmosDbPaymentEventRepository>();
+            var cosmosSerializer = new CosmosSystemTextJsonSerializer(CosmosSerializerOptions.Options);
+
+            builder.AddAzureCosmosClient(
+                    "Payments",
+                    configureClientOptions: clientOptions => clientOptions.Serializer = cosmosSerializer);
+            builder.Services
+                .AddSingleton(cosmosSerializer)
+                .AddSingleton<PaymentEventMapper>()
+                .AddSingleton<IPaymentEventsRepository, CosmosDbPaymentEventRepository>();
+
             //builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
             //builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 

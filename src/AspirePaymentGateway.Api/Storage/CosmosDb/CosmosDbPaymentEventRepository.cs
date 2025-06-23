@@ -3,26 +3,19 @@ using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using BinaryMash.Extensions.Results;
 using Microsoft.Azure.Cosmos;
-using OneOf;
 using static AspirePaymentGateway.Api.Features.Payments.Domain.Errors;
 
 namespace AspirePaymentGateway.Api.Storage.CosmosDb
 {
-    public partial class CosmosDbPaymentEventRepository(ILogger<CosmosDbPaymentEventRepository> logger, CosmosClient cosmos) : IPaymentEventsRepository
+    public partial class CosmosDbPaymentEventRepository(ILogger<CosmosDbPaymentEventRepository> logger, CosmosClient cosmos, PaymentEventMapper mapper) : IPaymentEventsRepository
     {
         private readonly Container _container = cosmos.GetContainer("PaymentsDb", "Payments");
-        private readonly ILogger<CosmosDbPaymentEventRepository> _logger;
-
-        JsonSerializerOptions serializerOptions = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
 
         public async Task<Result<IList<PaymentEvent>>> GetAsync(string paymentId, CancellationToken cancellationToken)
         {
             try
             {
-                var query = new QueryDefinition("SELECT * FROM c WHERE c.paymentId = @paymentId")
+                var query = new QueryDefinition("SELECT * FROM c WHERE c.paymentId = @paymentId ORDER BY c.occurredAt")
                     .WithParameter("@paymentId", paymentId);
 
                 var events = new List<PaymentEvent>();
@@ -39,15 +32,10 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                     var response = await iterator.ReadNextAsync(cancellationToken);
                     foreach (var doc in response)
                     {
-                        var eventType = ((System.Text.Json.JsonElement)doc).GetProperty("eventType").GetString();
-                        string json = doc.ToString();
+                        var map = mapper.MapToPaymentEvent((JsonElement)doc);
 
-                        // Use a factory or reflection to get the correct .NET type
-                        var map = EventTypeToType(eventType);
-
-                        if (map.TryPickT0(out var type, out var error))
+                        if (map.TryPickT0(out PaymentEvent paymentEvent, out ErrorDetail error))
                         {
-                            PaymentEvent paymentEvent = (PaymentEvent)System.Text.Json.JsonSerializer.Deserialize(json, type, serializerOptions)!;
                             events.Add(paymentEvent);
                         }
                         else
@@ -95,15 +83,6 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                 return Result.Error<PaymentEvent>(new StorageWriteExceptionError(ex));
             }
         }
-
-        private static OneOf<Type, UnknownEventTypeError> EventTypeToType(string eventType) => eventType switch
-        {
-            nameof(PaymentRequestedEvent) => typeof(PaymentRequestedEvent),
-            nameof(PaymentScreenedEvent) => typeof(PaymentScreenedEvent),
-            nameof(PaymentAuthorisedEvent) => typeof(PaymentAuthorisedEvent),
-            nameof(PaymentDeclinedEvent) => typeof(PaymentDeclinedEvent),
-            _ => new UnknownEventTypeError(eventType)
-        };
 
         [LoggerMessage(Level = LogLevel.Information, Message = "Tried to save a payment with no changes")]
         partial void LogEmptySaveRequest();

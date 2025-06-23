@@ -6,16 +6,11 @@ using Microsoft.Azure.Cosmos;
 
 namespace AspirePaymentGateway.Api.Storage.CosmosDb
 {
-    public class CosmosSystemTextJsonSerializer : CosmosLinqSerializer
+    public class CosmosSystemTextJsonSerializer(JsonSerializerOptions jsonSerializerOptions) : CosmosLinqSerializer
     {
-        private readonly JsonObjectSerializer systemTextJsonSerializer;
-        private readonly JsonSerializerOptions jsonSerializerOptions;
+        public JsonSerializerOptions JsonSerializerOptions => jsonSerializerOptions;
 
-        public CosmosSystemTextJsonSerializer(JsonSerializerOptions jsonSerializerOptions)
-        {
-            this.systemTextJsonSerializer = new JsonObjectSerializer(jsonSerializerOptions);
-            this.jsonSerializerOptions = jsonSerializerOptions;
-        }
+        private readonly JsonObjectSerializer systemTextJsonSerializer = new JsonObjectSerializer(jsonSerializerOptions);
 
         public override T FromStream<T>(Stream stream)
         {
@@ -58,9 +53,9 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                 return jsonPropertyNameAttribute.Name;
             }
 
-            if (this.jsonSerializerOptions.PropertyNamingPolicy != null)
+            if (jsonSerializerOptions.PropertyNamingPolicy != null)
             {
-                return this.jsonSerializerOptions.PropertyNamingPolicy.ConvertName(memberInfo.Name);
+                return jsonSerializerOptions.PropertyNamingPolicy.ConvertName(memberInfo.Name);
             }
 
             // Do any additional handling of JsonSerializerOptions here.
