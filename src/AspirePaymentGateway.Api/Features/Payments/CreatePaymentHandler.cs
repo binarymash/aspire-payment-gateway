@@ -222,7 +222,8 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
             payment.Apply(new PaymentDeclinedEvent
             {
-                Id = payment.Id,
+                Id = $"evt_{Guid.NewGuid()}",
+                PaymentId = payment.Id,
                 OccurredAt = dateTimeProvider.UtcNowAsString,
                 Reason = reason
             });

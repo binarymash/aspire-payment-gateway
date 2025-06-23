@@ -5,8 +5,11 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain.Events
     //[DynamoDBTable(tableName: Storage.DynamoDb.Constants.TableName)]
     public record PaymentEvent
     {
-        [Description("The Payment ID")]
+        [Description("The Event ID")]
         public required string Id { get; init; }
+
+        [Description("The Payment ID")]
+        public required string PaymentId { get; init; }
 
         [Description("When the event occurred")]
         public required string OccurredAt { get; init; }

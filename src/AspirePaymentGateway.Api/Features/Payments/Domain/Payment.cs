@@ -35,7 +35,8 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
 
             payment.Apply(new PaymentRequestedEvent()
             {
-                Id = paymentId,
+                Id = $"evt_{Guid.NewGuid()}",
+                PaymentId = paymentId,
                 OccurredAt = DateTime.UtcNow.ToString("O"),
                 Amount = amountInMinorUnits,
                 Currency = currencyIsoCode,
@@ -53,7 +54,8 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
         {
             Apply(new PaymentScreenedEvent
             {
-                Id = this.Id,
+                Id = $"evt_{Guid.NewGuid()}",
+                PaymentId = this.Id,
                 OccurredAt = DateTime.UtcNow.ToString("O"),
                 ScreeningAccepted = accepted
             });
@@ -63,7 +65,8 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
         {
             Apply(new PaymentAuthorisedEvent()
             {
-                Id = this.Id,
+                Id = $"evt_{Guid.NewGuid()}",
+                PaymentId = this.Id,
                 OccurredAt = DateTime.UtcNow.ToString("O"),
 
                 AuthorisationTraceId = authorisationRequestId,
@@ -105,7 +108,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
                 throw new InvalidOperationException("Payment is not in a valid state to be authorised.");
             }
 
-            Id = @event.Id;
+            Id = @event.PaymentId;
 
             Card = new()
             {

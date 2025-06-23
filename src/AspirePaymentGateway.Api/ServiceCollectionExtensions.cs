@@ -1,13 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.DataModel;
+//using Amazon.DynamoDBv2;
+//using Amazon.DynamoDBv2.DataModel;
 using AspirePaymentGateway.Api.Features.Payments;
 using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
-using AspirePaymentGateway.Api.Storage.DynamoDb;
+using AspirePaymentGateway.Api.Storage.CosmosDb;
 using AspirePaymentGateway.Api.Telemetry;
 using BinaryMash.Extensions.OAuth2.ClientCredentialsAuthorizationProvider;
 using BinaryMash.Extensions.Redaction;
@@ -86,15 +86,27 @@ namespace AspirePaymentGateway.Api
         {
             // core infrastructure
 
-            builder.Services
-                .AddAWSService<IAmazonDynamoDB>()
-                .AddSingleton<IDynamoDBContext, DynamoDBContext>();
+            //            builder.Services
+            //                .AddAWSService<IAmazonDynamoDB>()
+            //                .AddSingleton<IDynamoDBContext, DynamoDBContext>();
+
+            builder.AddAzureCosmosClient(
+                "Payments",
+                configureClientOptions: clientOptions =>
+                {
+                    clientOptions.Serializer = new CosmosSystemTextJsonSerializer(
+                        new JsonSerializerOptions
+                        {
+                            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                        });
+                });
 
             // infrastructure
 
             // events repo
 
-            builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
+            builder.Services.AddSingleton<IPaymentEventsRepository, CosmosDbPaymentEventRepository>();
+            //builder.Services.AddSingleton<IPaymentEventsRepository, DynamoDbPaymentEventRepository>();
             //builder.Services.AddSingleton<IPaymentEventsRepository, InMemoryPaymentEventRepository>();
 
             // identity server

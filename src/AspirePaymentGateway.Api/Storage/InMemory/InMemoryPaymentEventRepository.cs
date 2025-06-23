@@ -23,10 +23,10 @@ namespace AspirePaymentGateway.Api.Storage.InMemory
         {
             foreach (var paymentEvent in paymentEvents)
             {
-                if (!_store.TryGetValue(paymentEvent.Id, out var storedPaymentEvents))
+                if (!_store.TryGetValue(paymentEvent.PaymentId, out var storedPaymentEvents))
                 {
                     storedPaymentEvents = [];
-                    _store[paymentEvent.Id] = storedPaymentEvents;
+                    _store[paymentEvent.PaymentId] = storedPaymentEvents;
                 }
                 storedPaymentEvents.Add(paymentEvent);
             }
