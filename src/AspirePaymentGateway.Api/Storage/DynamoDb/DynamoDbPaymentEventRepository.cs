@@ -21,10 +21,10 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 var request = new QueryRequest
                 {
                     TableName = Constants.TableName,
-                    KeyConditionExpression = "Id = :id",
+                    KeyConditionExpression = "PaymentId = :paymentId",
                     ExpressionAttributeValues = new Dictionary<string, AttributeValue>
                 {
-                    { ":id", new AttributeValue { S = paymentId } }
+                    { ":paymentId", new AttributeValue { S = paymentId } }
                 }
                 };
 

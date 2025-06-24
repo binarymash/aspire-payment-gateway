@@ -1,0 +1,7 @@
+﻿<Project>
+  <PropertyGroup>
+    <!-- define AWS to use Dynamo local, or AZURE to use CosmosDb emulator.  -->
+    <!-- If neither is set then an in-memory store will be used  -->
+    <DefineConstants>AZURE;$(DefineConstants)</DefineConstants>
+  </PropertyGroup>
+</Project>

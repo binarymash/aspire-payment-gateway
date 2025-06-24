@@ -9,6 +9,10 @@ Playing around with [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspir
 
 ## Running
 - Run the `AspirePaymentGateway.AppHost` project to start everything and bring up the system dashboard. If it doesn't open in the browser automatically then find the link in the console output.
+- The system can be configured at compile time to use different cloud strategies running locally. This is set using one of the following compiler directives, which can be set for the entire solution in `Directory.Build.props`:
+  -  `AWS` : [DynamoDB local](https://github.com/instructure/dynamo-local-admin-docker) is used for payment storage
+  -  `AZURE` : [CosmosDB NoSql Emulator](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator) is used for payment storage
+  - if neither of the above are set then an in-memory repository is used for payment storage
 
 ### System Resources
 
