@@ -22,7 +22,7 @@ namespace AspirePaymentGateway.AppHost.Aws
             return (awsConfig, dynamoDb);
         }
 
-        public static IResourceBuilder<ProjectResource> WithAwsDependencies(this IResourceBuilder<ProjectResource> resource, IAWSSDKConfig? awsConfig, IResourceBuilder<ContainerResource> dynamoDb)
+        public static IResourceBuilder<ProjectResource> WithAwsDependencies(this IResourceBuilder<ProjectResource> resource, IAWSSDKConfig awsConfig, IResourceBuilder<ContainerResource> dynamoDb)
         {
             resource.WithReference(awsConfig)
                 .WaitFor(dynamoDb)
