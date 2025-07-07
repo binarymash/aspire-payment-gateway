@@ -13,32 +13,42 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             var result = await RunDomainWorkflowAsync(paymentId, cancellationToken);
 
-            // 200 ok
-            if (result.IsSuccess)
-            {
-                return Results.Ok(Contracts.MapPaymentResponse(result.Value));
-            }
-
-            // 400 bad request
-            switch (result.ErrorDetail)
-            {
-                case Errors.ValidationError:
-                    return Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary());
-                case Errors.PaymentNotFoundError:
-                    return Results.NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails()
-                    {
-                        //Type,
-                        //Title
-                        //Status
-                        Detail = $"Payment {paymentId} could not be found",
-                    });
-                case Errors.ExceptionError:
-                    LogExceptionWhenRetrievingPayment((result.ErrorDetail as Errors.ExceptionError)!.Exception);
-                    break;
-            }
-
-            return Results.Problem(statusCode: 500, title: "Internal Server Error");
+            return result.Match(
+                onSuccess: Map200PaymentResponse,
+                onFailure: MapFailureResponse);
         }
+
+        private IResult Map200PaymentResponse(Result<Payment> success)
+        {
+            return Results.Ok(Contracts.MapPaymentResponse(success.Value));
+        }
+
+        private IResult MapFailureResponse(Result<Payment> failure)
+        {
+            if (failure.ErrorDetail is Errors.ExceptionError exceptionError)
+            {
+                LogExceptionWhenRetrievingPayment(exceptionError.Exception);
+            }
+
+            return failure.ErrorDetail switch
+            {
+                // 400 bad request
+                Errors.ValidationError validationError => Results.ValidationProblem(errors: validationError.ValidationResult.ToDictionary()),
+
+                // 404 not found
+                Errors.PaymentNotFoundError paymentNotFoundError => Results.NotFound(new Microsoft.AspNetCore.Mvc.ProblemDetails()
+                {
+                    //Type,
+                    //Title
+                    //Status
+                    Detail = $"Payment {paymentNotFoundError.PaymentId} could not be found",
+                }),
+
+                // 500 internal server error
+                _ => Results.Problem(statusCode: 500, title: "Internal Server Error")
+            };
+        }
+
 
         // Domain Workflow
 
@@ -47,7 +57,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             var validationResult = validator.Validate(paymentId);
             if (!validationResult.IsValid)
             {
-                return Result.Error<Payment>(new Errors.ValidationError(validationResult));
+                return Result.Failure<Payment>(new Errors.ValidationError(validationResult));
             }
 
             return await session.GetAsync(paymentId, ct);

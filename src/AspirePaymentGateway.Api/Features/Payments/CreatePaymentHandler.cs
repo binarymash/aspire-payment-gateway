@@ -28,16 +28,22 @@ namespace AspirePaymentGateway.Api.Features.Payments
         {
             var result = await RunDomainWorkflowAsync(paymentRequest, cancellationToken);
 
-            if (result.IsSuccess)
-            {
-                // 201 created
-                return Results.Created($"/payments/{result.Value.Id}", Contracts.MapPaymentResponse(result.Value));
-            }
+            return result.Match(
+                onSuccess: MapPaymentCreatedResponse201,
+                onFailure: MapFailureResponse);
+        }
 
-            return result.ErrorDetail switch
+        private static IResult MapPaymentCreatedResponse201(Result<Payment> success)
+        {
+            return Results.Created($"/payments/{success.Value.Id}", Contracts.MapPaymentResponse(success.Value));
+        }
+
+        private static IResult MapFailureResponse(Result<Payment> failure)
+        {
+            return failure.ErrorDetail switch
             {
                 // 400 bad request
-                Errors.ValidationError => Results.ValidationProblem(errors: (result.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary()),
+                Errors.ValidationError => Results.ValidationProblem(errors: (failure.ErrorDetail as Errors.ValidationError)!.ValidationResult.ToDictionary()),
 
                 // 500 internal server error
                 _ => Results.Problem(),
@@ -97,7 +103,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
             if (!validationResult.IsValid)
             {
-                return Result.Error<Payment>(new Errors.ValidationError(validationResult));
+                return Result.Failure<Payment>(new Errors.ValidationError(validationResult));
             }
 
             activity?.AddBaggage("funky", "whatsit");
@@ -152,7 +158,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
             catch (Exception ex)
             {
-                result = Result.Error<Payment>(new Errors.FraudApiExceptionError(ex));
+                result = Result.Failure<Payment>(new Errors.FraudApiExceptionError(ex));
             }
 
             if (result.IsSuccess)
@@ -199,7 +205,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             }
             catch (Exception ex)
             {
-                result = Result.Error<Payment>(new Errors.BankApiExceptionError(ex));
+                result = Result.Failure<Payment>(new Errors.BankApiExceptionError(ex));
             }
 
             if (result.IsSuccess)

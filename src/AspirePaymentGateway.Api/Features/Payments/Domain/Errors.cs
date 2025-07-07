@@ -28,7 +28,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
 
         public record ValidationError(ValidationResult ValidationResult) : ErrorDetail(Codes.SOP101ValidationError, "There was a validation error");
 
-        public record PaymentNotFoundError() : ErrorDetail(Codes.SOP102PaymentNotFound, "The payment was not found");
+        public record PaymentNotFoundError(string PaymentId) : ErrorDetail(Codes.SOP102PaymentNotFound, "The payment was not found");
 
         public record UnknownEventTypeError(string EventType) : ErrorDetail(Codes.SOP201UnknownEventType, "An unknown event type was encountered");
 

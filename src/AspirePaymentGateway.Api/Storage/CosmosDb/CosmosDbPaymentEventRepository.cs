@@ -40,7 +40,7 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                         }
                         else
                         {
-                            return Result.Error<IList<PaymentEvent>>(error);
+                            return Result.Failure<IList<PaymentEvent>>(error);
                         }
                     }
                 }
@@ -49,7 +49,7 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
             }
             catch (Exception ex)
             {
-                return Result.Error<IList<PaymentEvent>>(new StorageReadExceptionError(ex));
+                return Result.Failure<IList<PaymentEvent>>(new StorageReadExceptionError(ex));
             }
         }
 
@@ -60,7 +60,7 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                 if (paymentEvents.Count == 0)
                 {
                     LogEmptySaveRequest();
-                    return Result.Ok;
+                    return Result.Success;
                 }
 
                 var tasks = new List<Task>();
@@ -76,11 +76,11 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
 
                 await Task.WhenAll(tasks);
 
-                return Result.Ok;
+                return Result.Success;
             }
             catch (Exception ex)
             {
-                return Result.Error<PaymentEvent>(new StorageWriteExceptionError(ex));
+                return Result.Failure(new StorageWriteExceptionError(ex));
             }
         }
 

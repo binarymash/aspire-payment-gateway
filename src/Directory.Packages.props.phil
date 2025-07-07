@@ -1,0 +1,67 @@
+<Project>
+  <PropertyGroup>
+    <AnalysisMode>Recommended</AnalysisMode>
+    <!--<JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>-->
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Aspire.Hosting.Azure" Version="9.3.2" />
+    <PackageVersion Include="Aspire.Hosting.Azure.CosmosDB" Version="9.3.1" />
+    <PackageVersion Include="Aspire.Microsoft.Azure.Cosmos" Version="9.3.1" />
+    <PackageVersion Include="AWSSDK.DynamoDBv2" Version="4.0.1.8" />
+    <PackageVersion Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.2" />
+    <PackageVersion Include="Aspire.Hosting.AWS" Version="9.2.3" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="9.3.1" />
+    <PackageVersion Include="Aspire.Hosting.Keycloak" Version="9.3.0-preview.1.25265.20" />
+    <PackageVersion Include="Aspire.Hosting.Testing" Version="9.3.1" />
+    <PackageVersion Include="Aspire.Keycloak.Authentication" Version="9.3.0-preview.1.25265.20" />
+    <PackageVersion Include="AsyncFixer" Version="1.6.0" />
+    <PackageVersion Include="Duende.IdentityModel" Version="7.0.0" />
+    <PackageVersion Include="FluentValidation" Version="12.0.0" />
+    <PackageVersion Include="Keycloak.AuthServices.Aspire.Hosting" Version="0.1.0" />
+    <PackageVersion Include="Microsoft.Azure.Cosmos" Version="3.52.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.CodeAnalysis" Version="4.14.0" />
+    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="9.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="9.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.1" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Moq" Version="4.20.72" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="OneOf" Version="3.0.271" />
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+    <PackageVersion Include="Refit" Version="8.0.0" />
+    <PackageVersion Include="Refit.HttpClientFactory" Version="8.0.0" />
+    <PackageVersion Include="Roslynator.Analyzers" Version="4.13.1" />
+    <PackageVersion Include="Roslynator.CodeAnalysis.Analyzers" Version="4.13.1" />
+    <PackageVersion Include="Roslynator.Formatting.Analyzers" Version="4.13.1" />
+    <PackageVersion Include="Scalar.AspNetCore" Version="2.4.22" />
+    <PackageVersion Include="Shouldly" Version="4.3.0" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.4" />
+    <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.12.0.118525" />
+    <PackageVersion Include="Verify.Http" Version="7.0.0" />
+    <PackageVersion Include="Verify.XunitV3" Version="30.4.0" />
+    <PackageVersion Include="xunit.v3" Version="2.0.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" />
+  </ItemGroup>
+  <!-- Add static code analysis to all projects -->
+  <ItemGroup>
+    <PackageReference Include="AsyncFixer" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Analyzers" />
+    <PackageReference Include="Roslynator.CodeAnalysis.Analyzers" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" />
+    <PackageReference Include="Microsoft.CodeAnalysis" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
+  </ItemGroup>
+</Project>

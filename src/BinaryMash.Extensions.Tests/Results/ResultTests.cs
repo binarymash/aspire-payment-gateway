@@ -9,7 +9,7 @@ namespace BinaryMash.Extensions.Tests.Results
         public void OkResultConstructor()
         {
             // Act
-            var result = new OkResult();
+            var result = new SuccessResult();
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -20,7 +20,7 @@ namespace BinaryMash.Extensions.Tests.Results
         public void OkResultConstructorViaStatic()
         {
             // Act
-            var result = Result.Ok;
+            var result = Result.Success;
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -35,7 +35,7 @@ namespace BinaryMash.Extensions.Tests.Results
             MyClass myClass = new(123);
 
             // Act
-            var result = new OkResult<MyClass>(myClass);
+            var result = new SuccessResult<MyClass>(myClass);
 
             // Assert
             result.IsSuccess.ShouldBeTrue();
@@ -67,7 +67,7 @@ namespace BinaryMash.Extensions.Tests.Results
             ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
-            var result = new ErrorResult(errorDetail);
+            var result = new FailureResult(errorDetail);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -82,7 +82,7 @@ namespace BinaryMash.Extensions.Tests.Results
             ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
-            var result = Result.Error(errorDetail);
+            var result = Result.Failure(errorDetail);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -97,7 +97,7 @@ namespace BinaryMash.Extensions.Tests.Results
             ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
-            var result = new ErrorResult<MyClass>(errorDetail);
+            var result = new FailureResult<MyClass>(errorDetail);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();
@@ -113,7 +113,7 @@ namespace BinaryMash.Extensions.Tests.Results
             ErrorDetail errorDetail = new("SomeError", "Some error message");
 
             // Act
-            Result<MyClass> result = Result.Error<MyClass>(errorDetail);
+            Result<MyClass> result = Result.Failure<MyClass>(errorDetail);
 
             // Assert
             result.IsSuccess.ShouldBeFalse();

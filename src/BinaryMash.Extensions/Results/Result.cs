@@ -1,59 +1,88 @@
-﻿namespace BinaryMash.Extensions.Results
+﻿namespace BinaryMash.Extensions.Results;
+
+public abstract record Result<T>
 {
-    public abstract record Result
+    public bool IsSuccess { get; protected set; }
+
+    public ErrorDetail ErrorDetail { get; protected set; }
+
+    public bool IsFailure => !IsSuccess;
+
+    public static Result<TValue> Success<TValue>(TValue value) => new SuccessResult<TValue>(value);
+
+    public static Result<TValue> Failure<TValue>(ErrorDetail errorDetail) => new FailureResult<TValue>(errorDetail);
+
+    public T Value { get; protected set; } = default!;
+
+    protected Result(bool isSuccess, T value = default!, ErrorDetail errorDetail = default!)
     {
-        public bool IsSuccess { get; protected set; }
-
-        public ErrorDetail ErrorDetail { get; protected set; }
-
-        public bool IsFailure => !IsSuccess;
-
-        public static Result Ok => new OkResult();
-
-        public static Result Error(ErrorDetail errorDetail) => new ErrorResult(errorDetail);
-
-        public static Result<T> Error<T>(ErrorDetail errorDetail) => new ErrorResult<T>(errorDetail);
-
-        protected Result(bool isSuccess, ErrorDetail errorDetail = null!)
-        {
-            IsSuccess = isSuccess;
-            ErrorDetail = errorDetail;
-        }
+        Value = value;
+        IsSuccess = isSuccess;
+        ErrorDetail = errorDetail;
     }
 
-    public record OkResult : Result
-    {
-        public OkResult() : base(true) { }
-    }
+    public static implicit operator Result<T>(T value) => new SuccessResult<T>(value);
 
-    public record ErrorResult : Result
+    public Result<TOut> Then<TOut>(Func<Result<T>, Result<TOut>> then)
     {
-        public ErrorResult(ErrorDetail errorDetail) : base(false)
+        if (IsSuccess)
         {
-            ErrorDetail = errorDetail;
-        }
-    }
-
-    public abstract record Result<T> : Result
-    {
-        public T Value { get; protected set; } = default!;
-
-        protected Result(bool isSuccess, T value = default!, ErrorDetail errorDetail = default!)
-            : base(isSuccess, errorDetail)
-        {
-            Value = value;
+            return then(this);
         }
 
-        public static implicit operator Result<T>(T value) => new OkResult<T>(value);
+        return Failure<TOut>(ErrorDetail);
     }
 
-    public record OkResult<T> : Result<T>
+    public TOut Match<TOut>(Func<Result<T>, TOut> onSuccess, Func<Result<T>, TOut> onFailure)
     {
-        public OkResult(T value) : base(true, value) { }
-    }
+        if (IsSuccess)
+        {
+            return onSuccess(this);
+        }
 
-    public record ErrorResult<T> : Result<T>
-    {
-        public ErrorResult(ErrorDetail errorDetail) : base(false, default!, errorDetail) { }
+        return onFailure(this);
     }
 }
+
+public abstract record Result : Result<Unit>
+{
+    protected Result(bool isSuccess, ErrorDetail errorDetail = null!) : base(isSuccess, new Unit(), errorDetail)
+    { }
+
+    public static Result Success => new SuccessResult();
+
+    public static Result Failure(ErrorDetail errorDetail) => new FailureResult(errorDetail);
+
+    public TOut Match<TOut>(Func<Result, TOut> onSuccess, Func<Result, TOut> onFailure)
+    {
+        if (IsSuccess)
+        {
+            return onSuccess(this);
+        }
+
+        return onFailure(this);
+    }
+}
+
+public record SuccessResult<T> : Result<T>
+{
+    public SuccessResult(T value) : base(true, value) { }
+}
+
+public record FailureResult<T> : Result<T>
+{
+    public FailureResult(ErrorDetail errorDetail) : base(false, default!, errorDetail) { }
+}
+
+public record SuccessResult : Result
+{
+    public SuccessResult() : base(true) { }
+}
+
+public record FailureResult : Result
+{
+    public FailureResult(ErrorDetail errorDetail) : base(false, errorDetail) { }
+}
+
+public record Unit();
+
