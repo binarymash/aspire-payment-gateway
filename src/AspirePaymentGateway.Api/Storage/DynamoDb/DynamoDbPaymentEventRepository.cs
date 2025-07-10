@@ -42,7 +42,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
             foreach (var document in documents)
             {
                 OneOf<PaymentEvent, UnknownEventTypeError> map = DocumentMapper.MapToPaymentEvent(document, dynamoContext);
-                //OneOf<PaymentEvent, UnknownEventTypeError> map = DocumentMapper.MapToPaymentEventUsingReflection(document, dynamoContext);
+                ///OneOf<PaymentEvent, UnknownEventTypeError> map = DocumentMapper.MapToPaymentEventUsingReflection(document, dynamoContext);
 
                 if (map.TryPickT0(out var @event, out var error))
                 {
@@ -75,7 +75,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                 foreach (var paymentEvent in paymentEvents)
                 {
                     var map = DocumentMapper.MapToDocument(paymentEvent, dynamoContext);
-                    //var map = DocumentMapper.MapToDocumentUsingReflection(paymentEvent, dynamoContext);
+                    ///var map = DocumentMapper.MapToDocumentUsingReflection(paymentEvent, dynamoContext);
 
                     if (map.TryPickT0(out var document, out var error))
                     {

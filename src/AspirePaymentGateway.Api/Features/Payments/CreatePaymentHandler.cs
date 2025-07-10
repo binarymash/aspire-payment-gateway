@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 using AspirePaymentGateway.Api.Features.Payments.Domain;
 using AspirePaymentGateway.Api.Features.Payments.Domain.Events;
-using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
-using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.Bank;
+using AspirePaymentGateway.Api.Features.Payments.Services.Fraud;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Telemetry;
 using BinaryMash.Extensions.DateTime;
@@ -18,8 +18,8 @@ namespace AspirePaymentGateway.Api.Features.Payments
         ILogger<CreatePaymentHandler> logger,
         IValidator<PaymentRequest> validator,
         PaymentSession session,
-        IFraudApi fraudApi,
-        IBankApi bankApi,
+        IFraudService fraudService,
+        IBankService bankService,
         BusinessMetrics metrics,
         IDateTimeProvider dateTimeProvider,
         ActivitySource activitySource)
@@ -82,19 +82,23 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 }
             }
 
-            if (result.IsFailure)
-            {
-                LogErrorDetail(result.ErrorDetail);
-            }
-
-            return result;
+            return result.RecordActivityResult(
+                onSuccess: _ =>
+                {
+                    metrics.RecordPaymentFate(result.Value.Status, result.Value.DeclineReason);
+                    LogPaymentProcessingCompleted(result.Value.Id, result.Value.Status, result.Value.DeclineReason);
+                },
+                onFailure: _ =>
+                {
+                    LogPaymentProcessingFailed(result.Value?.Id, result.ErrorDetail);
+                });
         }
 
         // Activities
 
         private async Task<Result<Payment>> AcceptPaymentRequestAsync(PaymentRequest paymentRequest, CancellationToken ct)
         {
-            using var activity = activitySource.StartActivity("Accepting payment", ActivityKind.Internal);
+            using var activity = activitySource.StartActivity("Accepting payment request", ActivityKind.Internal);
 
             paymentRequest ??= new(null!, null!);
 
@@ -105,8 +109,6 @@ namespace AspirePaymentGateway.Api.Features.Payments
             {
                 return Result.Failure<Payment>(new Errors.ValidationError(validationResult));
             }
-
-            activity?.AddBaggage("funky", "whatsit");
 
             var payment = Payment.Create(
                 paymentId: $"pay_{Guid.NewGuid()}",
@@ -119,107 +121,40 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 expiryYear: paymentRequest.Card.Expiry.Year
                 );
 
-            activity?.AddTag("activity-tag", "jeepers");
-
             var result = await session.CommitAsync(payment, ct);
 
-            if (result.IsSuccess)
-            {
-                metrics.RecordPaymentRequestAccepted();
-                LogPaymentAccepted(payment.Id);
-            }
-            else
-            {
-                activity?.SetStatus(ActivityStatusCode.Error);
-            }
-
-            return result;
+            return result.RecordActivityResult(
+                onSuccess: _ =>
+                {
+                    metrics.RecordPaymentRequestAccepted();
+                    LogPaymentRequestAccepted(payment.Id);
+                });
         }
 
         private async Task<Result<Payment>> ScreenPaymentAsync(Payment payment, CancellationToken ct)
         {
             using var activity = activitySource.StartActivity("Screening payment", ActivityKind.Internal);
 
-            var screeningRequest = new Services.FraudApi.Contracts.ScreeningRequest()
-            {
-                CardNumber = payment.Card.CardNumber,
-                CardHolderName = payment.Card.CardHolderName,
-                ExpiryMonth = payment.Card.Expiry.Month,
-                ExpiryYear = payment.Card.Expiry.Year
-            };
+            var screeningResult = await fraudService.ScreenPaymentAsync(payment, ct);
 
-            Result<Payment> result = payment;
+            var result = await screeningResult
+                .Then(screeningResult => payment.RecordScreeningResponse(screeningResult.Value))
+                .ThenAsync(async _ => await session.CommitAsync(payment, ct));
 
-            try
-            {
-                var screeningResponse = await fraudApi.DoScreeningAsync(screeningRequest, ct);
-
-                payment.RecordScreeningResponse(screeningResponse.Accepted);
-            }
-            catch (Exception ex)
-            {
-                result = Result.Failure<Payment>(new Errors.FraudApiExceptionError(ex));
-            }
-
-            if (result.IsSuccess)
-            {
-                result = await session.CommitAsync(payment, ct);
-            }
-
-            if (result.IsFailure)
-            {
-                activity?.SetStatus(ActivityStatusCode.Error);
-            }
-
-            return result;
+            return result.RecordActivityResult(onSuccess: _ => LogPaymentScreened(payment.Id));
         }
 
         private async Task<Result<Payment>> AuthorisePaymentAsync(Payment payment, CancellationToken ct)
         {
             using var activity = activitySource.StartActivity("Authorising payment", ActivityKind.Internal);
 
-            var authorisationRequest = new Services.BankApi.Contracts.AuthorisationRequest
-            {
-                AuthorisationRequestId = Guid.NewGuid().ToString(),
-                Pan = payment.Card.CardNumber,
-                CardHolderFullName = payment.Card.CardHolderName,
-                Cvv = payment.Card.CVV,
-                ExpiryMonth = payment.Card.Expiry.Month,
-                ExpiryYear = payment.Card.Expiry.Year,
-                Amount = payment.Amount.ValueInMinorUnits,
-                CurrencyCode = payment.Amount.CurrencyCode
-            };
+            var authoristionDetails = await bankService.AuthorisePaymentAsync(payment, ct);
 
-            Result<Payment> result = payment;
+            var result = await authoristionDetails
+                .Then(authorisationResponse => payment.RecordAuthorisationDetails(authorisationResponse.Value))
+                .ThenAsync(async _ => await session.CommitAsync(payment, ct));
 
-            try
-            {
-                var authorisationResponse = await bankApi.AuthoriseAsync(authorisationRequest, ct);
-
-                activity?.AddEvent(new ActivityEvent("Request authorised"));
-
-                payment.RecordAuthorisationResponse(
-                    authorisationResponse.AuthorisationRequestId,
-                    authorisationResponse.Authorised,
-                    authorisationResponse.AuthorisationCode);
-            }
-            catch (Exception ex)
-            {
-                result = Result.Failure<Payment>(new Errors.BankApiExceptionError(ex));
-            }
-
-            if (result.IsSuccess)
-            {
-                result = await session.CommitAsync(payment, ct);
-                metrics.RecordPaymentFate(payment.Status);
-            }
-
-            if (result.IsFailure)
-            {
-                activity?.SetStatus(ActivityStatusCode.Error);
-            }
-
-            return result;
+            return result.RecordActivityResult(onSuccess: _ => LogPaymentAuthorisationCompleted(payment.Id, authoristionDetails.Value));
         }
 
         private async Task<Result<Payment>> DeclinePaymentAsync(Payment payment, string reason, CancellationToken ct)
@@ -234,22 +169,28 @@ namespace AspirePaymentGateway.Api.Features.Payments
                 Reason = reason
             });
 
-            metrics.RecordPaymentFate(payment.Status, payment.DeclineReason);
-
             var result = await session.CommitAsync(payment, ct);
 
-            if (result.IsFailure)
-            {
-                activity?.SetStatus(ActivityStatusCode.Error);
-            }
-
-            return result;
+            return result.RecordActivityResult(onSuccess: _ => LogPaymentDeclined(payment.Id, reason));
         }
 
-        [LoggerMessage(Level = LogLevel.Error, Message = "An error occurred: {ErrorDetail}")]
-        partial void LogErrorDetail(ErrorDetail errorDetail);
+        [LoggerMessage(Level = LogLevel.Debug, Message = "Payment request accepted: {PaymentId}")]
+        partial void LogPaymentRequestAccepted(string paymentId);
 
-        [LoggerMessage(Level = LogLevel.Information, Message = "Payment accepted: {PaymentId}")]
-        partial void LogPaymentAccepted(string paymentId);
+        [LoggerMessage(Level = LogLevel.Debug, Message = "Payment screened: {PaymentId}")]
+        partial void LogPaymentScreened(string paymentId);
+
+        [LoggerMessage(Level = LogLevel.Debug, Message = "Payment authorisation completed: {PaymentId}, {AuthorisationDetails}")]
+        partial void LogPaymentAuthorisationCompleted(string paymentId, AuthorisationDetails authorisationDetails);
+
+        [LoggerMessage(Level = LogLevel.Debug, Message = "Payment declined: {PaymentId}, {DeclineReason}")]
+        partial void LogPaymentDeclined(string paymentId, string declineReason);
+
+        [LoggerMessage(Level = LogLevel.Information, Message = "Payment processing completed: {PaymentId}, {PaymentStatus}, {DeclineReason}")]
+        partial void LogPaymentProcessingCompleted(string paymentId, string paymentStatus, string? declineReason);
+
+        [LoggerMessage(Level = LogLevel.Error, Message = "Payment processing failed: {PaymentId}, {ErrorDetail}")]
+        partial void LogPaymentProcessingFailed(string? paymentId, ErrorDetail errorDetail);
+
     }
 }

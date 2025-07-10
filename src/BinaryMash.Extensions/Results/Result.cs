@@ -23,11 +23,43 @@ public abstract record Result<T>
 
     public static implicit operator Result<T>(T value) => new SuccessResult<T>(value);
 
+    /// <summary>
+    /// ,If the previous result is a success, invokes a function that explivitly returns a Result of type TOut.
+    /// </summary>
+    /// <typeparam name="TOut"></typeparam>
+    /// <param name="then"></param>
+    /// <returns></returns>
     public Result<TOut> Then<TOut>(Func<Result<T>, Result<TOut>> then)
     {
         if (IsSuccess)
         {
             return then(this);
+        }
+
+        return Failure<TOut>(ErrorDetail);
+    }
+
+    /// <summary>
+    /// If the previous result is a success, invokes an action. The original result is then returned
+    /// </summary>
+    /// <param name="then">The action to invoke when the original result is a success</param>
+    /// <returns>The original result</returns>
+    public Result<T> Then(Action<Result<T>> then)
+    {
+        if (IsSuccess)
+        {
+            then.Invoke(this);
+            return this;
+        }
+
+        return this;
+    }
+
+    public async Task<Result<TOut>> ThenAsync<TOut>(Func<Result<T>, Task<Result<TOut>>> then)
+    {
+        if (IsSuccess)
+        {
+            return await then(this);
         }
 
         return Failure<TOut>(ErrorDetail);
@@ -84,5 +116,7 @@ public record FailureResult : Result
     public FailureResult(ErrorDetail errorDetail) : base(false, errorDetail) { }
 }
 
+#pragma warning disable S2094 // Classes should not be empty
 public record Unit();
+#pragma warning restore S2094 // Classes should not be empty
 

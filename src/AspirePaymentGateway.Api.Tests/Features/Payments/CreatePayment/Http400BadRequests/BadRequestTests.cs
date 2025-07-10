@@ -1,8 +1,8 @@
 ﻿using Moq;
 using Shouldly;
 using static AspirePaymentGateway.Api.Features.Payments.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.Services.BankApi.Contracts;
-using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Services.Bank.HttpApi.Contracts;
+using static AspirePaymentGateway.Api.Features.Payments.Services.Fraud.HttpApi.Contracts;
 
 namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment.Http400BadRequests
 {

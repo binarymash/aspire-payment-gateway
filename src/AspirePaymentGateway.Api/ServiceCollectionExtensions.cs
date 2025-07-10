@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using AspirePaymentGateway.Api.Features.Payments;
-using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
-using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.Bank;
+using AspirePaymentGateway.Api.Features.Payments.Services.Bank.HttpApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.Fraud;
+using AspirePaymentGateway.Api.Features.Payments.Services.Fraud.HttpApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
 #if AWS
@@ -122,36 +124,43 @@ namespace AspirePaymentGateway.Api
 
             // fraud API
 
-            builder.Services.AddSingleton<FraudApiTokenProvider>(sp =>
-            {
-                return new FraudApiTokenProvider(
-                    httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("IdentityServer"),
-                    options: Options.Create(builder.Configuration.GetSection("services:fraud-api:auth").Get<AuthorizationOptions>()!));
-            });
 
-            builder.Services.AddRefitClient<IFraudApi>(sp =>
-            {
-                return new RefitSettings
+            builder.Services
+                .AddSingleton<IFraudService, FraudService>()
+                .AddSingleton<FraudApiTokenProvider>(sp =>
                 {
-                    ContentSerializer = new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options),
-                    AuthorizationHeaderValueGetter = sp.GetRequiredService<FraudApiTokenProvider>().GetClientCredentialAccessTokenAsync,
-                };
-            }).ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi));
-
-            // bank API
-
-            builder.Services.AddRefitClient<IBankApi>(sp =>
-            {
-                var tokenProvider = new BankApiTokenProvider(
-                    httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("IdentityServer"),
-                    options: Options.Create(builder.Configuration.GetSection("services:bank-api:auth").Get<AuthorizationOptions>()!));
-
-                return new RefitSettings
+                    return new FraudApiTokenProvider(
+                        httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("IdentityServer"),
+                        options: Options.Create(builder.Configuration.GetSection("services:fraud-api:auth").Get<AuthorizationOptions>()!));
+                })
+                .AddRefitClient<IFraudApi>(sp =>
                 {
-                    ContentSerializer = new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options),
-                    AuthorizationHeaderValueGetter = tokenProvider.GetClientCredentialAccessTokenAsync,
-                };
-            }).ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi));
+                    return new RefitSettings
+                    {
+                        ContentSerializer = new SystemTextJsonContentSerializer(FraudApiContractsContext.Default.Options),
+                        AuthorizationHeaderValueGetter = sp.GetRequiredService<FraudApiTokenProvider>().GetClientCredentialAccessTokenAsync,
+                    };
+                })
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.FraudApi));
+
+            // bank service
+
+
+            builder.Services
+                .AddSingleton<IBankService, BankService>()
+                .AddRefitClient<IBankApi>(sp =>
+                {
+                    var tokenProvider = new BankApiTokenProvider(
+                        httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("IdentityServer"),
+                        options: Options.Create(builder.Configuration.GetSection("services:bank-api:auth").Get<AuthorizationOptions>()!));
+
+                    return new RefitSettings
+                    {
+                        ContentSerializer = new SystemTextJsonContentSerializer(BankApiContractsContext.Default.Options),
+                        AuthorizationHeaderValueGetter = tokenProvider.GetClientCredentialAccessTokenAsync,
+                    };
+                })
+                .ConfigureHttpClient(c => c.BaseAddress = new Uri(Constants.BaseUrls.BankApi));
 
             return builder;
         }

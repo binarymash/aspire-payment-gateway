@@ -2,8 +2,10 @@
 using System.Diagnostics.Metrics;
 using System.Globalization;
 using AspirePaymentGateway.Api.Features.Payments;
-using AspirePaymentGateway.Api.Features.Payments.Services.BankApi;
-using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.Bank;
+using AspirePaymentGateway.Api.Features.Payments.Services.Bank.HttpApi;
+using AspirePaymentGateway.Api.Features.Payments.Services.Fraud;
+using AspirePaymentGateway.Api.Features.Payments.Services.Fraud.HttpApi;
 using AspirePaymentGateway.Api.Features.Payments.Services.Storage;
 using AspirePaymentGateway.Api.Features.Payments.Validation;
 using AspirePaymentGateway.Api.Storage.InMemory;
@@ -49,8 +51,8 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments.CreatePayment
                 logger: Logger.Object,
                 validator: new PaymentRequestValidator(),
                 session: Session,
-                fraudApi: FraudApi.Object,
-                bankApi: BankApi.Object,
+                fraudService: new FraudService(FraudApi.Object),
+                bankService: new BankService(BankApi.Object),
                 businessMetrics,
                 dateTimeProvider: DateTimeProvider,
                 activitySource: ActivitySource);

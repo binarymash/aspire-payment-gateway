@@ -1,11 +1,11 @@
 ﻿using Refit;
 
-namespace AspirePaymentGateway.Api.Features.Payments.Services.BankApi
+namespace AspirePaymentGateway.Api.Features.Payments.Services.Bank.HttpApi
 {
     [Headers("Authorization: Bearer")]
     public interface IBankApi
     {
-        [Refit.Post("/authorisation")]
+        [Post("/authorisation")]
         Task<Contracts.AuthorisationResponse> AuthoriseAsync(Contracts.AuthorisationRequest request, CancellationToken cancellationToken);
     }
 }

@@ -61,7 +61,7 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
             });
         }
 
-        internal void RecordAuthorisationResponse(string authorisationRequestId, bool isAuthorised, string? authorisationCode)
+        internal void RecordAuthorisationDetails(AuthorisationDetails authorisationDetails)
         {
             Apply(new PaymentAuthorisedEvent()
             {
@@ -69,9 +69,9 @@ namespace AspirePaymentGateway.Api.Features.Payments.Domain
                 PaymentId = this.Id,
                 OccurredAt = DateTime.UtcNow.ToString("O"),
 
-                AuthorisationTraceId = authorisationRequestId,
-                IsAuthorised = isAuthorised,
-                AuthorisationCode = authorisationCode,
+                AuthorisationTraceId = authorisationDetails.AuthorisationRequestId,
+                IsAuthorised = authorisationDetails.Authorised,
+                AuthorisationCode = authorisationDetails.AuthorisationCode,
             });
         }
 

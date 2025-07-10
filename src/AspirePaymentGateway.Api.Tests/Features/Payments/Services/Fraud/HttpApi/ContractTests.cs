@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
-using AspirePaymentGateway.Api.Features.Payments.Services.FraudApi;
-using static AspirePaymentGateway.Api.Features.Payments.Services.FraudApi.Contracts;
+using AspirePaymentGateway.Api.Features.Payments.Services.Fraud.HttpApi;
+using static AspirePaymentGateway.Api.Features.Payments.Services.Fraud.HttpApi.Contracts;
 
-namespace AspirePaymentGateway.Api.Tests.Features.Payments.Services.FraudApi
+namespace AspirePaymentGateway.Api.Tests.Features.Payments.Services.Fraud.HttpApi
 {
     public class ContractTests
     {
