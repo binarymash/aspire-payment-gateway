@@ -12,12 +12,15 @@ var builder = DistributedApplication.CreateBuilder(args);
 var paymentsCosmosContainer = builder.AddAzureResources();
 #endif
 
-var keycloakUser = builder.AddParameter("KeycloakAdminUsername");
-var keycloakPassword = builder.AddParameter("KeycloakAdminPassword", secret: true);
+var keycloakUser = builder.AddParameter("keycloak-admin-username");
+var keycloakPassword = builder.AddParameter("keycloak-admin-password", secret: true);
 var keycloak = builder.AddKeycloak("keycloak", port: 8080, adminUsername: keycloakUser, adminPassword: keycloakPassword)
     .WithDataVolume()
     .WithRealmImport("./keycloak/realms")
     .WithExternalHttpEndpoints();
+
+keycloakUser.WithParentRelationship(keycloak);
+keycloakPassword.WithParentRelationship(keycloak);
 
 var fraudApi = builder.AddProject<Projects.AspirePaymentGateway_FraudApi>("fraud-api")
     .WithReference(keycloak)

@@ -5,7 +5,7 @@ Playing around with [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspir
 ## Requirements
 - .NET 9
 - Docker Desktop
-- An AWS profile is configured on the machine. We don't use AWS, but we do run Dynamo locally and the integration requires the profile
+- Conditional: if configured to use the AWS cloud strategy (see below) then an AWS profile must be configured on the machine. We don't use real AWS - everything runs in localstack - but the profile is still required.
 
 ## Running
 - Run the `AspirePaymentGateway.AppHost` project to start everything and bring up the system dashboard. If it doesn't open in the browser automatically then find the link in the console output.
@@ -19,14 +19,15 @@ Playing around with [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspir
 Here's a description of each of the systen resources visible in the dashboard.
 
 - `payment-gateway` - the payment gateway service.
-- `dynamodb` - an event store for the payment gateway.
 - `keycloak`- an OAuth2 identity server used to issue tokens for securly accessing the payment gateway
 - `fraud-api` - used by the payment gateway, this service provides fraud checks on payment requests. 
 - `mock-bank-api` - used by the payment gateway, this service is a mock implementation of the 3rd party bank that will authorise payments
+- if using AWS strategy: `dynamodb` - an event store for the payment gateway.
+- if using AZURE strategy: `cosmos-db` - an event store for the payment gateway.
 
 #### System Resources Endpoints
 - The published reaource endpoints for the API services bring up the OpenAPI specs for these services.
-- For dynamo-db and keycloak the published endpoints bring up an admin console.
+- For dynamo-db, cosmosdb and keycloak the published endpoints bring up an admin console.
 
 ### Submitting Payment Requests
 - Open the OpenAPI spec for `payment-gateway` and go to `Make Payment` > `Test Request`
