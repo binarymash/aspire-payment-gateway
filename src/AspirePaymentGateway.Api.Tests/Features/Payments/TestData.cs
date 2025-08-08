@@ -35,10 +35,12 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments
 
                 payment.RecordScreeningResponse(true);
 
-                payment.RecordAuthorisationResponse(
-                    authorisationRequestId: "abcdef",
-                    isAuthorised: true,
-                    authorisationCode: "184698");
+                payment.RecordAuthorisationDetails(new Api.Features.Payments.Domain.AuthorisationDetails()
+                {
+                    AuthorisationRequestId = "abcdef",
+                    Authorised = true,
+                    AuthorisationCode = "184698"
+                });
 
                 return payment;
             }
@@ -57,10 +59,12 @@ namespace AspirePaymentGateway.Api.Tests.Features.Payments
 
                 payment.RecordScreeningResponse(true);
 
-                payment.RecordAuthorisationResponse(
-                    authorisationRequestId: "abcdef",
-                    isAuthorised: false,
-                    authorisationCode: "184698");
+                payment.RecordAuthorisationDetails(new Api.Features.Payments.Domain.AuthorisationDetails()
+                {
+                    AuthorisationRequestId = "abcdef",
+                    Authorised = false,
+                    AuthorisationCode = "184698"
+                });
 
                 return payment;
             }
