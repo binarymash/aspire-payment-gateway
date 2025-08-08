@@ -34,7 +34,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             [property: Required]
             [property: Length(32, 32)]
             [property: DefaultValue("Philip Wood")]
-            [property: RegularExpression(@"^[a-zA-Z]$")]
+            [property: RegularExpression("^[a-zA-Z]$")]
             [property: LogProperties]
             [property: PiiData]
             string CardHolderName,
@@ -77,7 +77,7 @@ namespace AspirePaymentGateway.Api.Features.Payments
             [property: Description("The year od expiry")]
             [property: Required]
             [property: Range(2025, 2099)]
-            [property: DefaultValue(2025)]
+            [property: DefaultValue(2035)]
             [property: LogProperties]
             int Year);
 

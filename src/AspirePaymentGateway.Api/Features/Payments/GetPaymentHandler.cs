@@ -49,7 +49,6 @@ namespace AspirePaymentGateway.Api.Features.Payments
             };
         }
 
-
         // Domain Workflow
 
         private async Task<Result<Payment>> RunDomainWorkflowAsync(string paymentId, CancellationToken ct)

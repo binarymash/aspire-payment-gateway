@@ -191,6 +191,5 @@ namespace AspirePaymentGateway.Api.Features.Payments
 
         [LoggerMessage(Level = LogLevel.Error, Message = "Payment processing failed: {PaymentId}, {ErrorDetail}")]
         partial void LogPaymentProcessingFailed(string? paymentId, ErrorDetail errorDetail);
-
     }
 }
