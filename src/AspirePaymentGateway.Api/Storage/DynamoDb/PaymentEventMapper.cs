@@ -74,7 +74,7 @@ namespace AspirePaymentGateway.Api.Storage.DynamoDb
                     .GetMethod("FromDocument", [typeof(Document)])?
                     .MakeGenericMethod(type);
 
-                if (method is not null && method.Invoke(dynamoContext, [document]) is PaymentEvent result)
+                if (method?.Invoke(dynamoContext, [document]) is PaymentEvent result)
                 {
                     return result;
                 }

@@ -10,7 +10,7 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
     {
         public JsonSerializerOptions JsonSerializerOptions => jsonSerializerOptions;
 
-        private readonly JsonObjectSerializer systemTextJsonSerializer = new JsonObjectSerializer(jsonSerializerOptions);
+        private readonly JsonObjectSerializer systemTextJsonSerializer = new(jsonSerializerOptions);
 
         public override T FromStream<T>(Stream stream)
         {
@@ -19,7 +19,7 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                 if (stream.CanSeek
                        && stream.Length == 0)
                 {
-                    return default;
+                    return default!;
                 }
 
                 if (typeof(Stream).IsAssignableFrom(typeof(T)))
@@ -27,13 +27,13 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
                     return (T)(object)stream;
                 }
 
-                return (T)this.systemTextJsonSerializer.Deserialize(stream, typeof(T), default);
+                return (T)this.systemTextJsonSerializer.Deserialize(stream, typeof(T), default)!;
             }
         }
 
         public override Stream ToStream<T>(T input)
         {
-            MemoryStream streamPayload = new MemoryStream();
+            MemoryStream streamPayload = new();
             this.systemTextJsonSerializer.Serialize(streamPayload, input, input.GetType(), default);
             streamPayload.Position = 0;
             return streamPayload;
@@ -41,13 +41,13 @@ namespace AspirePaymentGateway.Api.Storage.CosmosDb
 
         public override string SerializeMemberName(MemberInfo memberInfo)
         {
-            JsonExtensionDataAttribute jsonExtensionDataAttribute = memberInfo.GetCustomAttribute<JsonExtensionDataAttribute>(true);
+            JsonExtensionDataAttribute? jsonExtensionDataAttribute = memberInfo.GetCustomAttribute<JsonExtensionDataAttribute>(true);
             if (jsonExtensionDataAttribute != null)
             {
-                return null;
+                return null!;
             }
 
-            JsonPropertyNameAttribute jsonPropertyNameAttribute = memberInfo.GetCustomAttribute<JsonPropertyNameAttribute>(true);
+            JsonPropertyNameAttribute? jsonPropertyNameAttribute = memberInfo.GetCustomAttribute<JsonPropertyNameAttribute>(true);
             if (!string.IsNullOrEmpty(jsonPropertyNameAttribute?.Name))
             {
                 return jsonPropertyNameAttribute.Name;
