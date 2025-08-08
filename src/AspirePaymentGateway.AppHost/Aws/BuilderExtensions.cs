@@ -11,13 +11,8 @@ namespace AspirePaymentGateway.AppHost.Aws
             var awsConfig = builder.AddAWSSDKConfig().WithProfile("default");
 
             IResourceBuilder<ContainerResource> dynamoDb = builder.AddContainer("dynamodb", "instructure/dynamo-local-admin")
-                .WithHttpEndpoint(targetPort: 8000);
-
-            builder.Eventing.Subscribe<ResourceReadyEvent>(dynamoDb.Resource, async (_, cancellationToken) =>
-            {
-                var endpointUrl = dynamoDb.Resource.GetEndpoint("http").Url;
-                await CreatePaymentsTableAsync(endpointUrl, cancellationToken);
-            });
+                .WithHttpEndpoint(targetPort: 8000)
+                .OnResourceReady(async (db, evt, ct) => await CreatePaymentsTableAsync(db, ct));
 
             return (awsConfig, dynamoDb);
         }
@@ -31,9 +26,11 @@ namespace AspirePaymentGateway.AppHost.Aws
             return resource;
         }
 
-        private static async Task CreatePaymentsTableAsync(string serviceUrl, CancellationToken cancellationToken)
+        private static async Task CreatePaymentsTableAsync(ContainerResource db, CancellationToken cancellationToken)
         {
-            var ddbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig { ServiceURL = serviceUrl });
+            await Task.CompletedTask;
+
+            var ddbClient = new AmazonDynamoDBClient(new AmazonDynamoDBConfig { ServiceURL = db.GetEndpoint("http").Url });
 
             // Create the Accounts table.
             await ddbClient.CreateTableAsync(new CreateTableRequest
