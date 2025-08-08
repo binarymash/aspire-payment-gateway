@@ -26,7 +26,7 @@ Here's a description of each of the systen resources visible in the dashboard.
 - if using AZURE strategy: `cosmos-db` - an event store for the payment gateway.
 
 #### System Resources Endpoints
-- The published reaource endpoints for the API services bring up the OpenAPI specs for these services.
+- The published resource endpoints for the API services bring up the OpenAPI specs for these services.
 - For dynamo-db, cosmosdb and keycloak the published endpoints bring up an admin console.
 
 ### Submitting Payment Requests
